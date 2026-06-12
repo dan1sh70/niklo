@@ -1,0 +1,102 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - auth-service
+      - bus-service
+      - payment-service
+    expose:
+      - "80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+  auth-service:
+    build:
+      context: ./auth-service
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: auth-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_auth
+      DB_PASSWORD: niklo_auth_password
+      DB_NAME: niklo_auth
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+    depends_on:
+      - auth-db
+      - redis
+
+  bus-service:
+    build:
+      context: ./bus-service
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      DB_HOST: bus-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_bus
+      DB_PASSWORD: niklo_bus_password
+      DB_NAME: niklo_bus
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - bus-db
+
+  payment-service:
+    build:
+      context: ./payment-service
+    environment:
+      NODE_ENV: production
+      PORT: 3007
+      DB_HOST: payment-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_payment
+      DB_PASSWORD: niklo_payment_password
+      DB_NAME: niklo_payment
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-replace-me}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-replace-me}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-replace-me}
+    depends_on:
+      - payment-db
+
+  auth-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_auth
+      POSTGRES_USER: niklo_auth
+      POSTGRES_PASSWORD: niklo_auth_password
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+
+  bus-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_bus
+      POSTGRES_USER: niklo_bus
+      POSTGRES_PASSWORD: niklo_bus_password
+    volumes:
+      - bus-db-data:/var/lib/postgresql/data
+
+  payment-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_payment
+      POSTGRES_USER: niklo_payment
+      POSTGRES_PASSWORD: niklo_payment_password
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+
+volumes:
+  auth-db-data:
+  bus-db-data:
+  payment-db-data:
+  redis-data:
