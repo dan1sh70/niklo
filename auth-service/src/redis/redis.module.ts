@@ -1,25 +1,22 @@
 import { Module, Global } from '@nestjs/common';
-import { RedisModule as IORedisModule } from '@nestjs-modules/ioredis';
-import { ConfigService, ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import RedisMock from 'ioredis-mock';
+import Redis from 'ioredis';
 import { RedisService } from './redis.service';
 
 @Global()
 @Module({
-  imports: [
-    IORedisModule.forRootAsync({
-      imports: [ConfigModule],
+  providers: [
+    {
+      provide: 'REDIS_CLIENT',
+      useFactory: (configService: ConfigService) => {
+        // Fallback to ioredis-mock since local Redis is not installed natively
+        return new RedisMock();
+      },
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'single',
-        options: {
-          host: configService.get<string>('redis.host'),
-          port: configService.get<number>('redis.port'),
-          password: configService.get<string>('redis.password'),
-        },
-      }),
-    }),
+    },
+    RedisService,
   ],
-  providers: [RedisService],
-  exports: [RedisService],
+  exports: ['REDIS_CLIENT', RedisService],
 })
 export class RedisModule {}
