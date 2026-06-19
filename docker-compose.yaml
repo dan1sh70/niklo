@@ -10,6 +10,7 @@ services:
       - hotel-service
       - user-service
       - ride-service
+      - driver-service
     expose:
       - "80"
 
@@ -111,6 +112,21 @@ services:
     depends_on:
       - ride-db
 
+  driver-service:
+    build:
+      context: ./driver-service
+    environment:
+      NODE_ENV: production
+      PORT: 3011
+      DB_HOST: driver-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_driver
+      DB_PASSWORD: niklo_driver_password
+      DB_NAME: niklo_driver
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - driver-db
+
   auth-db:
     image: postgres:16-alpine
     environment:
@@ -165,6 +181,15 @@ services:
     volumes:
       - ride-db-data:/var/lib/postgresql/data
 
+  driver-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_driver
+      POSTGRES_USER: niklo_driver
+      POSTGRES_PASSWORD: niklo_driver_password
+    volumes:
+      - driver-db-data:/var/lib/postgresql/data
+
   redis:
     image: redis:7-alpine
     volumes:
@@ -177,4 +202,5 @@ volumes:
   hotel-db-data:
   user-db-data:
   ride-db-data:
+  driver-db-data:
   redis-data:
