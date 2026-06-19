@@ -1,0 +1,206 @@
+{
+  "info": {
+    "_postman_id": "4b638f22-6e17-4f6c-8a27-0c6a1e3b6e20",
+    "name": "Niklo_Hotel_Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Hotels",
+      "item": [
+        {
+          "name": "Popular Destinations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/popular-destinations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", "popular-destinations"]
+            }
+          }
+        },
+        {
+          "name": "Stay Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/stay-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", "stay-types"]
+            }
+          }
+        },
+        {
+          "name": "Trending Hotels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/trending?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", "trending"],
+              "query": [
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Active Promotions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/promotions/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", "promotions", "active"]
+            }
+          }
+        },
+        {
+          "name": "Popular Cities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/popular-cities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", "popular-cities"]
+            }
+          }
+        },
+        {
+          "name": "Search Hotels",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": \"Delhi\",\n  \"checkInDate\": \"2025-12-25\",\n  \"checkOutDate\": \"2025-12-26\",\n  \"rooms\": 1,\n  \"adults\": 2,\n  \"children\": 0,\n  \"childAges\": [],\n  \"isHourly\": false,\n  \"page\": 1,\n  \"limit\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", "search"]
+            }
+          }
+        },
+        {
+          "name": "Hotel Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/:hotelId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", ":hotelId"],
+              "variable": [
+                { "key": "hotelId", "value": "hotel_001" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hotel Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/reviews?sort=latest&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", ":hotelId", "reviews"],
+              "query": [
+                { "key": "sort", "value": "latest" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ],
+              "variable": [
+                { "key": "hotelId", "value": "hotel_001" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hotel Photos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/photos?page=1&limit=30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hotels", ":hotelId", "photos"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "30" }
+              ],
+              "variable": [
+                { "key": "hotelId", "value": "hotel_001" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Location",
+      "item": [
+        {
+          "name": "Autocomplete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/location/autocomplete?q=Del&type=hotel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "location", "autocomplete"],
+              "query": [
+                { "key": "q", "value": "Del" },
+                { "key": "type", "value": "hotel" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Hotel Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotelId\": \"hotel_001\",\n  \"roomTypeId\": \"room_triple_001\",\n  \"checkInDate\": \"2025-12-25\",\n  \"checkOutDate\": \"2025-12-26\",\n  \"rooms\": 1,\n  \"adults\": 2,\n  \"children\": 0,\n  \"childAges\": [],\n  \"isHourly\": false,\n  \"totalAmount\": 6500,\n  \"userId\": \"user_xyz\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bookings/hotel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "bookings", "hotel"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": { "type": "text/javascript", "exec": [""] }
+    },
+    {
+      "listen": "test",
+      "script": { "type": "text/javascript", "exec": [""] }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost", "type": "string" }
+  ]
+}

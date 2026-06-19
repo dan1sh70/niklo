@@ -7,6 +7,7 @@ services:
       - auth-service
       - bus-service
       - payment-service
+      - hotel-service
     expose:
       - "80"
 
@@ -63,6 +64,21 @@ services:
     depends_on:
       - payment-db
 
+  hotel-service:
+    build:
+      context: ./hotel-service
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      DB_HOST: hotel-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_hotel
+      DB_PASSWORD: niklo_hotel_password
+      DB_NAME: niklo_hotel
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - hotel-db
+
   auth-db:
     image: postgres:16-alpine
     environment:
@@ -90,6 +106,15 @@ services:
     volumes:
       - payment-db-data:/var/lib/postgresql/data
 
+  hotel-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_hotel
+      POSTGRES_USER: niklo_hotel
+      POSTGRES_PASSWORD: niklo_hotel_password
+    volumes:
+      - hotel-db-data:/var/lib/postgresql/data
+
   redis:
     image: redis:7-alpine
     volumes:
@@ -99,4 +124,5 @@ volumes:
   auth-db-data:
   bus-db-data:
   payment-db-data:
+  hotel-db-data:
   redis-data:
