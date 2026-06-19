@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Injectable, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(@Inject('REDIS_CLIENT') private readonly redis: Redis) {}
 
   async setSession(userId: string, token: string): Promise<void> {
     await this.redis.set(`session:${userId}`, token, 'EX', 86400); // 86400s = 24h
