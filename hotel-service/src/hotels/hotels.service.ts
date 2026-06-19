@@ -115,7 +115,7 @@ export class HotelsService {
   async getHotelDetails(hotelId: string) {
     const hotel = await this.hotelRepository.findOne({
       where: { id: hotelId },
-      relations: ['roomTypes', 'reviews'],
+      relations: { roomTypes: true, reviews: true },
     });
 
     if (!hotel) {
