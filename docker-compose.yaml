@@ -8,6 +8,8 @@ services:
       - bus-service
       - payment-service
       - hotel-service
+      - user-service
+      - ride-service
     expose:
       - "80"
 
@@ -79,6 +81,36 @@ services:
     depends_on:
       - hotel-db
 
+  user-service:
+    build:
+      context: ./user-service
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DB_HOST: user-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_user
+      DB_PASSWORD: niklo_user_password
+      DB_NAME: niklo_user
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - user-db
+
+  ride-service:
+    build:
+      context: ./ride-service
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      DB_HOST: ride-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_ride
+      DB_PASSWORD: niklo_ride_password
+      DB_NAME: niklo_ride
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - ride-db
+
   auth-db:
     image: postgres:16-alpine
     environment:
@@ -115,6 +147,24 @@ services:
     volumes:
       - hotel-db-data:/var/lib/postgresql/data
 
+  user-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_user
+      POSTGRES_USER: niklo_user
+      POSTGRES_PASSWORD: niklo_user_password
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+
+  ride-db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: niklo_ride
+      POSTGRES_USER: niklo_ride
+      POSTGRES_PASSWORD: niklo_ride_password
+    volumes:
+      - ride-db-data:/var/lib/postgresql/data
+
   redis:
     image: redis:7-alpine
     volumes:
@@ -125,4 +175,6 @@ volumes:
   bus-db-data:
   payment-db-data:
   hotel-db-data:
+  user-db-data:
+  ride-db-data:
   redis-data:
