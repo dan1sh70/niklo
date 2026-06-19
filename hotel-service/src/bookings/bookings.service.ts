@@ -11,13 +11,14 @@ export class BookingsService {
   ) {}
 
   async createBooking(bookingDto: any) {
-    const booking = this.bookingRepository.create({
+    const bookingData = {
       ...bookingDto,
       bookingId: `BKG${new Date().getFullYear()}${Math.floor(Math.random() * 10000)}`,
       status: 'pending_payment',
       currency: 'INR',
       paymentGatewayOrderId: `order_${Math.floor(Math.random() * 1000000)}`,
-    });
+    };
+    const booking = this.bookingRepository.create(bookingData as Partial<Booking>);
 
     await this.bookingRepository.save(booking);
 

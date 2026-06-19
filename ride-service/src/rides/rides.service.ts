@@ -22,17 +22,17 @@ export class RidesService {
   }
 
   async requestRide(requestDto: any) {
-    const ride = this.rideRepository.create({
+    const rideData = {
       ...requestDto,
       status: RideStatus.REQUESTED,
       passenger_id: '123e4567-e89b-12d3-a456-426614174000', // Mock UUID
-    });
+    };
+    const ride = this.rideRepository.create(rideData as Partial<Ride>);
 
-    await this.rideRepository.save(ride);
+    const savedRide = await this.rideRepository.save(ride);
 
-    // Mock driver matching trigger
     return {
-      rideId: ride.id,
+      rideId: savedRide.id,
       status: 'SEARCHING',
       message: 'Looking for nearby drivers...',
     };
@@ -74,18 +74,19 @@ export class RidesService {
   }
 
   async scheduleRide(scheduleDto: any) {
-    const ride = this.rideRepository.create({
+    const rideData = {
       ...scheduleDto,
       status: RideStatus.REQUESTED,
       passenger_id: '123e4567-e89b-12d3-a456-426614174000',
-    });
+    };
+    const ride = this.rideRepository.create(rideData as Partial<Ride>);
 
-    await this.rideRepository.save(ride);
+    const savedRide = await this.rideRepository.save(ride);
 
     return {
-      rideId: ride.id,
+      rideId: savedRide.id,
       message: 'Ride scheduled successfully',
-      scheduledAt: ride.scheduled_at,
+      scheduledAt: savedRide.scheduled_at,
     };
   }
 }
