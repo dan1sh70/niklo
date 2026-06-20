@@ -1,0 +1,125 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-1e9a-4c90-9c1a-2e3b4a5d6e7f",
+		"name": "Niklo Driver Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register Driver",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"uuid-here\",\n    \"licenseNumber\": \"DL-123456789\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/v1/driver/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"driver",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload KYC",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"driverId\": \"uuid-here\",\n    \"documentType\": \"LICENSE\",\n    \"documentUrl\": \"https://s3.url/doc\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/v1/driver/kyc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"driver",
+						"kyc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Earnings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/api/v1/driver/:id/earnings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"driver",
+						":id",
+						"earnings"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "uuid-here"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Payout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/api/v1/driver/:id/payout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"driver",
+						":id",
+						"payout"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "uuid-here"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

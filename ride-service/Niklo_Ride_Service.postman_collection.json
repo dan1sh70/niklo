@@ -1,0 +1,131 @@
+{
+	"info": {
+		"_postman_id": "b2c3d4e5-1e9a-4c90-9c1a-2e3b4a5d6e7f",
+		"name": "Niklo Ride Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Request Ride",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pickup\": {\"lat\": 12.9716, \"lng\": 77.5946},\n    \"dropoff\": {\"lat\": 12.9352, \"lng\": 77.6245},\n    \"vehicleType\": \"sedan\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/v1/ride/request",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ride",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accept Ride",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"driverId\": \"uuid-here\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/api/v1/ride/:id/accept",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ride",
+						":id",
+						"accept"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "uuid-here"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Ride Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/api/v1/ride/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ride",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "uuid-here"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Complete Ride",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/api/v1/ride/:id/complete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ride",
+						":id",
+						"complete"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "uuid-here"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
