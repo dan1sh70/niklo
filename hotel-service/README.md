@@ -44,3 +44,55 @@ docker-compose up --build -d
 ## API Documentation
 
 A Postman collection `Niklo_Hotel_Service.postman_collection.json` is provided in the repository to test all available endpoints.
+
+### Endpoints Collection
+
+#### Location API
+- `GET /api/v1/location/autocomplete` - Location autocomplete
+  - **Query Parameters:** `q` (string, required), `type` (string, optional)
+
+#### Hotels API
+- `GET /api/v1/hotels/popular-destinations` - Get popular destinations
+- `GET /api/v1/hotels/stay-types` - Get stay types
+- `GET /api/v1/hotels/trending` - Get trending hotels
+  - **Query Parameters:** `limit` (number, optional, default: 10)
+- `GET /api/v1/hotels/promotions/active` - Get active promotions
+- `GET /api/v1/hotels/popular-cities` - Get popular cities
+- `POST /api/v1/hotels/search` - Search hotels
+  - **Body (JSON):**
+    ```json
+    {
+      "location": "string (optional)",
+      "limit": "number (optional, default: 20)",
+      "page": "number (optional, default: 1)"
+    }
+    ```
+- `GET /api/v1/hotels/:hotelId` - Get hotel details by ID
+  - **Path Parameters:** `hotelId` (string, required)
+- `GET /api/v1/hotels/:hotelId/reviews` - Get hotel reviews
+  - **Path Parameters:** `hotelId` (string, required)
+  - **Query Parameters:** `sort` (string, optional), `page` (number, optional, default: 1), `limit` (number, optional, default: 20)
+- `GET /api/v1/hotels/:hotelId/photos` - Get hotel photos
+  - **Path Parameters:** `hotelId` (string, required)
+  - **Query Parameters:** `page` (number, optional, default: 1), `limit` (number, optional, default: 30)
+
+#### Bookings API
+- `POST /api/v1/bookings/hotel` - Create a hotel booking
+  - **Body (JSON):**
+    ```json
+    {
+      "hotelId": "string (required)",
+      "roomTypeId": "string (required)",
+      "checkInDate": "string (YYYY-MM-DD, required)",
+      "checkOutDate": "string (YYYY-MM-DD, required)",
+      "rooms": "number (required)",
+      "adults": "number (required)",
+      "children": "number (required)",
+      "childAges": "array of numbers (optional)",
+      "isHourly": "boolean (optional, default: false)",
+      "hourlyCheckInTime": "string (optional)",
+      "hourlyDurationHours": "number (optional)",
+      "totalAmount": "number (required)",
+      "userId": "string (required)"
+    }
+    ```
