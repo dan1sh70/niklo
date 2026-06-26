@@ -12,6 +12,8 @@ services:
       - ride-service
       - driver-service
       - package-service
+      - adventure-service
+      - notification-service
     expose:
       - "80"
 
@@ -143,6 +145,29 @@ services:
     depends_on:
       - package-db
 
+  adventure-service:
+    build:
+      context: ./adventure-service
+    environment:
+      NODE_ENV: production
+      PORT: 3013
+      DB_HOST: adventure-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_adventure
+      DB_PASSWORD: niklo_adventure_password
+      DB_NAME: niklo_adventure
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - adventure-db
+
+  notification-service:
+    build:
+      context: ./notification-service
+    environment:
+      NODE_ENV: production
+      PORT: 3009
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+
   auth-db:
     image: postgres:16-alpine
     environment:
@@ -215,6 +240,15 @@ services:
     volumes:
       - package-db-data:/var/lib/postgresql/data
 
+  adventure-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: niklo_adventure
+      POSTGRES_USER: niklo_adventure
+      POSTGRES_PASSWORD: niklo_adventure_password
+    volumes:
+      - adventure-db-data:/var/lib/postgresql/data
+
   redis:
     image: redis:7-alpine
     volumes:
@@ -229,4 +263,5 @@ volumes:
   ride-db-data:
   driver-db-data:
   package-db-data:
+  adventure-db-data:
   redis-data:

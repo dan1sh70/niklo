@@ -1,32 +1,29 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RidesModule } from './rides/rides.module';
-import { RedisModule } from './redis/redis.module';
-import { GatewaysModule } from './gateways/gateways.module';
-import databaseConfig from './config/database.config';
+import { AdventuresModule } from './adventures/adventures.module';
+import { databaseConfig } from './config/database.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [() => ({ database: databaseConfig() })],
     }),
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const dbConfig = configService.get('database');
+        const dbConfig = configService.get<TypeOrmModuleOptions>('database');
         if (!dbConfig) {
-          throw new Error('Database configuration not found');
+          throw new Error('Database configuration is missing');
         }
         return dbConfig;
       },
+      inject: [ConfigService],
     }),
-    RidesModule,
-    RedisModule,
-    GatewaysModule,
+    AdventuresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
