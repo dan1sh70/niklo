@@ -9,11 +9,33 @@ describe('DriversController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      onboard: jest.fn().mockImplementation((dto: OnboardDriverDto) => Promise.resolve({ id: '123', ...dto })),
-      uploadKyc: jest.fn().mockImplementation((dto: UploadKycDto) => Promise.resolve({ id: 'doc-123', ...dto })),
-      getKycStatus: jest.fn().mockImplementation((id: string) => Promise.resolve([{ id: 'doc-123', driver_id: id, status: 'pending' }])),
-      getEarnings: jest.fn().mockImplementation((id: string) => Promise.resolve([{ id: 'earn-123', driver_id: id, amount: 100 }])),
-      getPayouts: jest.fn().mockImplementation((id: string) => Promise.resolve([{ id: 'pay-123', driver_id: id, amount: 100 }])),
+      onboard: jest
+        .fn()
+        .mockImplementation((dto: OnboardDriverDto) =>
+          Promise.resolve({ id: '123', ...dto }),
+        ),
+      uploadKyc: jest
+        .fn()
+        .mockImplementation((dto: UploadKycDto) =>
+          Promise.resolve({ id: 'doc-123', ...dto }),
+        ),
+      getKycStatus: jest
+        .fn()
+        .mockImplementation((id: string) =>
+          Promise.resolve([
+            { id: 'doc-123', driver_id: id, status: 'pending' },
+          ]),
+        ),
+      getEarnings: jest
+        .fn()
+        .mockImplementation((id: string) =>
+          Promise.resolve([{ id: 'earn-123', driver_id: id, amount: 100 }]),
+        ),
+      getPayouts: jest
+        .fn()
+        .mockImplementation((id: string) =>
+          Promise.resolve([{ id: 'pay-123', driver_id: id, amount: 100 }]),
+        ),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +65,11 @@ describe('DriversController', () => {
   });
 
   it('should upload kyc', async () => {
-    const dto: UploadKycDto = { driver_id: '123', document_type: 'license', document_url: 'http://example.com/doc' };
+    const dto: UploadKycDto = {
+      driver_id: '123',
+      document_type: 'license',
+      document_url: 'http://example.com/doc',
+    };
     const result = await controller.uploadKyc(dto);
     expect(result.success).toBe(true);
     expect(result.data.id).toBe('doc-123');

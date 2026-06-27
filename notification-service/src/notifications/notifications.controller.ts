@@ -12,13 +12,17 @@ export class NotificationsController {
   }
 
   @Post('email')
-  async sendEmail(@Body() payload: { to: string; subject: string; body: string }) {
+  async sendEmail(
+    @Body() payload: { to: string; subject: string; body: string },
+  ) {
     const data = await this.notificationsService.sendEmail(payload);
     return { success: true, data };
   }
 
   @Post('push')
-  async sendPush(@Body() payload: { token: string; title: string; body: string }) {
+  async sendPush(
+    @Body() payload: { token: string; title: string; body: string },
+  ) {
     const data = await this.notificationsService.sendPush(payload);
     return { success: true, data };
   }

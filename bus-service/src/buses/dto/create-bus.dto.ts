@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsEnum, IsInt, IsOptional, IsObject, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsObject,
+  IsUUID,
+} from 'class-validator';
 import { BusType } from '../entities/bus.entity';
 
 export class CreateBusDto {

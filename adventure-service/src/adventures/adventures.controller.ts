@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { AdventuresService } from './adventures.service';
 import { CreateAdventureDto } from './dto/create-adventure.dto';
 import { UpdateAdventureDto } from './dto/update-adventure.dto';
@@ -26,7 +34,10 @@ export class AdventuresController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateAdventureDto: UpdateAdventureDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateAdventureDto: UpdateAdventureDto,
+  ) {
     const data = await this.adventuresService.update(id, updateAdventureDto);
     return { success: true, data };
   }

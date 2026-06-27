@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Route } from '../../routes/entities/route.entity';
 import { Bus } from '../../buses/entities/bus.entity';
 import { Operator } from '../../operators/entities/operator.entity';
@@ -32,7 +39,9 @@ export class Schedule {
   @Column({ type: 'uuid' })
   operator_id: string;
 
-  @ManyToOne(() => Operator, (operator) => operator.schedules, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Operator, (operator) => operator.schedules, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'operator_id' })
   operator: Operator;
 
@@ -51,7 +60,11 @@ export class Schedule {
   @Column({ type: 'int' })
   available_seats: number;
 
-  @Column({ type: 'enum', enum: ScheduleStatus, default: ScheduleStatus.SCHEDULED })
+  @Column({
+    type: 'enum',
+    enum: ScheduleStatus,
+    default: ScheduleStatus.SCHEDULED,
+  })
   status: ScheduleStatus;
 
   @CreateDateColumn({ type: 'timestamptz' })

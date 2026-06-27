@@ -95,8 +95,9 @@ export class HotelsService {
     const query = this.hotelRepository.createQueryBuilder('hotel');
 
     if (location) {
-      query.where('hotel.hotelName ILIKE :loc', { loc: `%${location}%` })
-           .orWhere('hotel.address ILIKE :loc', { loc: `%${location}%` });
+      query
+        .where('hotel.hotelName ILIKE :loc', { loc: `%${location}%` })
+        .orWhere('hotel.address ILIKE :loc', { loc: `%${location}%` });
     }
 
     const [hotels, totalResults] = await query
@@ -123,7 +124,7 @@ export class HotelsService {
     }
 
     const topReviews = hotel.reviews ? hotel.reviews.slice(0, 3) : [];
-    
+
     // Rating breakdown calculation mock
     const ratingBreakdown = {
       overall: hotel.ratingValue,
@@ -146,7 +147,12 @@ export class HotelsService {
     };
   }
 
-  async getHotelReviews(hotelId: string, sort: string, page: number, limit: number) {
+  async getHotelReviews(
+    hotelId: string,
+    sort: string,
+    page: number,
+    limit: number,
+  ) {
     const [reviews, totalReviews] = await this.reviewRepository.findAndCount({
       where: { hotel: { id: hotelId } },
       skip: (page - 1) * limit,
@@ -176,7 +182,9 @@ export class HotelsService {
   }
 
   async getHotelPhotos(hotelId: string, page: number, limit: number) {
-    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId } });
+    const hotel = await this.hotelRepository.findOne({
+      where: { id: hotelId },
+    });
     if (!hotel) {
       throw new NotFoundException(`Hotel with ID ${hotelId} was not found.`);
     }

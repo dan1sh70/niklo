@@ -19,7 +19,7 @@ export class UsersService {
       name: 'John Doe',
       avatar_url: 'https://cdn.niklo.com/avatars/default.png',
       kyc_status: KycStatus.VERIFIED,
-      wallet_balance: 1500.50,
+      wallet_balance: 1500.5,
       preferred_language: 'en',
     };
   }
@@ -41,7 +41,7 @@ export class UsersService {
   async getWallet(userId: string) {
     return {
       userId,
-      balance: 1500.50,
+      balance: 1500.5,
       currency: 'INR',
     };
   }

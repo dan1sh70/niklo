@@ -8,7 +8,9 @@ import { DriverEarning } from './entities/driver-earning.entity';
 import { DriverPayout } from './entities/driver-payout.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Driver, DriverKyc, DriverEarning, DriverPayout])],
+  imports: [
+    TypeOrmModule.forFeature([Driver, DriverKyc, DriverEarning, DriverPayout]),
+  ],
   controllers: [DriversController],
   providers: [DriversService],
 })

@@ -18,7 +18,9 @@ export class BookingsService {
       currency: 'INR',
       paymentGatewayOrderId: `order_${Math.floor(Math.random() * 1000000)}`,
     };
-    const booking = this.bookingRepository.create(bookingData as Partial<Booking>);
+    const booking = this.bookingRepository.create(
+      bookingData as Partial<Booking>,
+    );
 
     await this.bookingRepository.save(booking);
 

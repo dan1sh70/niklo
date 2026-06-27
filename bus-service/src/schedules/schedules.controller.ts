@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto, UpdateScheduleDto } from './dto/schedule.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -23,7 +35,10 @@ export class SchedulesController {
   }
 
   @Get()
-  async findAll(@Query('route_id') routeId?: string, @Query('date') date?: string) {
+  async findAll(
+    @Query('route_id') routeId?: string,
+    @Query('date') date?: string,
+  ) {
     return this.schedulesService.findAll(routeId, date);
   }
 

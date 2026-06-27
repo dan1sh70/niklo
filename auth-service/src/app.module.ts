@@ -18,12 +18,15 @@ import redisConfig from './config/redis.config';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => configService.getOrThrow('database'),
+      useFactory: (configService: ConfigService) =>
+        configService.getOrThrow('database'),
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100, // 100 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100, // 100 requests per minute
+      },
+    ]),
     RedisModule,
     AuthModule,
   ],

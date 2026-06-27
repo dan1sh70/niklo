@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { Operator } from '../../operators/entities/operator.entity';
 import { SeatLayout } from './seat-layout.entity';
 import { Schedule } from '../../schedules/entities/schedule.entity';
@@ -19,7 +27,9 @@ export class Bus {
   @Column({ type: 'uuid' })
   operator_id: string;
 
-  @ManyToOne(() => Operator, (operator) => operator.buses, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Operator, (operator) => operator.buses, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'operator_id' })
   operator: Operator;
 

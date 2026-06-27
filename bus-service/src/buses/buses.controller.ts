@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BusesService } from './buses.service';
 import { CreateBusDto } from './dto/create-bus.dto';
 import { UpdateBusDto } from './dto/update-bus.dto';
@@ -33,7 +42,10 @@ export class BusesController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/seats')
-  async bulkCreateSeats(@Param('id') id: string, @Body() dto: BulkCreateSeatsDto) {
+  async bulkCreateSeats(
+    @Param('id') id: string,
+    @Body() dto: BulkCreateSeatsDto,
+  ) {
     return this.busesService.bulkCreateSeats(id, dto);
   }
 

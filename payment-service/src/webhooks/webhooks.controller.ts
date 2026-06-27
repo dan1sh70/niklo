@@ -1,4 +1,12 @@
-import { Controller, Post, Req, Res, Headers, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Req,
+  Res,
+  Headers,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { PaymentsService } from '../payments/payments.service';
@@ -51,21 +59,24 @@ export class WebhooksController {
         orderId,
         PaymentStatus.COMPLETED,
         paymentId,
-        method
+        method,
       );
-      
+
       // If payment is for a wallet top-up (no booking_id), process the top-up
       if (payment && !payment.booking_id) {
-        await this.walletService.processTopUpSuccess(payment.user_id, payment.amount, paymentId);
+        await this.walletService.processTopUpSuccess(
+          payment.user_id,
+          payment.amount,
+          paymentId,
+        );
       }
-      
     } else if (event === 'payment.failed') {
       this.logger.log(`Payment failed for order ${orderId}`);
       await this.paymentsService.updatePaymentStatus(
         orderId,
         PaymentStatus.FAILED,
         paymentId,
-        method
+        method,
       );
     }
 

@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { BoardingPoint } from './boarding-point.entity';
 import { DroppingPoint } from './dropping-point.entity';
 import { Schedule } from '../../schedules/entities/schedule.entity';

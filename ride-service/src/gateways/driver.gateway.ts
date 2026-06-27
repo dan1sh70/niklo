@@ -32,26 +32,52 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('driver:go_online')
-  async handleGoOnline(@MessageBody() data: { driverId: string; lat: number; lng: number }, @ConnectedSocket() client: Socket) {
+  async handleGoOnline(
+    @MessageBody() data: { driverId: string; lat: number; lng: number },
+    @ConnectedSocket() client: Socket,
+  ) {
     client.join(data.driverId);
-    await this.redisService.setDriverLocation(data.driverId, data.lat, data.lng);
-    this.logger.log(`Driver ${data.driverId} is online at [${data.lat}, ${data.lng}]`);
+    await this.redisService.setDriverLocation(
+      data.driverId,
+      data.lat,
+      data.lng,
+    );
+    this.logger.log(
+      `Driver ${data.driverId} is online at [${data.lat}, ${data.lng}]`,
+    );
   }
 
   @SubscribeMessage('driver:location')
-  async handleLocationUpdate(@MessageBody() data: { driverId: string; lat: number; lng: number; bearing: number; speed: number }) {
-    await this.redisService.setDriverLocation(data.driverId, data.lat, data.lng);
+  async handleLocationUpdate(
+    @MessageBody()
+    data: {
+      driverId: string;
+      lat: number;
+      lng: number;
+      bearing: number;
+      speed: number;
+    },
+  ) {
+    await this.redisService.setDriverLocation(
+      data.driverId,
+      data.lat,
+      data.lng,
+    );
     // Publish location to redis so passenger gateway or ride-service can broadcast it
     await this.redisService.publish('driver_locations', JSON.stringify(data));
   }
 
   @SubscribeMessage('ride:accepted')
-  async handleRideAccepted(@MessageBody() data: { rideId: string; driverId: string }) {
+  async handleRideAccepted(
+    @MessageBody() data: { rideId: string; driverId: string },
+  ) {
     await this.ridesService.acceptRide(data.rideId, data.driverId);
   }
 
   @SubscribeMessage('ride:rejected')
-  async handleRideRejected(@MessageBody() data: { rideId: string; driverId: string }) {
+  async handleRideRejected(
+    @MessageBody() data: { rideId: string; driverId: string },
+  ) {
     await this.ridesService.rejectRide(data.rideId, data.driverId);
   }
 
@@ -61,8 +87,14 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('ride:end')
-  async handleRideEnd(@MessageBody() data: { rideId: string; finalLat: number; finalLng: number }) {
-    await this.ridesService.completeRide(data.rideId, data.finalLat, data.finalLng);
+  async handleRideEnd(
+    @MessageBody() data: { rideId: string; finalLat: number; finalLng: number },
+  ) {
+    await this.ridesService.completeRide(
+      data.rideId,
+      data.finalLat,
+      data.finalLng,
+    );
   }
 
   sendNewRequestToDriver(driverId: string, payload: any) {

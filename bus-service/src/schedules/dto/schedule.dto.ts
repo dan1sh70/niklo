@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, IsNumber, IsInt, IsUUID, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsInt,
+  IsUUID,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+} from 'class-validator';
 import { ScheduleStatus } from '../entities/schedule.entity';
 
 export class CreateScheduleDto {

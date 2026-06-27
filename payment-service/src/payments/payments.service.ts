@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PaymentStatus } from './entities/payment.entity';
@@ -24,7 +28,9 @@ export class PaymentsService {
 
   async createOrder(userId: string, dto: CreateOrderDto) {
     if (!this.razorpayInstance) {
-      throw new InternalServerErrorException('Razorpay credentials not configured');
+      throw new InternalServerErrorException(
+        'Razorpay credentials not configured',
+      );
     }
 
     // Amount should be in smallest currency unit (e.g. paise for INR)
@@ -57,7 +63,10 @@ export class PaymentsService {
         currency: order.currency,
       };
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create Razorpay order', error.message);
+      throw new InternalServerErrorException(
+        'Failed to create Razorpay order',
+        error.message,
+      );
     }
   }
 
@@ -67,8 +76,15 @@ export class PaymentsService {
     return payment;
   }
 
-  async updatePaymentStatus(orderId: string, status: PaymentStatus, paymentId?: string, method?: string) {
-    const payment = await this.paymentRepo.findOne({ where: { razorpay_order_id: orderId } });
+  async updatePaymentStatus(
+    orderId: string,
+    status: PaymentStatus,
+    paymentId?: string,
+    method?: string,
+  ) {
+    const payment = await this.paymentRepo.findOne({
+      where: { razorpay_order_id: orderId },
+    });
     if (payment) {
       payment.status = status;
       if (paymentId) payment.razorpay_payment_id = paymentId;

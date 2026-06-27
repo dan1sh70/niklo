@@ -12,7 +12,9 @@ import { RedisService } from '../redis/redis.service';
 import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/passenger', cors: true })
-export class PassengerGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class PassengerGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
   private readonly logger = new Logger(PassengerGateway.name);
@@ -28,7 +30,10 @@ export class PassengerGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   @SubscribeMessage('join:ride')
-  handleJoinRide(@MessageBody() data: { rideId: string }, @ConnectedSocket() client: Socket) {
+  handleJoinRide(
+    @MessageBody() data: { rideId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
     client.join(data.rideId);
     this.logger.log(`Client ${client.id} joined ride room: ${data.rideId}`);
   }

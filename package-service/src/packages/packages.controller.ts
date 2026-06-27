@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { PackagesService } from './packages.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
@@ -26,7 +34,10 @@ export class PackagesController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updatePackageDto: UpdatePackageDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updatePackageDto: UpdatePackageDto,
+  ) {
     const data = await this.packagesService.update(id, updatePackageDto);
     return { success: true, data };
   }

@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum RideType {
   MINI = 'MINI',
@@ -35,7 +41,7 @@ export class Ride {
   // Ideally this would be 'geometry' / 'Point', but we'll use varchar to simplify initial scaffolding
   // since postgis is an external dependency
   @Column({ type: 'varchar', nullable: true })
-  pickup_location: string; 
+  pickup_location: string;
 
   @Column({ type: 'varchar', nullable: true })
   drop_location: string;

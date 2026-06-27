@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -18,8 +22,11 @@ export class AuthService {
 
   async sendOtp(phone: string): Promise<{ success: boolean; message: string }> {
     // Generate 6-digit OTP
-    const otp = phone === '+919999999999' ? '123456' : Math.floor(100000 + Math.random() * 900000).toString();
-    
+    const otp =
+      phone === '+919999999999'
+        ? '123456'
+        : Math.floor(100000 + Math.random() * 900000).toString();
+
     // Save to Redis (5 mins expiry)
     await this.redisService.setOtp(phone, otp);
 
@@ -54,8 +61,10 @@ export class AuthService {
       const payload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
-      
-      const user = await this.userRepository.findOne({ where: { id: payload.sub } });
+
+      const user = await this.userRepository.findOne({
+        where: { id: payload.sub },
+      });
       if (!user) {
         throw new UnauthorizedException();
       }
@@ -79,15 +88,23 @@ export class AuthService {
 
   async socialLogin(provider: string, idToken: string): Promise<any> {
     // TODO: Verify idToken with Google/Apple/Facebook API
-    console.log(`[MOCK SOCIAL LOGIN] Verifying ${provider} idToken: ${idToken}`);
-    
+    console.log(
+      `[MOCK SOCIAL LOGIN] Verifying ${provider} idToken: ${idToken}`,
+    );
+
     // Mocking finding a user from social email
     const mockEmail = `mock_${provider}@example.com`;
-    let user = await this.userRepository.findOne({ where: { email: mockEmail } });
+    let user = await this.userRepository.findOne({
+      where: { email: mockEmail },
+    });
     if (!user) {
       // Mocking phone since it's required and unique. In reality, we'd ask for phone if not provided.
       const mockPhone = '+91000000000' + Math.floor(Math.random() * 10);
-      user = this.userRepository.create({ email: mockEmail, phone: mockPhone, name: 'Social User' });
+      user = this.userRepository.create({
+        email: mockEmail,
+        phone: mockPhone,
+        name: 'Social User',
+      });
       await this.userRepository.save(user);
     }
 
@@ -99,7 +116,9 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRES_IN') as any,
+      expiresIn: this.configService.getOrThrow<string>(
+        'JWT_REFRESH_EXPIRES_IN',
+      ) as any,
     });
 
     // Store session in Redis
@@ -115,8 +134,8 @@ export class AuthService {
           phone: user.phone,
           name: user.name,
           email: user.email,
-        }
-      }
+        },
+      },
     };
   }
 }

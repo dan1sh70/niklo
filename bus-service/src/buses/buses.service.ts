@@ -42,7 +42,10 @@ export class BusesService {
     return this.busRepo.save(bus);
   }
 
-  async bulkCreateSeats(busId: string, dto: BulkCreateSeatsDto): Promise<SeatLayout[]> {
+  async bulkCreateSeats(
+    busId: string,
+    dto: BulkCreateSeatsDto,
+  ): Promise<SeatLayout[]> {
     // Verify bus exists
     await this.findOne(busId);
 

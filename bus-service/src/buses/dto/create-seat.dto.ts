@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsEnum, IsInt, IsOptional, IsUUID, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsUUID,
+  IsBoolean,
+} from 'class-validator';
 import { Deck, SeatType } from '../entities/seat-layout.entity';
 import { Type } from 'class-transformer';
 import { ValidateNested, IsArray } from 'class-validator';

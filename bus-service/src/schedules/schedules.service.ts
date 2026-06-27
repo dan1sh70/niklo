@@ -25,7 +25,9 @@ export class SchedulesService {
       .leftJoinAndSelect('schedule.route', 'route')
       .leftJoinAndSelect('schedule.bus', 'bus')
       .leftJoinAndSelect('schedule.operator', 'operator')
-      .where('schedule.status != :cancelled', { cancelled: ScheduleStatus.CANCELLED });
+      .where('schedule.status != :cancelled', {
+        cancelled: ScheduleStatus.CANCELLED,
+      });
 
     if (routeId) {
       qb.andWhere('schedule.route_id = :routeId', { routeId });
@@ -66,7 +68,11 @@ export class SchedulesService {
     };
   }
 
-  async searchByRoute(source: string, destination: string, date: string): Promise<Schedule[]> {
+  async searchByRoute(
+    source: string,
+    destination: string,
+    date: string,
+  ): Promise<Schedule[]> {
     const qb = this.scheduleRepo
       .createQueryBuilder('schedule')
       .leftJoinAndSelect('schedule.route', 'route')

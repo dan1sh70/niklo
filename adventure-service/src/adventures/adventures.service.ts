@@ -1,42 +1,37 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TravelAdventure } from './entities/adventure.entity';
-import { CreateAdventureDto } from './dto/create-adventure.dto';
-import { UpdateAdventureDto } from './dto/update-adventure.dto';
+import { Adventure } from './entities/adventure.entity';
 
 @Injectable()
 export class AdventuresService {
   constructor(
-    @InjectRepository(TravelAdventure)
-    private readonly adventureRepo: Repository<TravelAdventure>,
+    @InjectRepository(Adventure)
+    private readonly adventureRepository: Repository<Adventure>,
   ) {}
 
-  async create(createAdventureDto: CreateAdventureDto) {
-    const newAdventure = this.adventureRepo.create(createAdventureDto);
-    return await this.adventureRepo.save(newAdventure);
+  async create(createAdventureDto: any) {
+    const adventure = this.adventureRepository.create(
+      createAdventureDto as Partial<Adventure>,
+    );
+    return await this.adventureRepository.save(adventure);
   }
 
   async findAll() {
-    return await this.adventureRepo.find();
+    return await this.adventureRepository.find();
   }
 
   async findOne(id: string) {
-    const travelAdventure = await this.adventureRepo.findOne({ where: { id } });
-    if (!travelAdventure) {
-      throw new NotFoundException(`Travel adventure with ID ${id} not found`);
-    }
-    return travelAdventure;
+    return await this.adventureRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateAdventureDto: UpdateAdventureDto) {
-    const travelAdventure = await this.findOne(id);
-    const updated = this.adventureRepo.merge(travelAdventure, updateAdventureDto);
-    return await this.adventureRepo.save(updated);
+  async update(id: string, updateAdventureDto: any) {
+    await this.adventureRepository.update(id, updateAdventureDto);
+    return this.findOne(id);
   }
 
   async remove(id: string) {
-    const travelAdventure = await this.findOne(id);
-    return await this.adventureRepo.remove(travelAdventure);
+    await this.adventureRepository.delete(id);
+    return { message: 'Adventure deleted successfully' };
   }
 }

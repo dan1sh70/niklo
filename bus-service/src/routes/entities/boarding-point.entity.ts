@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Route } from './route.entity';
 
 @Entity('boarding_points')
@@ -9,7 +15,9 @@ export class BoardingPoint {
   @Column({ type: 'uuid' })
   route_id: string;
 
-  @ManyToOne(() => Route, (route) => route.boarding_points, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Route, (route) => route.boarding_points, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'route_id' })
   route: Route;
 

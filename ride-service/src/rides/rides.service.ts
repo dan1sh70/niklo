@@ -18,7 +18,7 @@ export class RidesService {
     const { pickup, drop, rideType } = estimateDto;
     // Mock surge and fare calculation
     return {
-      fareEstimate: 250.00,
+      fareEstimate: 250.0,
       surgeMultiplier: 1.2,
       distanceKm: 12.5,
       estimatedTimeMins: 45,
@@ -35,7 +35,11 @@ export class RidesService {
     const savedRide = await this.rideRepository.save(ride);
 
     // Trigger Matching Algorithm asynchronously
-    this.matchDriver(savedRide.id, requestDto.pickupLat, requestDto.pickupLng).catch(err => {
+    this.matchDriver(
+      savedRide.id,
+      requestDto.pickupLat,
+      requestDto.pickupLng,
+    ).catch((err) => {
       this.logger.error(`Matching failed for ride ${savedRide.id}`, err);
     });
 
@@ -51,23 +55,32 @@ export class RidesService {
     let matched = false;
 
     for (let attempts = 0; attempts < 3 && !matched; attempts++) {
-      const drivers = await this.redisService.getNearbyDrivers(lat, lng, radius);
-      
+      const drivers = await this.redisService.getNearbyDrivers(
+        lat,
+        lng,
+        radius,
+      );
+
       if (drivers && drivers.length > 0) {
         // Here we would filter by vehicle type and acceptance rate
         // We take the first available driver for simplicity in this implementation
         const driverId = drivers[0];
-        
+
         // Emit new request to driver via Redis PubSub (which DriverGateway could listen to)
         // Or directly if we had a Bull queue
-        await this.redisService.publish('ride:new_request_queue', JSON.stringify({ rideId, driverId, timeout: 30 }));
-        
-        this.logger.log(`Matched driver ${driverId} for ride ${rideId} at radius ${radius}km`);
+        await this.redisService.publish(
+          'ride:new_request_queue',
+          JSON.stringify({ rideId, driverId, timeout: 30 }),
+        );
+
+        this.logger.log(
+          `Matched driver ${driverId} for ride ${rideId} at radius ${radius}km`,
+        );
         matched = true;
       } else {
         radius = 10; // Expand radius to 10km after failure
         // Wait before retry (mocked here, should use delay)
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
 
@@ -86,7 +99,9 @@ export class RidesService {
     return {
       rideId: ride.id,
       status: ride.status,
-      driverDetails: ride.driver_id ? { id: ride.driver_id, name: 'Driver Info' } : null,
+      driverDetails: ride.driver_id
+        ? { id: ride.driver_id, name: 'Driver Info' }
+        : null,
     };
   }
 
@@ -100,7 +115,10 @@ export class RidesService {
     await this.rideRepository.save(ride);
 
     // Notify passenger via socket
-    await this.redisService.publish('ride:status_update', JSON.stringify({ rideId: id, status: RideStatus.CANCELLED }));
+    await this.redisService.publish(
+      'ride:status_update',
+      JSON.stringify({ rideId: id, status: RideStatus.CANCELLED }),
+    );
 
     return {
       message: 'Ride cancelled successfully',
@@ -141,7 +159,10 @@ export class RidesService {
       await this.rideRepository.save(ride);
 
       // Notify passenger
-      await this.redisService.publish('ride:status_update', JSON.stringify({ rideId, status: RideStatus.ACCEPTED }));
+      await this.redisService.publish(
+        'ride:status_update',
+        JSON.stringify({ rideId, status: RideStatus.ACCEPTED }),
+      );
       this.logger.log(`Ride ${rideId} accepted by driver ${driverId}`);
     }
   }
@@ -159,7 +180,10 @@ export class RidesService {
         ride.started_at = new Date();
       }
       await this.rideRepository.save(ride);
-      await this.redisService.publish('ride:status_update', JSON.stringify({ rideId, status }));
+      await this.redisService.publish(
+        'ride:status_update',
+        JSON.stringify({ rideId, status }),
+      );
     }
   }
 
@@ -170,7 +194,10 @@ export class RidesService {
       ride.ended_at = new Date();
       ride.fare_final = ride.fare_estimate; // Or recalculate based on time/distance
       await this.rideRepository.save(ride);
-      await this.redisService.publish('ride:status_update', JSON.stringify({ rideId, status: RideStatus.COMPLETED }));
+      await this.redisService.publish(
+        'ride:status_update',
+        JSON.stringify({ rideId, status: RideStatus.COMPLETED }),
+      );
     }
   }
 }

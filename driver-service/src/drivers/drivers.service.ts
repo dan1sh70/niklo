@@ -26,7 +26,9 @@ export class DriversService {
   }
 
   async uploadKyc(dto: UploadKycDto) {
-    const driver = await this.driverRepo.findOne({ where: { id: dto.driver_id } });
+    const driver = await this.driverRepo.findOne({
+      where: { id: dto.driver_id },
+    });
     if (!driver) {
       throw new NotFoundException('Driver not found');
     }
@@ -40,10 +42,16 @@ export class DriversService {
 
   async getEarnings(driverId: string) {
     // Basic implementation: fetch all earnings
-    return await this.earningRepo.find({ where: { driver_id: driverId }, order: { created_at: 'DESC' } });
+    return await this.earningRepo.find({
+      where: { driver_id: driverId },
+      order: { created_at: 'DESC' },
+    });
   }
 
   async getPayouts(driverId: string) {
-    return await this.payoutRepo.find({ where: { driver_id: driverId }, order: { scheduled_for: 'DESC' } });
+    return await this.payoutRepo.find({
+      where: { driver_id: driverId },
+      order: { scheduled_for: 'DESC' },
+    });
   }
 }

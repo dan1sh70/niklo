@@ -1,4 +1,9 @@
-import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+  Logger,
+} from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -13,8 +18,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.client = new Redis({ host, port });
     this.subscriber = new Redis({ host, port });
 
-    this.client.on('error', (err) => this.logger.error('Redis Client Error', err));
-    this.subscriber.on('error', (err) => this.logger.error('Redis Subscriber Error', err));
+    this.client.on('error', (err) =>
+      this.logger.error('Redis Client Error', err),
+    );
+    this.subscriber.on('error', (err) =>
+      this.logger.error('Redis Subscriber Error', err),
+    );
   }
 
   onModuleDestroy() {
@@ -32,14 +41,31 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async setDriverLocation(driverId: string, lat: number, lng: number) {
     // Expiry in 30s as per specs: driver:loc:{driverId} 30s
-    await this.client.setex(`driver:loc:${driverId}`, 30, JSON.stringify({ lat, lng }));
+    await this.client.setex(
+      `driver:loc:${driverId}`,
+      30,
+      JSON.stringify({ lat, lng }),
+    );
     // Add to Geo set for matching pool
     await this.client.geoadd('drivers:online', lng, lat, driverId);
   }
 
-  async getNearbyDrivers(lat: number, lng: number, radiusKm: number): Promise<string[]> {
+  async getNearbyDrivers(
+    lat: number,
+    lng: number,
+    radiusKm: number,
+  ): Promise<string[]> {
     // returns array of driverIds
-    const results = await this.client.geosearch('drivers:online', 'FROMLONLAT', lng, lat, 'BYRADIUS', radiusKm, 'km', 'ASC');
+    const results = await this.client.geosearch(
+      'drivers:online',
+      'FROMLONLAT',
+      lng,
+      lat,
+      'BYRADIUS',
+      radiusKm,
+      'km',
+      'ASC',
+    );
     return results as string[];
   }
 

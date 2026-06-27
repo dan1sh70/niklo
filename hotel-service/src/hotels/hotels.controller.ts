@@ -17,7 +17,9 @@ export class HotelsController {
 
   @Get('trending')
   getTrendingHotels(@Query('limit') limit: string) {
-    return this.hotelsService.getTrendingHotels(limit ? parseInt(limit, 10) : 10);
+    return this.hotelsService.getTrendingHotels(
+      limit ? parseInt(limit, 10) : 10,
+    );
   }
 
   @Get('promotions/active')
@@ -47,7 +49,12 @@ export class HotelsController {
     @Query('page') page: string,
     @Query('limit') limit: string,
   ) {
-    return this.hotelsService.getHotelReviews(hotelId, sort, page ? parseInt(page, 10) : 1, limit ? parseInt(limit, 10) : 20);
+    return this.hotelsService.getHotelReviews(
+      hotelId,
+      sort,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 20,
+    );
   }
 
   @Get(':hotelId/photos')
@@ -56,6 +63,10 @@ export class HotelsController {
     @Query('page') page: string,
     @Query('limit') limit: string,
   ) {
-    return this.hotelsService.getHotelPhotos(hotelId, page ? parseInt(page, 10) : 1, limit ? parseInt(limit, 10) : 30);
+    return this.hotelsService.getHotelPhotos(
+      hotelId,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 30,
+    );
   }
 }

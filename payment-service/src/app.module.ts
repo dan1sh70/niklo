@@ -27,10 +27,12 @@ import razorpayConfig from './config/razorpay.config';
         ...configService.get('database'),
       }),
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
