@@ -17,8 +17,6 @@ services:
       - admin-service
     expose:
       - "80"
-    ports:
-      - "80:80"
 
   auth-service:
     build:
@@ -177,11 +175,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3020
-      WORKSPACE_PATH: /workspace
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
-    volumes:
-      - .:/workspace:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - auth-db
       - bus-db
