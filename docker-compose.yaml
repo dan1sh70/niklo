@@ -14,8 +14,11 @@ services:
       - package-service
       - adventure-service
       - notification-service
+      - admin-service
     expose:
       - "80"
+    ports:
+      - "80:80"
 
   auth-service:
     build:
@@ -167,6 +170,29 @@ services:
       NODE_ENV: production
       PORT: 3009
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+
+  admin-service:
+    build:
+      context: ./admin-service
+    environment:
+      NODE_ENV: production
+      PORT: 3020
+      WORKSPACE_PATH: /workspace
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    volumes:
+      - .:/workspace:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - auth-db
+      - bus-db
+      - payment-db
+      - hotel-db
+      - user-db
+      - ride-db
+      - driver-db
+      - package-db
+      - adventure-db
+      - redis
 
   auth-db:
     image: postgres:16-alpine
