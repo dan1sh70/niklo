@@ -8,6 +8,7 @@ CREATE USER niklo_ride WITH PASSWORD 'niklo_ride_password';
 CREATE USER niklo_driver WITH PASSWORD 'niklo_driver_password';
 CREATE USER niklo_package WITH PASSWORD 'niklo_package_password';
 CREATE USER niklo_adventure WITH PASSWORD 'niklo_adventure_password';
+CREATE USER niklo_notification WITH PASSWORD 'niklo_notification_password';
 
 -- Create databases with owner privileges
 CREATE DATABASE niklo_auth OWNER niklo_auth;
@@ -19,6 +20,7 @@ CREATE DATABASE niklo_ride OWNER niklo_ride;
 CREATE DATABASE niklo_driver OWNER niklo_driver;
 CREATE DATABASE niklo_package OWNER niklo_package;
 CREATE DATABASE niklo_adventure OWNER niklo_adventure;
+CREATE DATABASE niklo_notification OWNER niklo_notification;
 
 -- Enable core extensions on databases
 \c niklo_auth;
@@ -55,5 +57,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 \c niklo_adventure;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+\c niklo_notification;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";

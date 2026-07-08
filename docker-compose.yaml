@@ -27,6 +27,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_auth
+      DB_USER: niklo_auth
       DB_PASSWORD: niklo_auth_password
       DB_NAME: niklo_auth
       REDIS_HOST: redis
@@ -47,6 +48,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_bus
+      DB_USER: niklo_bus
       DB_PASSWORD: niklo_bus_password
       DB_NAME: niklo_bus
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -62,6 +64,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_payment
+      DB_USER: niklo_payment
       DB_PASSWORD: niklo_payment_password
       DB_NAME: niklo_payment
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -80,6 +83,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_hotel
+      DB_USER: niklo_hotel
       DB_PASSWORD: niklo_hotel_password
       DB_NAME: niklo_hotel
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -95,6 +99,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_user
+      DB_USER: niklo_user
       DB_PASSWORD: niklo_user_password
       DB_NAME: niklo_user
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -110,6 +115,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_ride
+      DB_USER: niklo_ride
       DB_PASSWORD: niklo_ride_password
       DB_NAME: niklo_ride
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -125,6 +131,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_driver
+      DB_USER: niklo_driver
       DB_PASSWORD: niklo_driver_password
       DB_NAME: niklo_driver
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -140,6 +147,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_package
+      DB_USER: niklo_package
       DB_PASSWORD: niklo_package_password
       DB_NAME: niklo_package
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -155,6 +163,7 @@ services:
       DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_adventure
+      DB_USER: niklo_adventure
       DB_PASSWORD: niklo_adventure_password
       DB_NAME: niklo_adventure
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
@@ -167,7 +176,15 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3009
+      DB_HOST: postgres-db
+      DB_PORT: 5432
+      DB_USERNAME: niklo_notification
+      DB_USER: niklo_notification
+      DB_PASSWORD: niklo_notification_password
+      DB_NAME: niklo_notification
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - postgres-db
 
   admin-service:
     build:
