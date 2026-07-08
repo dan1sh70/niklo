@@ -24,7 +24,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      DB_HOST: auth-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_auth
       DB_PASSWORD: niklo_auth_password
@@ -35,7 +35,7 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
     depends_on:
-      - auth-db
+      - postgres-db
       - redis
 
   bus-service:
@@ -44,14 +44,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3003
-      DB_HOST: bus-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_bus
       DB_PASSWORD: niklo_bus_password
       DB_NAME: niklo_bus
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - bus-db
+      - postgres-db
 
   payment-service:
     build:
@@ -59,7 +59,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3007
-      DB_HOST: payment-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_payment
       DB_PASSWORD: niklo_payment_password
@@ -69,7 +69,7 @@ services:
       RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-replace-me}
       RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-replace-me}
     depends_on:
-      - payment-db
+      - postgres-db
 
   hotel-service:
     build:
@@ -77,14 +77,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3004
-      DB_HOST: hotel-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_hotel
       DB_PASSWORD: niklo_hotel_password
       DB_NAME: niklo_hotel
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - hotel-db
+      - postgres-db
 
   user-service:
     build:
@@ -92,14 +92,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3002
-      DB_HOST: user-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_user
       DB_PASSWORD: niklo_user_password
       DB_NAME: niklo_user
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - user-db
+      - postgres-db
 
   ride-service:
     build:
@@ -107,14 +107,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3005
-      DB_HOST: ride-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_ride
       DB_PASSWORD: niklo_ride_password
       DB_NAME: niklo_ride
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - ride-db
+      - postgres-db
 
   driver-service:
     build:
@@ -122,14 +122,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3011
-      DB_HOST: driver-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_driver
       DB_PASSWORD: niklo_driver_password
       DB_NAME: niklo_driver
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - driver-db
+      - postgres-db
 
   package-service:
     build:
@@ -137,14 +137,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3012
-      DB_HOST: package-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_package
       DB_PASSWORD: niklo_package_password
       DB_NAME: niklo_package
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - package-db
+      - postgres-db
 
   adventure-service:
     build:
@@ -152,14 +152,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3013
-      DB_HOST: adventure-db
+      DB_HOST: postgres-db
       DB_PORT: 5432
       DB_USERNAME: niklo_adventure
       DB_PASSWORD: niklo_adventure_password
       DB_NAME: niklo_adventure
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - adventure-db
+      - postgres-db
 
   notification-service:
     build:
@@ -177,97 +177,18 @@ services:
       PORT: 3020
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
-      - auth-db
-      - bus-db
-      - payment-db
-      - hotel-db
-      - user-db
-      - ride-db
-      - driver-db
-      - package-db
-      - adventure-db
+      - postgres-db
       - redis
 
-  auth-db:
-    image: postgres:16-alpine
+  postgres-db:
+    build:
+      context: ./postgres-db
     environment:
-      POSTGRES_DB: niklo_auth
-      POSTGRES_USER: niklo_auth
-      POSTGRES_PASSWORD: niklo_auth_password
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: niklo_postgres_password
     volumes:
-      - auth-db-data:/var/lib/postgresql/data
-
-  bus-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_bus
-      POSTGRES_USER: niklo_bus
-      POSTGRES_PASSWORD: niklo_bus_password
-    volumes:
-      - bus-db-data:/var/lib/postgresql/data
-
-  payment-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_payment
-      POSTGRES_USER: niklo_payment
-      POSTGRES_PASSWORD: niklo_payment_password
-    volumes:
-      - payment-db-data:/var/lib/postgresql/data
-
-  hotel-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_hotel
-      POSTGRES_USER: niklo_hotel
-      POSTGRES_PASSWORD: niklo_hotel_password
-    volumes:
-      - hotel-db-data:/var/lib/postgresql/data
-
-  user-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_user
-      POSTGRES_USER: niklo_user
-      POSTGRES_PASSWORD: niklo_user_password
-    volumes:
-      - user-db-data:/var/lib/postgresql/data
-
-  ride-db:
-    image: postgis/postgis:16-3.4
-    environment:
-      POSTGRES_DB: niklo_ride
-      POSTGRES_USER: niklo_ride
-      POSTGRES_PASSWORD: niklo_ride_password
-    volumes:
-      - ride-db-data:/var/lib/postgresql/data
-
-  driver-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_driver
-      POSTGRES_USER: niklo_driver
-      POSTGRES_PASSWORD: niklo_driver_password
-    volumes:
-      - driver-db-data:/var/lib/postgresql/data
-
-  package-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_package
-      POSTGRES_USER: niklo_package
-      POSTGRES_PASSWORD: niklo_package_password
-    volumes:
-      - package-db-data:/var/lib/postgresql/data
-
-  adventure-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: niklo_adventure
-      POSTGRES_USER: niklo_adventure
-      POSTGRES_PASSWORD: niklo_adventure_password
-    volumes:
-      - adventure-db-data:/var/lib/postgresql/data
+      - postgres-db-data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -275,13 +196,5 @@ services:
       - redis-data:/data
 
 volumes:
-  auth-db-data:
-  bus-db-data:
-  payment-db-data:
-  hotel-db-data:
-  user-db-data:
-  ride-db-data:
-  driver-db-data:
-  package-db-data:
-  adventure-db-data:
+  postgres-db-data:
   redis-data:
