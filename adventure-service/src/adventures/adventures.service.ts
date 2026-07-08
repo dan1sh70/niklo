@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Adventure } from './entities/adventure.entity';
+import { TravelAdventure } from './entities/adventure.entity';
 
 @Injectable()
 export class AdventuresService {
   constructor(
-    @InjectRepository(Adventure)
-    private readonly adventureRepository: Repository<Adventure>,
+    @InjectRepository(TravelAdventure)
+    private readonly adventureRepository: Repository<TravelAdventure>,
   ) {}
 
   async create(createAdventureDto: any) {
     const adventure = this.adventureRepository.create(
-      createAdventureDto as Partial<Adventure>,
+      createAdventureDto as Partial<TravelAdventure>,
     );
     return await this.adventureRepository.save(adventure);
   }
