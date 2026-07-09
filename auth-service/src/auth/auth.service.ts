@@ -37,27 +37,34 @@ export class AuthService {
   }
 
   async verifyOtp(phone: string, otp: string): Promise<any> {
-    const isTestCredentials = phone === '+919999999999' && otp === '123456';
+    try {
+      const isTestCredentials = phone === '+919999999999' && otp === '123456';
 
-    if (!isTestCredentials) {
-      const storedOtp = await this.redisService.getOtp(phone);
+      if (!isTestCredentials) {
+        const storedOtp = await this.redisService.getOtp(phone);
 
-      if (!storedOtp || storedOtp !== otp) {
-        throw new BadRequestException('Invalid or expired OTP');
+        if (!storedOtp || storedOtp !== otp) {
+          throw new BadRequestException('Invalid or expired OTP');
+        }
+
+        // OTP matched, delete it
+        await this.redisService.deleteOtp(phone);
       }
 
-      // OTP matched, delete it
-      await this.redisService.deleteOtp(phone);
-    }
+      // Find or create user
+      let user = await this.userRepository.findOne({ where: { phone } });
+      if (!user) {
+        user = this.userRepository.create({ phone });
+        await this.userRepository.save(user);
+      }
 
-    // Find or create user
-    let user = await this.userRepository.findOne({ where: { phone } });
-    if (!user) {
-      user = this.userRepository.create({ phone });
-      await this.userRepository.save(user);
+      return this.generateTokens(user);
+    } catch (error) {
+      console.error('[ERROR in verifyOtp]:', error);
+      throw new BadRequestException(
+        `Verification failed: ${error.message || error}`,
+      );
     }
-
-    return this.generateTokens(user);
   }
 
   async refreshTokens(refreshToken: string): Promise<any> {

@@ -8,5 +8,5 @@ export default registerAs('database', () => ({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'niklo_auth',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: process.env.NODE_ENV === 'development', // Use migrations in production
+  synchronize: process.env.DB_SYNCHRONIZE !== 'false', // Default to true since there are no migrations
 }));
