@@ -16,7 +16,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT || 3007);
+  await app.listen(process.env.PORT || 3007, '0.0.0.0');
   console.log(`💳 Payment Service running on port ${process.env.PORT || 3007}`);
 }
 bootstrap();

@@ -16,7 +16,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT || 3003);
+  await app.listen(process.env.PORT || 3003, '0.0.0.0');
   console.log(`🚌 Bus Service running on port ${process.env.PORT || 3003}`);
 }
 bootstrap();

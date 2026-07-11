@@ -75,7 +75,7 @@ export class AppModule implements OnApplicationBootstrap {
     if (count === 0) {
       // 1. Seed Operator
       const op = await operatorRepo.save({
-        id: 'op111111-1111-1111-1111-111111111111',
+        id: '11111111-1111-1111-1111-111111111111',
         name: 'National Travels',
         logo_url: 'https://cdn.niklo.com/operators/national.png',
         contact_phone: '+919999988888',
@@ -86,7 +86,7 @@ export class AppModule implements OnApplicationBootstrap {
 
       // 2. Seed Bus
       const bus = await busRepo.save({
-        id: 'bs111111-1111-1111-1111-111111111111',
+        id: '11111111-1111-1111-1111-111111111112',
         operator_id: op.id,
         registration_number: 'KA-01-F-1234',
         bus_type: 'AC_SLEEPER' as any,
@@ -114,7 +114,7 @@ export class AppModule implements OnApplicationBootstrap {
 
       // 4. Seed Route
       const route = await routeRepo.save({
-        id: 'rt222222-2222-2222-2222-222222222222',
+        id: '22222222-2222-2222-2222-222222222222',
         source_city: 'Bangalore',
         destination_city: 'Chennai',
         distance_km: 350.00,
@@ -132,7 +132,7 @@ export class AppModule implements OnApplicationBootstrap {
 
       // 5. Seed Schedule
       await scheduleRepo.save({
-        id: 'sc111111-1111-1111-1111-111111111111',
+        id: '11111111-1111-1111-1111-111111111113',
         route_id: route.id,
         bus_id: bus.id,
         operator_id: op.id,
