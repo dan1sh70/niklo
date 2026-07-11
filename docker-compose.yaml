@@ -211,10 +211,10 @@ services:
       PORT: 3014
       DB_HOST: postgres-db
       DB_PORT: 5432
-      DB_USERNAME: niklo_booking
-      DB_USER: niklo_booking
-      DB_PASSWORD: niklo_booking_password
-      DB_NAME: niklo_booking
+      DB_USERNAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: niklo_postgres_password
+      DB_NAME: postgres
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
       REDIS_HOST: redis
       REDIS_PORT: 6379
