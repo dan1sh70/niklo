@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -49,15 +50,19 @@ export class BookingsService {
   }
 
   async createBooking(userId: string, dto: any) {
-    const booking = this.bookingRepo.create({
-      user_id: userId,
-      ...dto,
-      status: BookingStatus.PENDING,
-    } as Partial<Booking>);
-    (booking as Booking).qr_code = Buffer.from(
-      `TICKET-${Date.now()}-${userId}`,
-    ).toString('base64');
-    return this.bookingRepo.save(booking as Booking);
+    try {
+      const booking = this.bookingRepo.create({
+        user_id: userId,
+        ...dto,
+        status: BookingStatus.PENDING,
+      } as Partial<Booking>);
+      (booking as Booking).qr_code = Buffer.from(
+        `TICKET-${Date.now()}-${userId}`,
+      ).toString('base64');
+      return await this.bookingRepo.save(booking as Booking);
+    } catch (error: any) {
+      throw new InternalServerErrorException(error.message || 'Database error occurred');
+    }
   }
 
   async getBookingDetails(id: string, userId: string) {
