@@ -8,12 +8,28 @@ import * as fs from 'fs';
 import { discoverProject, watchProjectChanges } from './discovery';
 import { dbManager } from './db';
 import { listContainers, containerAction, streamLogs, getContainerStats } from './docker';
+import { generateUnifiedOpenApiSpec } from './swagger';
 
 const app = express();
 const port = process.env.PORT || 3020;
 
 app.use(cors());
 app.use(express.json());
+
+const workspacePath = process.env.WORKSPACE_PATH || path.resolve(__dirname, '../../');
+
+app.get('/api/v1/admin/swagger-spec', (req: Request, res: Response) => {
+  try {
+    const spec = generateUnifiedOpenApiSpec(workspacePath);
+    res.json(spec);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get(['/swagger', '/swagger/'], (req: Request, res: Response) => {
+  res.sendFile(path.join(publicDir, 'swagger.html'));
+});
 
 // Serve static frontend files from 'public' directory
 const publicDir = path.join(__dirname, 'public');

@@ -1,103 +1,103 @@
 {
-	"info": {
-		"_postman_id": "c3d4e5f6-1e9a-4c90-9c1a-2e3b4a5d6e7f",
-		"name": "Niklo User Service",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Get Profile",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer YOUR_TOKEN"
-					}
-				],
-				"url": {
-					"raw": "http://localhost/api/v1/user/profile",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"path": [
-						"api",
-						"v1",
-						"user",
-						"profile"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update Profile",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer YOUR_TOKEN"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\"\n}"
-				},
-				"url": {
-					"raw": "http://localhost/api/v1/user/profile",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"path": [
-						"api",
-						"v1",
-						"user",
-						"profile"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add Location",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer YOUR_TOKEN"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\": \"Home\",\n    \"address\": \"123 Main St\",\n    \"lat\": 12.9716,\n    \"lng\": 77.5946\n}"
-				},
-				"url": {
-					"raw": "http://localhost/api/v1/user/locations",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"path": [
-						"api",
-						"v1",
-						"user",
-						"locations"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "c3d4e5f6-1e9a-4c90-9c1a-2e3b4a5d6e7f",
+    "name": "Niklo User Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost/api/v1/user/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost/api/v1/user/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Location",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Home\",\n    \"address\": \"123 Main St\",\n    \"lat\": 12.9716,\n    \"lng\": 77.5946\n}"
+        },
+        "url": {
+          "raw": "http://localhost/api/v1/user/locations",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "locations"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }

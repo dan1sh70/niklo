@@ -1,77 +1,210 @@
 {
-	"info": {
-		"_postman_id": "c3d4e5f6-a789-0123-4567-89abcdef0123",
-		"name": "Niklo Payment Service",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Payments",
-			"item": [
-				{
-					"name": "Create Order",
-					"request": {
-						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
-						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\n    \"amount\": 500,\n    \"currency\": \"INR\",\n    \"booking_id\": \"b1c2d3e4-f5a6-7890-1234-56789abcdef0\"\n}" },
-						"url": { "raw": "{{baseUrl}}/api/v1/payment/orders", "host": ["{{baseUrl}}"], "path": ["api","v1","payment","orders"] }
-					}
-				},
-				{
-					"name": "Get Payment Details",
-					"request": {
-						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
-						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/api/v1/payment/orders/{{paymentId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","payment","orders","{{paymentId}}"] }
-					}
-				}
-			]
-		},
-		{
-			"name": "Wallet",
-			"item": [
-				{
-					"name": "Initiate Top Up",
-					"request": {
-						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
-						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\n    \"amount\": 1000,\n    \"description\": \"Wallet Top-up\"\n}" },
-						"url": { "raw": "{{baseUrl}}/api/v1/payment/wallet/topup", "host": ["{{baseUrl}}"], "path": ["api","v1","payment","wallet","topup"] }
-					}
-				},
-				{
-					"name": "Get Wallet Transactions",
-					"request": {
-						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
-						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/api/v1/payment/wallet/transactions", "host": ["{{baseUrl}}"], "path": ["api","v1","payment","wallet","transactions"] }
-					}
-				}
-			]
-		},
-		{
-			"name": "Webhooks",
-			"item": [
-				{
-					"name": "Razorpay Webhook Simulate",
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Content-Type", "value": "application/json" },
-							{ "key": "x-razorpay-signature", "value": "YOUR_HMAC_SIGNATURE_HERE", "description": "Needs valid HMAC-SHA256 signature" }
-						],
-						"body": { "mode": "raw", "raw": "{\n  \"entity\": \"event\",\n  \"event\": \"payment.captured\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_29QQoUBi66xm2f\",\n        \"order_id\": \"order_9A33XWu170gUtm\",\n        \"method\": \"upi\"\n      }\n    }\n  }\n}" },
-						"url": { "raw": "{{baseUrl}}/api/v1/payment/webhook/razorpay", "host": ["{{baseUrl}}"], "path": ["api","v1","payment","webhook","razorpay"] }
-					}
-				}
-			]
-		}
-	],
-	"variable": [
-		{ "key": "baseUrl", "value": "http://localhost:3007", "type": "string" },
-		{ "key": "accessToken", "value": "", "type": "string" },
-		{ "key": "paymentId", "value": "", "type": "string" }
-	]
+  "info": {
+    "_postman_id": "c3d4e5f6-a789-0123-4567-89abcdef0123",
+    "name": "Niklo Payment Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 500,\n    \"currency\": \"INR\",\n    \"booking_id\": \"b1c2d3e4-f5a6-7890-1234-56789abcdef0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payment/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payment",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payment/orders/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payment",
+                "orders",
+                "{{paymentId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Initiate Top Up",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 1000,\n    \"description\": \"Wallet Top-up\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payment/wallet/topup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payment",
+                "wallet",
+                "topup"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Wallet Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payment/wallet/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payment",
+                "wallet",
+                "transactions"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Razorpay Webhook Simulate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-razorpay-signature",
+                "value": "YOUR_HMAC_SIGNATURE_HERE",
+                "description": "Needs valid HMAC-SHA256 signature"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entity\": \"event\",\n  \"event\": \"payment.captured\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_29QQoUBi66xm2f\",\n        \"order_id\": \"order_9A33XWu170gUtm\",\n        \"method\": \"upi\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payment/webhook/razorpay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payment",
+                "webhook",
+                "razorpay"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3007",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    }
+  ]
 }

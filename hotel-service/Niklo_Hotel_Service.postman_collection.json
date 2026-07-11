@@ -15,8 +15,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/popular-destinations",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", "popular-destinations"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                "popular-destinations"
+              ]
             }
           }
         },
@@ -27,8 +34,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/stay-types",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", "stay-types"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                "stay-types"
+              ]
             }
           }
         },
@@ -39,10 +53,20 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/trending?limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", "trending"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                "trending"
+              ],
               "query": [
-                { "key": "limit", "value": "10" }
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
               ]
             }
           }
@@ -54,8 +78,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/promotions/active",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", "promotions", "active"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                "promotions",
+                "active"
+              ]
             }
           }
         },
@@ -66,8 +98,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/popular-cities",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", "popular-cities"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                "popular-cities"
+              ]
             }
           }
         },
@@ -76,7 +115,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -84,8 +126,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/search",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", "search"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                "search"
+              ]
             }
           }
         },
@@ -96,10 +145,20 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/:hotelId",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", ":hotelId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                ":hotelId"
+              ],
               "variable": [
-                { "key": "hotelId", "value": "hotel_001" }
+                {
+                  "key": "hotelId",
+                  "value": "h1111111-1111-1111-1111-111111111111"
+                }
               ]
             }
           }
@@ -111,15 +170,35 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/reviews?sort=latest&page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", ":hotelId", "reviews"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                ":hotelId",
+                "reviews"
+              ],
               "query": [
-                { "key": "sort", "value": "latest" },
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "sort",
+                  "value": "latest"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ],
               "variable": [
-                { "key": "hotelId", "value": "hotel_001" }
+                {
+                  "key": "hotelId",
+                  "value": "h1111111-1111-1111-1111-111111111111"
+                }
               ]
             }
           }
@@ -131,14 +210,31 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/photos?page=1&limit=30",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "hotels", ":hotelId", "photos"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels",
+                ":hotelId",
+                "photos"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "30" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "30"
+                }
               ],
               "variable": [
-                { "key": "hotelId", "value": "hotel_001" }
+                {
+                  "key": "hotelId",
+                  "value": "h1111111-1111-1111-1111-111111111111"
+                }
               ]
             }
           }
@@ -155,11 +251,24 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/location/autocomplete?q=Del&type=hotel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "location", "autocomplete"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "location",
+                "autocomplete"
+              ],
               "query": [
-                { "key": "q", "value": "Del" },
-                { "key": "type", "value": "hotel" }
+                {
+                  "key": "q",
+                  "value": "Del"
+                },
+                {
+                  "key": "type",
+                  "value": "hotel"
+                }
               ]
             }
           }
@@ -174,16 +283,26 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"hotelId\": \"hotel_001\",\n  \"roomTypeId\": \"room_triple_001\",\n  \"checkInDate\": \"2025-12-25\",\n  \"checkOutDate\": \"2025-12-26\",\n  \"rooms\": 1,\n  \"adults\": 2,\n  \"children\": 0,\n  \"childAges\": [],\n  \"isHourly\": false,\n  \"totalAmount\": 6500,\n  \"userId\": \"user_xyz\"\n}"
+              "raw": "{\n  \"hotelId\": \"h1111111-1111-1111-1111-111111111111\",\n  \"roomTypeId\": \"room_triple_001\",\n  \"checkInDate\": \"2025-12-25\",\n  \"checkOutDate\": \"2025-12-26\",\n  \"rooms\": 1,\n  \"adults\": 2,\n  \"children\": 0,\n  \"childAges\": [],\n  \"isHourly\": false,\n  \"totalAmount\": 6500,\n  \"userId\": \"user_xyz\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/bookings/hotel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "bookings", "hotel"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "hotel"
+              ]
             }
           }
         }
@@ -193,14 +312,28 @@
   "event": [
     {
       "listen": "prerequest",
-      "script": { "type": "text/javascript", "exec": [""] }
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
     },
     {
       "listen": "test",
-      "script": { "type": "text/javascript", "exec": [""] }
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost",
+      "type": "string"
+    }
   ]
 }
