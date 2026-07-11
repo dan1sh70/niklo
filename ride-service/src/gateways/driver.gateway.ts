@@ -10,10 +10,10 @@ import {
 import { Server, Socket } from 'socket.io';
 import { RedisService } from '../redis/redis.service';
 import { RidesService } from '../rides/rides.service';
-import { Logger } from '@nestjs/common';
+import { Logger, OnModuleInit } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/driver', cors: true })
-export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
   @WebSocketServer()
   server: Server;
   private readonly logger = new Logger(DriverGateway.name);
@@ -22,6 +22,23 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly redisService: RedisService,
     private readonly ridesService: RidesService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      await this.redisService.subscribe('ride:new_request_queue', (msg) => {
+        try {
+          const { rideId, driverId, timeout } = JSON.parse(msg);
+          this.logger.log(`Forwarding new request for ride ${rideId} to driver ${driverId}`);
+          this.sendNewRequestToDriver(driverId, { rideId, timeout });
+        } catch (err) {
+          this.logger.error('Error parsing ride:new_request_queue message', err);
+        }
+      });
+      this.logger.log('Subscribed to Redis ride:new_request_queue successfully.');
+    } catch (err) {
+      this.logger.error('Failed to subscribe to Redis ride:new_request_queue', err);
+    }
+  }
 
   handleConnection(client: Socket) {
     this.logger.log(`Driver connected: ${client.id}`);
