@@ -13,7 +13,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  await app.listen(process.env.PORT || 3014);
+  await app.listen(process.env.PORT || 3014, '0.0.0.0');
   console.log(
     `🎫 Booking Service running on port ${process.env.PORT || 3014}`,
   );
