@@ -36,8 +36,8 @@ export class Booking {
   @Column({ type: 'uuid', nullable: true })
   journey_id: string;
 
-  @Column({ type: 'int', array: true, nullable: true })
-  seat_numbers: number[];
+  @Column({ type: 'varchar', array: true, nullable: true })
+  seat_numbers: string[];
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   boarding_point: string;

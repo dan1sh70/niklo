@@ -14,8 +14,8 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsArray()
-  @IsNumber({}, { each: true })
-  seat_numbers?: number[];
+  @IsString({ each: true })
+  seat_numbers?: string[];
 
   @IsOptional()
   @IsString()
@@ -44,6 +44,6 @@ export class LockSeatsDto {
   scheduleId: string;
 
   @IsArray()
-  @IsNumber({}, { each: true })
-  seatIds: number[];
+  @IsString({ each: true })
+  seatIds: string[];
 }

@@ -19,9 +19,9 @@ export class BookingsService {
     private readonly redisClient: Redis,
   ) {}
 
-  async lockSeats(userId: string, dto: { scheduleId: string; seatIds: number[] }) {
-    const failedSeats: number[] = [];
-    const lockedSeats: number[] = [];
+  async lockSeats(userId: string, dto: { scheduleId: string; seatIds: string[] }) {
+    const failedSeats: string[] = [];
+    const lockedSeats: string[] = [];
 
     for (const seatId of dto.seatIds) {
       const lockKey = `seat:lock:${dto.scheduleId}:${seatId}`;
