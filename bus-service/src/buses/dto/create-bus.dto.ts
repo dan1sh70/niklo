@@ -10,7 +10,7 @@ import {
 import { BusType } from '../entities/bus.entity';
 
 export class CreateBusDto {
-  @IsUUID()
+  @IsUUID('all')
   @IsNotEmpty()
   operator_id: string;
 

@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
 
 export class OnboardDriverDto {
-  @IsUUID()
+  @IsUUID('all')
   @IsNotEmpty()
   user_id: string;
 
@@ -15,7 +15,7 @@ export class OnboardDriverDto {
 }
 
 export class UploadKycDto {
-  @IsUUID()
+  @IsUUID('all')
   @IsNotEmpty()
   driver_id: string;
 

@@ -11,15 +11,15 @@ import {
 import { ScheduleStatus } from '../entities/schedule.entity';
 
 export class CreateScheduleDto {
-  @IsUUID()
+  @IsUUID('all')
   @IsNotEmpty()
   route_id: string;
 
-  @IsUUID()
+  @IsUUID('all')
   @IsNotEmpty()
   bus_id: string;
 
-  @IsUUID()
+  @IsUUID('all')
   @IsNotEmpty()
   operator_id: string;
 

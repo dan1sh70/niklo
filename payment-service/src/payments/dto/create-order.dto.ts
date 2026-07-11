@@ -8,7 +8,7 @@ export class CreateOrderDto {
   @IsOptional()
   currency?: string = 'INR';
 
-  @IsUUID()
+  @IsUUID('all')
   @IsOptional()
   booking_id?: string;
 }
