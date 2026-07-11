@@ -23,7 +23,7 @@ services:
     build:
       context: ./auth-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3001
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -44,7 +44,7 @@ services:
     build:
       context: ./bus-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3003
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -60,7 +60,7 @@ services:
     build:
       context: ./payment-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3007
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -79,7 +79,7 @@ services:
     build:
       context: ./hotel-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3004
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -95,7 +95,7 @@ services:
     build:
       context: ./user-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3002
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -111,7 +111,7 @@ services:
     build:
       context: ./ride-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3005
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -130,7 +130,7 @@ services:
     build:
       context: ./driver-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3011
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -146,7 +146,7 @@ services:
     build:
       context: ./package-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3012
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -162,7 +162,7 @@ services:
     build:
       context: ./adventure-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3013
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -178,7 +178,7 @@ services:
     build:
       context: ./notification-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3009
       DB_HOST: postgres-db
       DB_PORT: 5432
@@ -194,7 +194,7 @@ services:
     build:
       context: ./admin-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3020
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
       REDIS_HOST: redis
@@ -207,7 +207,7 @@ services:
     build:
       context: ./booking-service
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3014
       DB_HOST: postgres-db
       DB_PORT: 5432
