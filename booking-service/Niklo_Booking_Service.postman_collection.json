@@ -1,0 +1,128 @@
+{
+  "info": {
+    "name": "Niklo Booking Service",
+    "_postman_id": "bk-col-001",
+    "description": "API collection for the Niklo Booking Microservice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3014"
+    },
+    {
+      "key": "token",
+      "value": "your-jwt-token-here"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "Lock Seats",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"scheduleId\": \"sch11111-1111-1111-1111-111111111111\",\n  \"seatIds\": [1, 2, 3]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/bookings/seats/lock",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "bookings", "seats", "lock"]
+        }
+      }
+    },
+    {
+      "name": "Create Booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"booking_type\": \"BUS\",\n  \"schedule_id\": \"sch11111-1111-1111-1111-111111111111\",\n  \"seat_numbers\": [1, 2],\n  \"boarding_point\": \"Bangalore Majestic\",\n  \"dropping_point\": \"Chennai Koyambedu\",\n  \"passenger_details\": [\n    { \"name\": \"John Doe\", \"age\": 28, \"gender\": \"M\" },\n    { \"name\": \"Jane Doe\", \"age\": 26, \"gender\": \"F\" }\n  ],\n  \"fare_breakdown\": {\n    \"baseFare\": 800,\n    \"tax\": 100,\n    \"total\": 900\n  },\n  \"total_amount\": 1800,\n  \"travel_date\": \"2026-07-20\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/bookings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "bookings"]
+        }
+      }
+    },
+    {
+      "name": "Get Booking by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/bookings/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "bookings", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "uuid-here"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cancel Booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/bookings/:id/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "bookings", ":id", "cancel"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "uuid-here"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
