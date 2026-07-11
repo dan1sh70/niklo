@@ -9,5 +9,5 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'package_db',
   entities: [TravelPackage],
-  synchronize: process.env.NODE_ENV !== 'production', // Use migrations in production
+  synchronize: process.env.DB_SYNCHRONIZE !== 'false', // Use migrations in production
 });
