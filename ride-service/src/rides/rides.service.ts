@@ -25,20 +25,43 @@ export class RidesService {
     };
   }
 
+  private mapDtoToRide(dto: any): Partial<Ride> {
+    const rawType = dto.vehicleType || dto.rideType || dto.ride_type || 'SEDAN';
+    const rideType = rawType.toUpperCase();
+    const pickupAddress = dto.pickupAddress || (dto.pickup ? (typeof dto.pickup === 'string' ? dto.pickup : JSON.stringify(dto.pickup)) : 'Unknown Pickup');
+    const dropAddress = dto.dropAddress || (dto.dropoff ? (typeof dto.dropoff === 'string' ? dto.dropoff : JSON.stringify(dto.dropoff)) : 'Unknown Dropoff');
+    const pickupLocation = dto.pickup ? (typeof dto.pickup === 'string' ? dto.pickup : `${dto.pickup.lat},${dto.pickup.lng}`) : null;
+    const dropLocation = dto.dropoff ? (typeof dto.dropoff === 'string' ? dto.dropoff : `${dto.dropoff.lat},${dto.dropoff.lng}`) : null;
+
+    return {
+      ride_type: rideType as any,
+      pickup_address: pickupAddress,
+      drop_address: dropAddress,
+      pickup_location: pickupLocation,
+      drop_location: dropLocation,
+      distance_km: dto.distanceKm || dto.distance_km || 10.0,
+      fare_estimate: dto.fareEstimate || dto.fare_estimate || 250.00,
+      scheduled_at: dto.scheduledAt || dto.scheduled_at ? new Date(dto.scheduledAt || dto.scheduled_at) : null,
+    };
+  }
+
   async requestRide(requestDto: any) {
+    const mapped = this.mapDtoToRide(requestDto);
     const rideData = {
-      ...requestDto,
+      ...mapped,
       status: RideStatus.REQUESTED,
       passenger_id: '123e4567-e89b-12d3-a456-426614174000', // Mock UUID
     };
-    const ride = this.rideRepository.create(rideData as Partial<Ride>);
+    const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
 
     // Trigger Matching Algorithm asynchronously
+    const lat = requestDto.pickup?.lat || 12.9716;
+    const lng = requestDto.pickup?.lng || 77.5946;
     this.matchDriver(
       savedRide.id,
-      requestDto.pickupLat,
-      requestDto.pickupLng,
+      lat,
+      lng,
     ).catch((err) => {
       this.logger.error(`Matching failed for ride ${savedRide.id}`, err);
     });
@@ -134,12 +157,13 @@ export class RidesService {
   }
 
   async scheduleRide(scheduleDto: any) {
+    const mapped = this.mapDtoToRide(scheduleDto);
     const rideData = {
-      ...scheduleDto,
+      ...mapped,
       status: RideStatus.REQUESTED,
       passenger_id: '123e4567-e89b-12d3-a456-426614174000',
     };
-    const ride = this.rideRepository.create(rideData as Partial<Ride>);
+    const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
 
     return {
