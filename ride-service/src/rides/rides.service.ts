@@ -41,7 +41,7 @@ export class RidesService {
       drop_location: dropLocation,
       distance_km: dto.distanceKm || dto.distance_km || 10.0,
       fare_estimate: dto.fareEstimate || dto.fare_estimate || 250.00,
-      scheduled_at: dto.scheduledAt || dto.scheduled_at ? new Date(dto.scheduledAt || dto.scheduled_at) : null,
+      scheduled_at: dto.scheduledAt || dto.scheduled_at ? new Date(dto.scheduledAt || dto.scheduled_at) : undefined,
     };
   }
 
