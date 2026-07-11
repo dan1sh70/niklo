@@ -119,8 +119,11 @@ services:
       DB_PASSWORD: niklo_ride_password
       DB_NAME: niklo_ride
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - postgres-db
+      - redis
 
   driver-service:
     build:
@@ -193,6 +196,8 @@ services:
       NODE_ENV: production
       PORT: 3020
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - postgres-db
       - redis
