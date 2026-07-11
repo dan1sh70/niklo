@@ -34,4 +34,16 @@ export class RidesController {
   scheduleRide(@Body() scheduleDto: any) {
     return this.ridesService.scheduleRide(scheduleDto);
   }
+
+  @Post(':id/accept')
+  async acceptRide(@Param('id') id: string, @Body() body: { driverId: string }) {
+    await this.ridesService.acceptRide(id, body.driverId);
+    return { success: true, message: 'Ride accepted successfully' };
+  }
+
+  @Post('driver/go-online')
+  async goOnline(@Body() body: { driverId: string; lat: number; lng: number }) {
+    await this.ridesService.setDriverLocation(body.driverId, body.lat, body.lng);
+    return { success: true, message: 'Driver is now online' };
+  }
 }

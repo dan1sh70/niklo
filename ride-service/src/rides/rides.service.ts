@@ -224,4 +224,8 @@ export class RidesService {
       );
     }
   }
+
+  async setDriverLocation(driverId: string, lat: number, lng: number) {
+    await this.redisService.setDriverLocation(driverId, lat, lng);
+  }
 }
