@@ -36,14 +36,17 @@ export class RidesController {
   }
 
   @Post(':id/accept')
-  async acceptRide(@Param('id') id: string, @Body() body: { driverId: string }) {
-    await this.ridesService.acceptRide(id, body.driverId);
+  async acceptRide(@Param('id') id: string, @Body() body: any) {
+    const driverId = body?.driverId || 'd1111111-1111-1111-1111-111111111111';
+    await this.ridesService.acceptRide(id, driverId);
     return { success: true, message: 'Ride accepted successfully' };
   }
 
   @Post(':id/complete')
-  async completeRide(@Param('id') id: string, @Body() body: { finalLat?: number; finalLng?: number }) {
-    await this.ridesService.completeRide(id, body.finalLat ?? 12.9716, body.finalLng ?? 77.5946);
+  async completeRide(@Param('id') id: string, @Body() body: any) {
+    const finalLat = body?.finalLat ?? 12.9716;
+    const finalLng = body?.finalLng ?? 77.5946;
+    await this.ridesService.completeRide(id, finalLat, finalLng);
     return { success: true, message: 'Ride completed successfully' };
   }
 
