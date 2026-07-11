@@ -5,11 +5,11 @@ export class CreateBookingDto {
   @IsEnum(BookingType)
   booking_type: BookingType;
 
-  @IsUUID()
+  @IsUUID('all')
   schedule_id: string;
 
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all')
   journey_id?: string;
 
   @IsOptional()
@@ -40,7 +40,7 @@ export class CreateBookingDto {
 }
 
 export class LockSeatsDto {
-  @IsUUID()
+  @IsUUID('all')
   scheduleId: string;
 
   @IsArray()
