@@ -96,7 +96,7 @@ export class AppModule implements OnApplicationBootstrap {
       });
 
       // 3. Seed Seat Layout (36 seats: 9 rows x 4 cols)
-      const seats = [];
+      const seats: Partial<SeatLayout>[] = [];
       for (let row = 1; row <= 9; row++) {
         for (let col = 1; col <= 4; col++) {
           seats.push({
