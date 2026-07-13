@@ -17,8 +17,15 @@ services:
       - admin-service
       - booking-service
     expose:
-      - "80"
-
+      - '80'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://localhost/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
   auth-service:
     build:
       context: ./auth-service
@@ -39,7 +46,14 @@ services:
     depends_on:
       - postgres-db
       - redis
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   bus-service:
     build:
       context: ./bus-service
@@ -55,7 +69,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   payment-service:
     build:
       context: ./payment-service
@@ -74,7 +95,14 @@ services:
       RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-replace-me}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   hotel-service:
     build:
       context: ./hotel-service
@@ -90,7 +118,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   user-service:
     build:
       context: ./user-service
@@ -106,7 +141,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   ride-service:
     build:
       context: ./ride-service
@@ -125,7 +167,14 @@ services:
     depends_on:
       - postgres-db
       - redis
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   driver-service:
     build:
       context: ./driver-service
@@ -141,7 +190,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   package-service:
     build:
       context: ./package-service
@@ -157,7 +213,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   adventure-service:
     build:
       context: ./adventure-service
@@ -173,7 +236,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   notification-service:
     build:
       context: ./notification-service
@@ -189,7 +259,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   admin-service:
     build:
       context: ./admin-service
@@ -202,7 +279,14 @@ services:
     depends_on:
       - postgres-db
       - redis
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   booking-service:
     build:
       context: ./booking-service
@@ -221,7 +305,14 @@ services:
     depends_on:
       - postgres-db
       - redis
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
   postgres-db:
     build:
       context: ./postgres-db
@@ -231,12 +322,27 @@ services:
       POSTGRES_PASSWORD: niklo_postgres_password
     volumes:
       - postgres-db-data:/var/lib/postgresql/data
-
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U postgres -d postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   redis:
     image: redis:7-alpine
     volumes:
       - redis-data:/data
-
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 volumes:
-  postgres-db-data:
-  redis-data:
+  postgres-db-data: null
+  redis-data: null
