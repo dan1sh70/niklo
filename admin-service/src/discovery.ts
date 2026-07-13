@@ -56,7 +56,10 @@ export interface DiscoveredProject {
 }
 
 // Get workspace path (can be overridden by environment)
-const workspacePath = process.env.WORKSPACE_PATH || path.resolve(__dirname, '../../');
+let workspacePath = process.env.WORKSPACE_PATH || path.resolve(__dirname, '../../');
+if (workspacePath === '/' || workspacePath === '\\') {
+  workspacePath = process.cwd(); // Prevent watching root directory in Docker
+}
 
 export function discoverProject(): DiscoveredProject {
   const project: DiscoveredProject = {
