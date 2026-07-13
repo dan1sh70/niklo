@@ -79,6 +79,23 @@
       }
     },
     {
+      "name": "My Bookings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/bookings/my-bookings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "bookings", "my-bookings"]
+        }
+      }
+    },
+    {
       "name": "Get Booking by ID",
       "request": {
         "method": "GET",

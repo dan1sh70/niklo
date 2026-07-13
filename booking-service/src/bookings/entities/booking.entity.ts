@@ -10,6 +10,8 @@ export enum BookingType {
   BUS = 'BUS',
   CAR = 'CAR',
   JOURNEY_LEG = 'JOURNEY_LEG',
+  PACKAGE = 'PACKAGE',
+  ADVENTURE = 'ADVENTURE',
 }
 
 export enum BookingStatus {

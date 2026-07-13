@@ -73,6 +73,13 @@ export class BookingsService {
     return booking;
   }
 
+  async getMyBookings(userId: string) {
+    return this.bookingRepo.find({
+      where: { user_id: userId },
+      order: { created_at: 'DESC' },
+    });
+  }
+
   async cancelBooking(id: string, userId: string) {
     const booking = await this.getBookingDetails(id, userId);
     booking.status = BookingStatus.CANCELLED;

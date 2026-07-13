@@ -17,7 +17,7 @@ export class PackagesService implements OnApplicationBootstrap {
     if (count === 0) {
       await this.packageRepo.save([
         {
-          id: 'pk111111-1111-1111-1111-111111111111',
+          id: '11111111-1111-1111-1111-111111111111',
           title: 'Goa Sunshine Tour',
           description: '5 days and 4 nights of pure bliss in Goa. Includes beaches, watersports, and heritage tours.',
           price: 12999.0,
@@ -28,7 +28,7 @@ export class PackagesService implements OnApplicationBootstrap {
           is_active: true,
         },
         {
-          id: 'pk222222-2222-2222-2222-222222222222',
+          id: '22222222-2222-2222-2222-222222222222',
           title: 'Himachal Snow Adventure',
           description: 'Explore the snowy peaks of Manali, Solang Valley, and Rohtang Pass.',
           price: 18500.0,

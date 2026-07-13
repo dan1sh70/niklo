@@ -28,6 +28,12 @@ export class BookingsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('my-bookings')
+  async getMyBookings(@Request() req: any) {
+    return this.bookingsService.getMyBookings(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getBooking(@Request() req: any, @Param('id') id: string) {
     return this.bookingsService.getBookingDetails(id, req.user.id);

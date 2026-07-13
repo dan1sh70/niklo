@@ -9,6 +9,33 @@
       "name": "Hotels",
       "item": [
         {
+          "name": "Create Hotel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotelName\": \"New Test Hotel\",\n  \"distanceText\": \"2 km from center\",\n  \"ratingValue\": 4.5,\n  \"ratingText\": \"Very Good\",\n  \"priceText\": \"₹5,000/night\",\n  \"priceInt\": 5000,\n  \"description\": \"A nice hotel for testing.\",\n  \"address\": \"Test Address, Bangalore\",\n  \"latitude\": 12.9716,\n  \"longitude\": 77.5946,\n  \"imagePath\": \"test.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hotels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "hotels"
+              ]
+            }
+          }
+        },
+        {
           "name": "Popular Destinations",
           "request": {
             "method": "GET",

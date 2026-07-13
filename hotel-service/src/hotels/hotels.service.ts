@@ -17,7 +17,7 @@ export class HotelsService implements OnApplicationBootstrap {
     const count = await this.hotelRepository.count();
     if (count === 0) {
       const hotel = this.hotelRepository.create({
-        id: 'h1111111-1111-1111-1111-111111111111',
+        id: '11111111-1111-1111-1111-111111111111',
         hotelName: 'The Oberoi Bangalore',
         badgeText: '5 Star Luxury',
         imagePath: 'https://cdn.niklo.com/hotels/oberoi.jpg',
@@ -43,7 +43,7 @@ export class HotelsService implements OnApplicationBootstrap {
         features: ['Garden View', 'Fine Dining'],
         roomTypes: [
           {
-            id: 'rt111111-1111-1111-1111-111111111111',
+            id: '22222222-2222-2222-2222-222222222222',
             title: 'Deluxe Garden View Room',
             guestCount: '2 Guests',
             size: '420 sq ft',
@@ -248,5 +248,10 @@ export class HotelsService implements OnApplicationBootstrap {
       limit,
       photos,
     };
+  }
+
+  async createHotel(createHotelDto: any) {
+    const hotel = this.hotelRepository.create(createHotelDto);
+    return await this.hotelRepository.save(hotel);
   }
 }
