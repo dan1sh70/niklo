@@ -1,8 +1,6 @@
 services:
   nginx:
-    build:
-      context: .
-      dockerfile: nginx.Dockerfile
+    image: dan1sh7/niklo-nginx:latest
     depends_on:
       - auth-service
       - bus-service
@@ -26,9 +24,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    labels:
+      - traefik.enable=true
+      - >-
+        traefik.http.routers.nginx.rule=Host(irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io)
+      - traefik.http.services.nginx.loadbalancer.server.port=80
   auth-service:
-    build:
-      context: ./auth-service
+    image: dan1sh7/niklo-auth-service:latest
     environment:
       NODE_ENV: development
       PORT: 3001
@@ -55,8 +57,7 @@ services:
       retries: 3
       start_period: 20s
   bus-service:
-    build:
-      context: ./bus-service
+    image: dan1sh7/niklo-bus-service:latest
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -78,8 +79,7 @@ services:
       retries: 3
       start_period: 20s
   payment-service:
-    build:
-      context: ./payment-service
+    image: dan1sh7/niklo-payment-service:latest
     environment:
       NODE_ENV: development
       PORT: 3007
@@ -104,8 +104,7 @@ services:
       retries: 3
       start_period: 20s
   hotel-service:
-    build:
-      context: ./hotel-service
+    image: dan1sh7/niklo-hotel-service:latest
     environment:
       NODE_ENV: development
       PORT: 3004
@@ -127,8 +126,7 @@ services:
       retries: 3
       start_period: 20s
   user-service:
-    build:
-      context: ./user-service
+    image: dan1sh7/niklo-user-service:latest
     environment:
       NODE_ENV: development
       PORT: 3002
@@ -150,8 +148,7 @@ services:
       retries: 3
       start_period: 20s
   ride-service:
-    build:
-      context: ./ride-service
+    image: dan1sh7/niklo-ride-service:latest
     environment:
       NODE_ENV: development
       PORT: 3005
@@ -176,8 +173,7 @@ services:
       retries: 3
       start_period: 20s
   driver-service:
-    build:
-      context: ./driver-service
+    image: dan1sh7/niklo-driver-service:latest
     environment:
       NODE_ENV: development
       PORT: 3011
@@ -199,8 +195,7 @@ services:
       retries: 3
       start_period: 20s
   package-service:
-    build:
-      context: ./package-service
+    image: dan1sh7/niklo-package-service:latest
     environment:
       NODE_ENV: development
       PORT: 3012
@@ -222,8 +217,7 @@ services:
       retries: 3
       start_period: 20s
   adventure-service:
-    build:
-      context: ./adventure-service
+    image: dan1sh7/niklo-adventure-service:latest
     environment:
       NODE_ENV: development
       PORT: 3013
@@ -245,8 +239,7 @@ services:
       retries: 3
       start_period: 20s
   notification-service:
-    build:
-      context: ./notification-service
+    image: dan1sh7/niklo-notification-service:latest
     environment:
       NODE_ENV: development
       PORT: 3009
@@ -268,8 +261,7 @@ services:
       retries: 3
       start_period: 20s
   admin-service:
-    build:
-      context: ./admin-service
+    image: dan1sh7/niklo-admin-service:latest
     environment:
       NODE_ENV: development
       PORT: 3020
@@ -288,8 +280,7 @@ services:
       retries: 3
       start_period: 20s
   booking-service:
-    build:
-      context: ./booking-service
+    image: dan1sh7/niklo-booking-service:latest
     environment:
       NODE_ENV: development
       PORT: 3014
@@ -314,8 +305,7 @@ services:
       retries: 3
       start_period: 20s
   postgres-db:
-    build:
-      context: ./postgres-db
+    image: dan1sh7/niklo-postgres-db:latest
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
