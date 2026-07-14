@@ -25,8 +25,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - >-
-        traefik.http.routers.nginx.rule=Host(irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io)
+      - "traefik.http.routers.nginx.rule=Host(`irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io`)"
       - traefik.http.services.nginx.loadbalancer.server.port=80
     build:
       context: .
@@ -49,14 +48,20 @@ services:
     depends_on:
       - postgres-db
       - redis
+    expose:
+      - '3001'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3001/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.auth-service.rule=Host(`szs601uiqefhc8jbpeq587f3.187.127.157.13.sslip.io`)"
+      - traefik.http.services.auth-service.loadbalancer.server.port=3001
     build:
       context: ./auth-service
   bus-service:
@@ -72,14 +77,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3003'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3003/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.bus-service.rule=Host(`w1n68oxs2na9q9tbveqsqa4s.187.127.157.13.sslip.io`)"
+      - traefik.http.services.bus-service.loadbalancer.server.port=3003
     build:
       context: ./bus-service
   payment-service:
@@ -98,14 +109,20 @@ services:
       RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-replace-me}
     depends_on:
       - postgres-db
+    expose:
+      - '3007'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3007/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.payment-service.rule=Host(`n13chiypv5vg517ffvioht20.187.127.157.13.sslip.io`)"
+      - traefik.http.services.payment-service.loadbalancer.server.port=3007
     build:
       context: ./payment-service
   hotel-service:
@@ -121,14 +138,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3004'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3004/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.hotel-service.rule=Host(`b5m0ntg98i0cpdaidmcvdqwd.187.127.157.13.sslip.io`)"
+      - traefik.http.services.hotel-service.loadbalancer.server.port=3004
     build:
       context: ./hotel-service
   user-service:
@@ -144,14 +167,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3002'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3002/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.user-service.rule=Host(`f11slpsqn3bkula8r1yr292u.187.127.157.13.sslip.io`)"
+      - traefik.http.services.user-service.loadbalancer.server.port=3002
     build:
       context: ./user-service
   ride-service:
@@ -170,14 +199,20 @@ services:
     depends_on:
       - postgres-db
       - redis
+    expose:
+      - '3005'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3005/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.ride-service.rule=Host(`my41fssoetuy2w34a2yettfe.187.127.157.13.sslip.io`)"
+      - traefik.http.services.ride-service.loadbalancer.server.port=3005
     build:
       context: ./ride-service
   driver-service:
@@ -193,14 +228,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3011'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3011/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.driver-service.rule=Host(`ebzdp7jvp5z5bhrl05tkvxsa.187.127.157.13.sslip.io`)"
+      - traefik.http.services.driver-service.loadbalancer.server.port=3011
     build:
       context: ./driver-service
   package-service:
@@ -216,14 +257,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3012'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3012/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.package-service.rule=Host(`ltmzir9qa389f53ho5hkzlq0.187.127.157.13.sslip.io`)"
+      - traefik.http.services.package-service.loadbalancer.server.port=3012
     build:
       context: ./package-service
   adventure-service:
@@ -239,14 +286,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3013'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3013/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.adventure-service.rule=Host(`ra0qdnh3xfolrfu1y82bva9g.187.127.157.13.sslip.io`)"
+      - traefik.http.services.adventure-service.loadbalancer.server.port=3013
     build:
       context: ./adventure-service
   notification-service:
@@ -262,14 +315,20 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
     depends_on:
       - postgres-db
+    expose:
+      - '3009'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3009/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.notification-service.rule=Host(`l2pdf6ail6mlmurxhtjjf44i.187.127.157.13.sslip.io`)"
+      - traefik.http.services.notification-service.loadbalancer.server.port=3009
     build:
       context: ./notification-service
   admin-service:
@@ -279,17 +338,24 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      WORKSPACE_PATH: /workspace
     depends_on:
       - postgres-db
       - redis
+    expose:
+      - '3020'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3020/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.admin-service.rule=Host(`k1lrz8qb78v16uuvqngcahj0.187.127.157.13.sslip.io`)"
+      - traefik.http.services.admin-service.loadbalancer.server.port=3020
     build:
       context: ./admin-service
   booking-service:
@@ -308,14 +374,20 @@ services:
     depends_on:
       - postgres-db
       - redis
+    expose:
+      - '3014'
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:PORT/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3014/ || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.booking-service.rule=Host(`yjfbvszz8e2yv5sefwcpxye4.187.127.157.13.sslip.io`)"
+      - traefik.http.services.booking-service.loadbalancer.server.port=3014
     build:
       context: ./booking-service
   postgres-db:
