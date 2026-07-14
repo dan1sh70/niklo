@@ -24,10 +24,9 @@ services:
       retries: 3
       start_period: 10s
     labels:
-      - traefik.enable=true
-      - >-
-        traefik.http.routers.nginx.rule=Host(irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io)
-      - traefik.http.services.nginx.loadbalancer.server.port=80
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.rule=Host(`irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io`)"
+      - "traefik.http.services.nginx.loadbalancer.server.port=80"
     build:
       context: .
       dockerfile: nginx.Dockerfile
