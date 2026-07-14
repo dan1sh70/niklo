@@ -2,7 +2,7 @@ import { Controller, Post, Get, Body, Param, Query } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { OnboardDriverDto, UploadKycDto } from './dto/create-driver.dto';
 
-@Controller()
+@Controller('api/v1/driver')
 export class DriversController {
   constructor(private readonly driversService: DriversService) {}
 

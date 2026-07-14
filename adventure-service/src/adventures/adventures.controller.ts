@@ -11,7 +11,7 @@ import { AdventuresService } from './adventures.service';
 import { CreateAdventureDto } from './dto/create-adventure.dto';
 import { UpdateAdventureDto } from './dto/update-adventure.dto';
 
-@Controller('adventures')
+@Controller('api/v1/adventures')
 export class AdventuresController {
   constructor(private readonly adventuresService: AdventuresService) {}
 
