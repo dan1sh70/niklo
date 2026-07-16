@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { RidesService } from './rides.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('api/v1/ride')
+@UseGuards(JwtAuthGuard)
 export class RidesController {
   constructor(private readonly ridesService: RidesService) {}
 
@@ -11,8 +13,9 @@ export class RidesController {
   }
 
   @Post('request')
-  requestRide(@Body() requestDto: any) {
-    return this.ridesService.requestRide(requestDto);
+  requestRide(@Req() req: any, @Body() requestDto: any) {
+    const userId = req.user.id;
+    return this.ridesService.requestRide(userId, requestDto);
   }
 
   @Get(':id/status')
@@ -31,8 +34,9 @@ export class RidesController {
   }
 
   @Post('schedule')
-  scheduleRide(@Body() scheduleDto: any) {
-    return this.ridesService.scheduleRide(scheduleDto);
+  scheduleRide(@Req() req: any, @Body() scheduleDto: any) {
+    const userId = req.user.id;
+    return this.ridesService.scheduleRide(userId, scheduleDto);
   }
 
   @Post(':id/accept')

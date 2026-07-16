@@ -8,33 +8,40 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
-@Controller('api/v1/users')
+@Controller(['api/v1/user', 'api/v1/users'])
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('profile')
-  getProfile() {
-    // In a real app, extract user ID from JWT token using a guard
-    const userId = '123e4567-e89b-12d3-a456-426614174000'; // dummy uuid
+  getProfile(@Req() req: any) {
+    const userId = req.user.id;
     return this.usersService.getProfile(userId);
   }
 
   @Put('profile')
-  updateProfile(@Body() updateData: any) {
-    const userId = '123e4567-e89b-12d3-a456-426614174000'; // dummy uuid
+  updateProfile(@Req() req: any, @Body() updateData: any) {
+    const userId = req.user.id;
     return this.usersService.updateProfile(userId, updateData);
   }
 
   @Post('kyc')
-  uploadKyc(@Body() kycData: any) {
-    const userId = '123e4567-e89b-12d3-a456-426614174000'; // dummy uuid
+  uploadKyc(@Req() req: any, @Body() kycData: any) {
+    const userId = req.user.id;
     return this.usersService.uploadKyc(userId, kycData);
   }
 
   @Get('wallet')
-  getWallet() {
-    const userId = '123e4567-e89b-12d3-a456-426614174000'; // dummy uuid
+  getWallet(@Req() req: any) {
+    const userId = req.user.id;
     return this.usersService.getWallet(userId);
+  }
+
+  @Post('locations')
+  addSavedLocation(@Req() req: any, @Body() locationData: any) {
+    const userId = req.user.id;
+    return this.usersService.addSavedLocation(userId, locationData);
   }
 }

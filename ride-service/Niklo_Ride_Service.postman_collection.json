@@ -13,6 +13,10 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
           }
         ],
         "body": {
@@ -43,6 +47,10 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
           }
         ],
         "body": {
@@ -76,7 +84,12 @@
       "name": "Get Ride Status",
       "request": {
         "method": "GET",
-        "header": [],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
+          }
+        ],
         "url": {
           "raw": "http://localhost/api/v1/ride/:id",
           "protocol": "http",
@@ -103,7 +116,12 @@
       "name": "Complete Ride",
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN"
+          }
+        ],
         "url": {
           "raw": "http://localhost/api/v1/ride/:id/complete",
           "protocol": "http",

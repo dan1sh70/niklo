@@ -11,7 +11,6 @@ export class UsersService {
   ) {}
 
   async getProfile(userId: string) {
-    // For demo purposes, we return a mock object if DB is empty
     return {
       id: userId,
       phone: '+919876543210',
@@ -43,6 +42,16 @@ export class UsersService {
       userId,
       balance: 1500.5,
       currency: 'INR',
+    };
+  }
+
+  async addSavedLocation(userId: string, locationData: any) {
+    return {
+      message: 'Location saved successfully',
+      data: {
+        userId,
+        ...locationData,
+      },
     };
   }
 }

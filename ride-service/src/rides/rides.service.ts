@@ -45,12 +45,12 @@ export class RidesService {
     };
   }
 
-  async requestRide(requestDto: any) {
+  async requestRide(passengerId: string, requestDto: any) {
     const mapped = this.mapDtoToRide(requestDto);
     const rideData = {
       ...mapped,
       status: RideStatus.REQUESTED,
-      passenger_id: '123e4567-e89b-12d3-a456-426614174000', // Mock UUID
+      passenger_id: passengerId,
     };
     const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
@@ -156,12 +156,12 @@ export class RidesService {
     };
   }
 
-  async scheduleRide(scheduleDto: any) {
+  async scheduleRide(passengerId: string, scheduleDto: any) {
     const mapped = this.mapDtoToRide(scheduleDto);
     const rideData = {
       ...mapped,
       status: RideStatus.REQUESTED,
-      passenger_id: '123e4567-e89b-12d3-a456-426614174000',
+      passenger_id: passengerId,
     };
     const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
