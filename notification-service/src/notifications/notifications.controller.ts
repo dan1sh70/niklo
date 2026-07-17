@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 
-@Controller(['api/v1/notify', 'api/v1/notifications'])
+@Controller(['notify', 'notifications'])
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
