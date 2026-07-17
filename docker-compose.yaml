@@ -233,7 +233,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3011/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3011/api/v1/driver || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -262,7 +262,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3012/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3012/api/v1/packages || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -291,7 +291,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3013/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3013/api/v1 || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -320,7 +320,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3009/ || exit 1
+        - wget -q -O /dev/null http://127.0.0.1:3009/api/v1 || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
