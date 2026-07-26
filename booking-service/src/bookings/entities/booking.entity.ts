@@ -50,6 +50,17 @@ export class Booking {
   @Column({ type: 'jsonb', nullable: true })
   passenger_details: any;
 
+  /**
+   * Whoever the operator should call about this trip. Kept off
+   * `passenger_details` so the manifest can show one contact per booking rather
+   * than repeating it on every traveller.
+   */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  contact_email: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  contact_phone: string | null;
+
   @Column({ type: 'jsonb', nullable: true })
   fare_breakdown: any;
 
@@ -66,7 +77,7 @@ export class Booking {
   qr_code: string;
 
   @Column({ type: 'date', nullable: true })
-  travel_date: Date;
+  travel_date: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

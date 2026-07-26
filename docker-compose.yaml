@@ -75,6 +75,9 @@ services:
       DB_PASSWORD: niklo_bus_password
       DB_NAME: niklo_bus
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      # Accepted on seat book/release in place of a user JWT. Must match
+      # booking-service.
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-change-me-before-deploy}
     depends_on:
       - postgres-db
     expose:
@@ -136,6 +139,10 @@ services:
       DB_PASSWORD: niklo_hotel_password
       DB_NAME: niklo_hotel
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      # Enables POST /api/v1/hotels/:id/transfer-owner, used once to hand
+      # properties created before partner accounts to a partner. Leave unset to
+      # keep that route disabled.
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-}
     depends_on:
       - postgres-db
     expose:
@@ -371,9 +378,15 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      # Seat inventory lives in bus-service; checkout claims seats over HTTP.
+      BUS_SERVICE_URL: http://bus-service:3003
+      # Shared secret for seat writes made with no user context (the sweep that
+      # frees seats from abandoned checkouts). Must match bus-service.
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-change-me-before-deploy}
     depends_on:
       - postgres-db
       - redis
+      - bus-service
     expose:
       - '3014'
     healthcheck:

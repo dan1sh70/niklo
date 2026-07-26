@@ -13,7 +13,9 @@ import {
 } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto, UpdateScheduleDto } from './dto/schedule.dto';
+import { BookSeatsDto, ReleaseSeatsDto } from './dto/seat-booking.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { InternalOrJwtAuthGuard } from '../common/guards/internal-or-jwt-auth.guard';
 
 @Controller('api/v1/bus/schedules')
 export class SchedulesController {
@@ -38,8 +40,9 @@ export class SchedulesController {
   async findAll(
     @Query('route_id') routeId?: string,
     @Query('date') date?: string,
+    @Query('operator_id') operatorId?: string,
   ) {
-    return this.schedulesService.findAll(routeId, date);
+    return this.schedulesService.findAll(routeId, date, operatorId);
   }
 
   @Get(':id')
@@ -50,6 +53,27 @@ export class SchedulesController {
   @Get(':id/seats')
   async getSeats(@Param('id') id: string) {
     return this.schedulesService.getSeats(id);
+  }
+
+  /**
+   * Claims seats for a booking. Called by booking-service during checkout —
+   * never by a client directly, since the caller decides which booking owns
+   * the seats.
+   */
+  @UseGuards(InternalOrJwtAuthGuard)
+  @Post(':id/seats/book')
+  @HttpCode(HttpStatus.OK)
+  async bookSeats(@Param('id') id: string, @Body() dto: BookSeatsDto) {
+    return this.schedulesService.bookSeats(id, dto);
+  }
+
+  // Also reached by booking-service's unpaid-booking sweep, which runs with no
+  // user context — hence the internal-key path.
+  @UseGuards(InternalOrJwtAuthGuard)
+  @Post(':id/seats/release')
+  @HttpCode(HttpStatus.OK)
+  async releaseSeats(@Param('id') id: string, @Body() dto: ReleaseSeatsDto) {
+    return this.schedulesService.releaseSeats(id, dto);
   }
 
   @UseGuards(JwtAuthGuard)

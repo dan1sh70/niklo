@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { Bus } from '../../buses/entities/bus.entity';
 import { Schedule } from '../../schedules/entities/schedule.entity';
@@ -12,6 +13,16 @@ import { Schedule } from '../../schedules/entities/schedule.entity';
 export class Operator {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  /**
+   * Auth user who owns this operator account. Set from the JWT when the
+   * operator profile is created; without it there is no way to prove a caller
+   * is allowed to see a trip's passenger manifest. Nullable because operators
+   * seeded or created before this column existed have no owner.
+   */
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  user_id: string | null;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;

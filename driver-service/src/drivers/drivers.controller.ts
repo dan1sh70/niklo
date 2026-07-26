@@ -35,4 +35,12 @@ export class DriversController {
     const data = await this.driversService.getPayouts(driverId);
     return { success: true, data };
   }
+
+  // Kept last: a bare `:driverId` would otherwise swallow `kyc/status`,
+  // `earnings` and `payouts`.
+  @Get(':driverId')
+  async getDriver(@Param('driverId') driverId: string) {
+    const data = await this.driversService.findByIdOrUserId(driverId);
+    return { success: true, data };
+  }
 }

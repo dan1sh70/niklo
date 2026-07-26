@@ -102,4 +102,23 @@ export class DriversService implements OnApplicationBootstrap {
       order: { scheduled_for: 'DESC' },
     });
   }
+
+  /**
+   * Looks a driver up by driver id, falling back to user id.
+   *
+   * The partner app identifies the driver by the id it gets from
+   * `GET /users/profile` (an auth user id), while rides created before that
+   * may carry a drivers-table id. Accepting both keeps ride-service from
+   * having to know which one it is holding.
+   */
+  async findByIdOrUserId(id: string) {
+    const driver =
+      (await this.driverRepo.findOne({ where: { id } })) ??
+      (await this.driverRepo.findOne({ where: { user_id: id } }));
+
+    if (!driver) {
+      throw new NotFoundException(`Driver ${id} not found`);
+    }
+    return driver;
+  }
 }
