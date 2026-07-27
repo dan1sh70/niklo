@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { RoomType } from './room-type.entity';
 import { Review } from './review.entity';
@@ -13,6 +14,19 @@ import { Review } from './review.entity';
 export class Hotel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  /**
+   * Partner (hotel owner) who manages this property, taken from the JWT at
+   * creation time. Nullable because rows seeded before partner support existed
+   * have no owner — those stay visible to guests but cannot be managed.
+   */
+  @Index()
+  @Column({ nullable: true })
+  ownerId: string | null;
+
+  /** Unpublished properties stay out of search/trending but keep their data. */
+  @Column({ default: true })
+  isActive: boolean;
 
   @Column()
   hotelName: string;
@@ -59,11 +73,13 @@ export class Hotel {
   @Column()
   address: string;
 
-  @Column('float')
-  latitude: number;
+  // Nullable: a partner onboards with a name and an address; coordinates are
+  // added later, and (0, 0) would put the property in the Atlantic.
+  @Column('float', { nullable: true })
+  latitude: number | null;
 
-  @Column('float')
-  longitude: number;
+  @Column('float', { nullable: true })
+  longitude: number | null;
 
   @Column({ type: 'jsonb', default: [] })
   popularAmenities: any[];
@@ -79,6 +95,10 @@ export class Hotel {
 
   @Column({ type: 'jsonb', nullable: true })
   hourlyOptions: any;
+
+  /** Partner-managed promotions: `[{ id, title, description, cta, discountPercent, expiresAt, isActive }]`. */
+  @Column({ type: 'jsonb', default: [] })
+  offers: any[];
 
   @OneToMany(() => RoomType, (roomType) => roomType.hotel, { cascade: true })
   roomTypes: RoomType[];

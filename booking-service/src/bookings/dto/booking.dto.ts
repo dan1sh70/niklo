@@ -1,4 +1,4 @@
-import { IsEnum, IsUUID, IsOptional, IsArray, IsNumber, IsString, IsDateString } from 'class-validator';
+import { IsEnum, IsUUID, IsOptional, IsArray, IsNumber, IsString, IsDateString, ArrayNotEmpty } from 'class-validator';
 import { BookingType } from '../entities/booking.entity';
 
 export class CreateBookingDto {
@@ -29,6 +29,14 @@ export class CreateBookingDto {
   @IsArray()
   passenger_details?: any[];
 
+  @IsOptional()
+  @IsString()
+  contact_email?: string;
+
+  @IsOptional()
+  @IsString()
+  contact_phone?: string;
+
   fare_breakdown: any;
 
   @IsNumber()
@@ -44,6 +52,21 @@ export class LockSeatsDto {
   scheduleId: string;
 
   @IsArray()
+  @ArrayNotEmpty()
   @IsString({ each: true })
   seatIds: string[];
+}
+
+/**
+ * Reported by the client after payment-service captures the money.
+ * payment-service has no webhook into this service, so the app closes the loop.
+ */
+export class ConfirmPaymentDto {
+  @IsOptional()
+  @IsUUID('all')
+  payment_id?: string;
+
+  @IsOptional()
+  @IsString()
+  payment_gateway_order_id?: string;
 }

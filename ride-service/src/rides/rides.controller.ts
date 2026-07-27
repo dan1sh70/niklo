@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { RidesService } from './rides.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
@@ -41,26 +51,54 @@ export class RidesController {
 
   @Post(':id/accept')
   async acceptRide(@Param('id') id: string, @Body() body: any) {
-    const driverId = body?.driverId || 'd1111111-1111-1111-1111-111111111111';
-    await this.ridesService.acceptRide(id, driverId);
+    // No seeded-driver fallback: accepting on behalf of an unnamed driver made
+    // every anonymous call land on d1111111-… and take over someone's ride.
+    const driverId = body?.driverId;
+    if (!driverId) {
+      throw new BadRequestException('driverId is required');
+    }
+
+    const result = await this.ridesService.acceptRide(id, driverId);
+    if (!result.accepted) {
+      // The offer moved on, or the passenger cancelled. Tell the driver app so
+      // it can dismiss the request card instead of showing a false success.
+      throw new ConflictException(
+        result.reason === 'RIDE_NOT_FOUND'
+          ? 'Ride not found'
+          : 'This ride is no longer available',
+      );
+    }
     return { success: true, message: 'Ride accepted successfully' };
   }
 
   @Post(':id/complete')
   async completeRide(@Param('id') id: string, @Body() body: any) {
-    const finalLat = body?.finalLat ?? 12.9716;
-    const finalLng = body?.finalLng ?? 77.5946;
-    await this.ridesService.completeRide(id, finalLat, finalLng);
+    // Coordinates are optional: when the driver app has no GPS fix we fall back
+    // to the ride's stored drop location rather than the Bengaluru default this
+    // used to assume, which silently recorded the wrong end point and fare.
+    await this.ridesService.completeRide(id, body?.finalLat, body?.finalLng);
     return { success: true, message: 'Ride completed successfully' };
   }
 
   @Post('driver/go-online')
   async goOnline(@Body() body: any) {
-    const lat = body.lat ?? 12.9716;
-    const lng = body.lng ?? 77.5946;
-    const driverId = body.driverId || 'd1111111-1111-1111-1111-111111111111';
-    await this.ridesService.setDriverLocation(driverId, lat, lng);
+    if (!body?.driverId) {
+      throw new BadRequestException('driverId is required');
+    }
+    if (body.lat == null || body.lng == null) {
+      throw new BadRequestException('lat and lng are required');
+    }
+    await this.ridesService.setDriverLocation(body.driverId, body.lat, body.lng);
     return { success: true, message: 'Driver is now online' };
+  }
+
+  @Post('driver/go-offline')
+  async goOffline(@Body() body: any) {
+    if (!body?.driverId) {
+      throw new BadRequestException('driverId is required');
+    }
+    await this.ridesService.setDriverOffline(body.driverId);
+    return { success: true, message: 'Driver is now offline' };
   }
 
   @Get(':id')

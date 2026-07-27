@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { Hotel } from './hotel.entity';
 
@@ -14,6 +15,11 @@ export class Review {
 
   @ManyToOne(() => Hotel, (hotel) => hotel.reviews, { onDelete: 'CASCADE' })
   hotel: Hotel;
+
+  /** Author, taken from the JWT. One review per guest per property. */
+  @Index()
+  @Column({ nullable: true })
+  userId: string | null;
 
   @Column()
   title: string;
@@ -34,7 +40,10 @@ export class Review {
   hasPropertyReply: boolean;
 
   @Column('text', { nullable: true })
-  propertyReply: string;
+  propertyReply: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  repliedAt: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;

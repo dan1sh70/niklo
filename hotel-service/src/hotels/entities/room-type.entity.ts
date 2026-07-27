@@ -47,4 +47,16 @@ export class RoomType {
 
   @Column('text', { array: true, default: [] })
   inclusions: string[];
+
+  /**
+   * How many physical rooms of this type the property has. Availability is
+   * `totalRooms` minus the rooms held by bookings overlapping the requested
+   * dates, which is what stops the same room being sold twice.
+   */
+  @Column('int', { default: 1 })
+  totalRooms: number;
+
+  /** Rooms taken off sale keep their history but stop accepting bookings. */
+  @Column({ default: true })
+  isActive: boolean;
 }

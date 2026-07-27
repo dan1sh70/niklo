@@ -18,6 +18,11 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   server: Server;
   private readonly logger = new Logger(DriverGateway.name);
 
+  // socket.id -> driverId, so a disconnect can take the driver out of the
+  // matching pool. Without this the geo set only ever grows and rides get
+  // dispatched to drivers who are long gone.
+  private readonly socketToDriver = new Map<string, string>();
+
   constructor(
     private readonly redisService: RedisService,
     private readonly ridesService: RidesService,
@@ -44,8 +49,25 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     this.logger.log(`Driver connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Driver disconnected: ${client.id}`);
+  async handleDisconnect(client: Socket) {
+    const driverId = this.socketToDriver.get(client.id);
+    this.socketToDriver.delete(client.id);
+
+    if (!driverId) {
+      this.logger.log(`Driver socket ${client.id} disconnected (never went online)`);
+      return;
+    }
+
+    // Only drop the driver if this was their last socket — a reconnect can
+    // briefly overlap with the old socket's disconnect event.
+    const stillConnected = [...this.socketToDriver.values()].includes(driverId);
+    if (stillConnected) {
+      this.logger.log(`Driver ${driverId} still has another live socket`);
+      return;
+    }
+
+    await this.redisService.removeDriver(driverId);
+    this.logger.log(`Driver ${driverId} went offline (socket ${client.id})`);
   }
 
   @SubscribeMessage('driver:go_online')
@@ -54,6 +76,7 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @ConnectedSocket() client: Socket,
   ) {
     client.join(data.driverId);
+    this.socketToDriver.set(client.id, data.driverId);
     await this.redisService.setDriverLocation(
       data.driverId,
       data.lat,
@@ -62,6 +85,16 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     this.logger.log(
       `Driver ${data.driverId} is online at [${data.lat}, ${data.lng}]`,
     );
+  }
+
+  @SubscribeMessage('driver:go_offline')
+  async handleGoOffline(
+    @MessageBody() data: { driverId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.leave(data.driverId);
+    this.socketToDriver.delete(client.id);
+    await this.redisService.removeDriver(data.driverId);
   }
 
   @SubscribeMessage('driver:location')
@@ -74,7 +107,14 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
       bearing: number;
       speed: number;
     },
+    @ConnectedSocket() client: Socket,
   ) {
+    // Re-assert the mapping: a driver that reconnected mid-session may start
+    // pinging locations before re-emitting `driver:go_online`.
+    if (data.driverId) {
+      this.socketToDriver.set(client.id, data.driverId);
+      client.join(data.driverId);
+    }
     await this.redisService.setDriverLocation(
       data.driverId,
       data.lat,
