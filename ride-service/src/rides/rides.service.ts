@@ -13,6 +13,25 @@ const OFFER_TIMEOUT_MS = 20_000;
 // exhausted without an acceptance.
 const SEARCH_RADII_KM = [5, 10, 15];
 
+// How many rides a history call returns by default, and the ceiling a caller
+// can ask for. Neither app pages yet, so the cap is what keeps a long-serving
+// driver's list from turning into an unbounded response.
+const DEFAULT_HISTORY_LIMIT = 50;
+const MAX_HISTORY_LIMIT = 200;
+
+/** Keeps a client-supplied `limit` sane; anything unparseable falls back. */
+function clampLimit(limit: number): number {
+  if (!Number.isFinite(limit) || limit <= 0) return DEFAULT_HISTORY_LIMIT;
+  return Math.min(Math.floor(limit), MAX_HISTORY_LIMIT);
+}
+
+/** Postgres hands back `numeric` columns as strings. */
+function toNumber(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 @Injectable()
 export class RidesService {
   private readonly logger = new Logger(RidesService.name);
@@ -277,6 +296,70 @@ export class RidesService {
       fareFinal: ride.fare_final,
       distanceKm: ride.distance_km,
       driverDetails: await this.buildDriverDetails(ride.driver_id),
+    };
+  }
+
+  /**
+   * Ride history for a driver, newest first.
+   *
+   * The partner app has been calling `GET /ride/driver/:id/trips` since its
+   * history screens were written, but no such route existed — it 404'd, the
+   * repository swallowed the error and returned `[]`, and both the Trips and
+   * Activity screens rendered as "no trips" with nothing to explain why.
+   */
+  async getDriverTrips(driverId: string, limit = DEFAULT_HISTORY_LIMIT) {
+    const rides = await this.rideRepository.find({
+      where: { driver_id: driverId },
+      order: { created_at: 'DESC' },
+      take: clampLimit(limit),
+    });
+
+    return rides.map((ride) => this.toHistoryItem(ride));
+  }
+
+  /** Ride history for a passenger, newest first. */
+  async getPassengerRides(
+    passengerId: string,
+    limit = DEFAULT_HISTORY_LIMIT,
+  ) {
+    const rides = await this.rideRepository.find({
+      where: { passenger_id: passengerId },
+      order: { created_at: 'DESC' },
+      take: clampLimit(limit),
+    });
+
+    return rides.map((ride) => this.toHistoryItem(ride));
+  }
+
+  /**
+   * Shapes a row for the history lists.
+   *
+   * Keys stay snake_case because that is what both apps already index by
+   * (`trip['fare_final']`, `trip['pickup_address']`, …). Numerics are cast to
+   * Number — Postgres returns `numeric` columns as strings, and sending those
+   * through would make the clients' `double.tryParse` the only thing standing
+   * between a fare and a crash.
+   */
+  private toHistoryItem(ride: Ride) {
+    return {
+      id: ride.id,
+      rideId: ride.id,
+      status: ride.status,
+      ride_type: ride.ride_type,
+      pickup_address: ride.pickup_address,
+      drop_address: ride.drop_address,
+      pickup_location: ride.pickup_location,
+      drop_location: ride.drop_location,
+      distance_km: toNumber(ride.distance_km),
+      fare_estimate: toNumber(ride.fare_estimate),
+      fare_final: toNumber(ride.fare_final),
+      surge_multiplier: toNumber(ride.surge_multiplier),
+      driver_id: ride.driver_id,
+      passenger_id: ride.passenger_id,
+      scheduled_at: ride.scheduled_at,
+      started_at: ride.started_at,
+      ended_at: ride.ended_at,
+      created_at: ride.created_at,
     };
   }
 

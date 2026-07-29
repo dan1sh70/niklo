@@ -4,10 +4,12 @@ import {
   Post,
   Body,
   Param,
+  Query,
   UseGuards,
   Req,
   BadRequestException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RidesService } from './rides.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -99,6 +101,34 @@ export class RidesController {
     }
     await this.ridesService.setDriverOffline(body.driverId);
     return { success: true, message: 'Driver is now offline' };
+  }
+
+  // ── History ───────────────────────────────────────────────────────────────
+  //
+  // These must stay ABOVE `@Get(':id')`. Nest matches in declaration order, so
+  // a single-segment route declared after it is swallowed — `/ride/my-rides`
+  // would be read as a ride whose id is the literal "my-rides" and blow up in
+  // Postgres as an invalid uuid rather than 404ing.
+
+  /** Rides this passenger has taken, newest first. */
+  @Get('my-rides')
+  getMyRides(@Req() req: any, @Query('limit') limit?: string) {
+    // Reading req.user.id blind would 500 whenever the guard did not populate
+    // it. Refusing is the only safe answer here — falling back to a default
+    // passenger would hand the caller somebody else's ride history.
+    const passengerId = req?.user?.id;
+    if (!passengerId) {
+      throw new UnauthorizedException('Could not identify the passenger');
+    }
+    return this.ridesService.getPassengerRides(passengerId, Number(limit));
+  }
+
+  @Get('driver/:driverId/trips')
+  getDriverTrips(
+    @Param('driverId') driverId: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.ridesService.getDriverTrips(driverId, Number(limit));
   }
 
   @Get(':id')
