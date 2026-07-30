@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bus } from './entities/bus.entity';
 import { SeatLayout } from './entities/seat-layout.entity';
+import { Operator } from '../operators/entities/operator.entity';
 import { CreateBusDto } from './dto/create-bus.dto';
 import { UpdateBusDto } from './dto/update-bus.dto';
 import { BulkCreateSeatsDto } from './dto/create-seat.dto';
@@ -14,9 +19,20 @@ export class BusesService {
     private readonly busRepo: Repository<Bus>,
     @InjectRepository(SeatLayout)
     private readonly seatRepo: Repository<SeatLayout>,
+    @InjectRepository(Operator)
+    private readonly operatorRepo: Repository<Operator>,
   ) {}
 
   async create(dto: CreateBusDto): Promise<Bus> {
+    // Checked here rather than left to the foreign key, which surfaces as a
+    // raw 500 carrying the Postgres constraint name back to the caller.
+    const operatorExists = await this.operatorRepo.exists({
+      where: { id: dto.operator_id },
+    });
+    if (!operatorExists) {
+      throw new BadRequestException('Operator not found');
+    }
+
     const bus = this.busRepo.create(dto);
     return this.busRepo.save(bus);
   }

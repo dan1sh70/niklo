@@ -4,7 +4,9 @@ import {
   Post,
   Body,
   Param,
+  ParseUUIDPipe,
   Put,
+  Query,
   Delete,
 } from '@nestjs/common';
 import { PackagesService } from './packages.service';
@@ -27,15 +29,32 @@ export class PackagesController {
     return { success: true, data };
   }
 
+  // These two must stay ABOVE `@Get(':id')`. Nest matches in declaration order,
+  // so a literal route declared after it is swallowed — `/packages/trending`
+  // would be read as a package whose id is the string "trending" and fail in
+  // Postgres as an invalid uuid instead of answering.
+
+  @Get('trending')
+  async findTrending(@Query('limit') limit?: string) {
+    const data = await this.packagesService.findTrending(Number(limit));
+    return { success: true, data };
+  }
+
+  @Get('categories')
+  async findCategories() {
+    const data = await this.packagesService.findCategories();
+    return { success: true, data };
+  }
+
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.packagesService.findOne(id);
     return { success: true, data };
   }
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePackageDto: UpdatePackageDto,
   ) {
     const data = await this.packagesService.update(id, updatePackageDto);
@@ -43,7 +62,7 @@ export class PackagesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.packagesService.remove(id);
     return { success: true, data };
   }

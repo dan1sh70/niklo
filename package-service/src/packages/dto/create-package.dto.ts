@@ -37,6 +37,10 @@ export class CreatePackageDto {
   @IsOptional()
   inclusions?: string[];
 
+  @IsString()
+  @IsOptional()
+  category?: string;
+
   @IsBoolean()
   @IsOptional()
   is_active?: boolean;
