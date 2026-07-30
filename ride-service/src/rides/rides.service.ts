@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus, RideType } from './entities/ride.entity';
@@ -12,6 +17,25 @@ const OFFER_TIMEOUT_MS = 20_000;
 // Widening search rings. Each ring is only searched if the previous one is
 // exhausted without an acceptance.
 const SEARCH_RADII_KM = [5, 10, 15];
+
+// How many rides a history call returns by default, and the ceiling a caller
+// can ask for. Neither app pages yet, so the cap is what keeps a long-serving
+// driver's list from turning into an unbounded response.
+const DEFAULT_HISTORY_LIMIT = 50;
+const MAX_HISTORY_LIMIT = 200;
+
+/** Keeps a client-supplied `limit` sane; anything unparseable falls back. */
+function clampLimit(limit: number): number {
+  if (!Number.isFinite(limit) || limit <= 0) return DEFAULT_HISTORY_LIMIT;
+  return Math.min(Math.floor(limit), MAX_HISTORY_LIMIT);
+}
+
+/** Postgres hands back `numeric` columns as strings. */
+function toNumber(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 @Injectable()
 export class RidesService {
@@ -40,6 +64,51 @@ export class RidesService {
     private readonly redisService: RedisService,
     private readonly driverDirectory: DriverDirectoryService,
   ) {}
+
+  // ── Access control ────────────────────────────────────────────────────────
+  //
+  // A ride belongs to exactly two people: the passenger who booked it and the
+  // driver who took it. Every route that names a ride by id has to establish
+  // the caller is one of them — a verified token only proves *who* is calling,
+  // not that the ride is theirs to read, cancel or finish.
+
+  /** The ride, if [userId] is its passenger or its assigned driver. */
+  async findForParticipant(rideId: string, userId: string): Promise<Ride> {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException('Ride not found');
+    }
+    if (ride.passenger_id !== userId && ride.driver_id !== userId) {
+      // Deliberately the same shape as any other refusal: whether a given id
+      // exists is not something an unrelated caller should be able to probe.
+      throw new ForbiddenException('This ride belongs to someone else');
+    }
+    return ride;
+  }
+
+  /** The ride, if [passengerId] is the one who booked it. */
+  async findForPassenger(rideId: string, passengerId: string): Promise<Ride> {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException('Ride not found');
+    }
+    if (ride.passenger_id !== passengerId) {
+      throw new ForbiddenException('This ride belongs to another passenger');
+    }
+    return ride;
+  }
+
+  /** The ride, if [driverId] is the driver actually assigned to it. */
+  async findForAssignedDriver(rideId: string, driverId: string): Promise<Ride> {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException('Ride not found');
+    }
+    if (ride.driver_id !== driverId) {
+      throw new ForbiddenException('You are not the driver on this ride');
+    }
+    return ride;
+  }
 
   // ── Fare ──────────────────────────────────────────────────────────────────
 
@@ -277,6 +346,70 @@ export class RidesService {
       fareFinal: ride.fare_final,
       distanceKm: ride.distance_km,
       driverDetails: await this.buildDriverDetails(ride.driver_id),
+    };
+  }
+
+  /**
+   * Ride history for a driver, newest first.
+   *
+   * The partner app has been calling `GET /ride/driver/:id/trips` since its
+   * history screens were written, but no such route existed — it 404'd, the
+   * repository swallowed the error and returned `[]`, and both the Trips and
+   * Activity screens rendered as "no trips" with nothing to explain why.
+   */
+  async getDriverTrips(driverId: string, limit = DEFAULT_HISTORY_LIMIT) {
+    const rides = await this.rideRepository.find({
+      where: { driver_id: driverId },
+      order: { created_at: 'DESC' },
+      take: clampLimit(limit),
+    });
+
+    return rides.map((ride) => this.toHistoryItem(ride));
+  }
+
+  /** Ride history for a passenger, newest first. */
+  async getPassengerRides(
+    passengerId: string,
+    limit = DEFAULT_HISTORY_LIMIT,
+  ) {
+    const rides = await this.rideRepository.find({
+      where: { passenger_id: passengerId },
+      order: { created_at: 'DESC' },
+      take: clampLimit(limit),
+    });
+
+    return rides.map((ride) => this.toHistoryItem(ride));
+  }
+
+  /**
+   * Shapes a row for the history lists.
+   *
+   * Keys stay snake_case because that is what both apps already index by
+   * (`trip['fare_final']`, `trip['pickup_address']`, …). Numerics are cast to
+   * Number — Postgres returns `numeric` columns as strings, and sending those
+   * through would make the clients' `double.tryParse` the only thing standing
+   * between a fare and a crash.
+   */
+  private toHistoryItem(ride: Ride) {
+    return {
+      id: ride.id,
+      rideId: ride.id,
+      status: ride.status,
+      ride_type: ride.ride_type,
+      pickup_address: ride.pickup_address,
+      drop_address: ride.drop_address,
+      pickup_location: ride.pickup_location,
+      drop_location: ride.drop_location,
+      distance_km: toNumber(ride.distance_km),
+      fare_estimate: toNumber(ride.fare_estimate),
+      fare_final: toNumber(ride.fare_final),
+      surge_multiplier: toNumber(ride.surge_multiplier),
+      driver_id: ride.driver_id,
+      passenger_id: ride.passenger_id,
+      scheduled_at: ride.scheduled_at,
+      started_at: ride.started_at,
+      ended_at: ride.ended_at,
+      created_at: ride.created_at,
     };
   }
 

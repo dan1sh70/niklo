@@ -75,4 +75,14 @@ export class Ride {
 
   @Column({ type: 'timestamptz', nullable: true })
   ended_at: Date;
+
+  // History is ordered and grouped by day on this. It was missing entirely,
+  // even though both partner-app history screens already read `created_at` —
+  // so the trip list had nothing to sort by and the activity earnings roll-up,
+  // which skips any ride without it, always totalled zero.
+  @CreateDateColumn({ type: 'timestamptz' })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at: Date;
 }

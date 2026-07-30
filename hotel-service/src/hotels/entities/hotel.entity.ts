@@ -21,7 +21,7 @@ export class Hotel {
    * have no owner — those stay visible to guests but cannot be managed.
    */
   @Index()
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   ownerId: string | null;
 
   /** Unpublished properties stay out of search/trending but keep their data. */

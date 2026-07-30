@@ -7,6 +7,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RedisModule } from './redis/redis.module';
 import { AuthModule } from './auth/auth.module';
+import { ProfileModule } from './profile/profile.module';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { AddressesModule } from './addresses/addresses.module';
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 
@@ -29,6 +32,9 @@ import redisConfig from './config/redis.config';
     ]),
     RedisModule,
     AuthModule,
+    ProfileModule,
+    WishlistModule,
+    AddressesModule,
   ],
   controllers: [AppController],
   providers: [

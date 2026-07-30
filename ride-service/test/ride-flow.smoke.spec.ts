@@ -47,10 +47,17 @@ describe('Ride flow smoke test', () => {
         { provide: getRepositoryToken(Ride), useValue: repo },
       ],
     })
-      // Every ride route sits behind this guard; the smoke test drives the
-      // service directly and via sockets, so let requests through.
+      // Every ride route sits behind this guard. Let requests through, but
+      // still attach a user the way the real guard does — routes that read
+      // req.user (my-rides) are otherwise exercised against a request shape
+      // that never occurs in production.
       .overrideGuard(JwtAuthGuard)
-      .useValue({ canActivate: () => true })
+      .useValue({
+        canActivate: (ctx: any) => {
+          ctx.switchToHttp().getRequest().user = { id: PASSENGER_ID };
+          return true;
+        },
+      })
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -390,6 +397,106 @@ describe('Ride flow smoke test', () => {
     const payload = await assigned;
     expect(payload.rideId).toBe(res.rideId);
     expect(payload.driverId).toBe(driverId);
+  });
+
+  // The history routes are declared above `@Get(':id')`. Exercised over HTTP
+  // rather than through the service, because the bug they guard against is a
+  // routing one: declared after `:id`, `/ride/my-rides` is read as a ride whose
+  // id is "my-rides" and never reaches the handler at all.
+  describe('history', () => {
+    /** Two rides for one driver, one for another, plus a second passenger. */
+    async function seedHistory() {
+      const older = await repo.save({
+        passenger_id: PASSENGER_ID,
+        driver_id: 'drv-history',
+        ride_type: RideType.SEDAN,
+        pickup_address: 'MG Road',
+        drop_address: 'Koramangala',
+        status: RideStatus.COMPLETED,
+        distance_km: '4.20',
+        fare_final: '180.50',
+        created_at: new Date('2026-07-01T10:00:00Z'),
+      });
+      const newer = await repo.save({
+        passenger_id: PASSENGER_ID,
+        driver_id: 'drv-history',
+        ride_type: RideType.SEDAN,
+        pickup_address: 'Indiranagar',
+        drop_address: 'Whitefield',
+        status: RideStatus.CANCELLED,
+        created_at: new Date('2026-07-20T10:00:00Z'),
+      });
+      const other = await repo.save({
+        passenger_id: 'p2222222-2222-2222-2222-222222222222',
+        driver_id: 'drv-someone-else',
+        ride_type: RideType.MINI,
+        pickup_address: 'Jayanagar',
+        drop_address: 'HSR',
+        status: RideStatus.COMPLETED,
+        created_at: new Date('2026-07-25T10:00:00Z'),
+      });
+      return { older, newer, other };
+    }
+
+    it('11. returns a driver\'s own trips, newest first', async () => {
+      const { older, newer } = await seedHistory();
+
+      const res = await fetch(`${url}/api/v1/ride/driver/drv-history/trips`);
+      expect(res.status).toBe(200);
+
+      const trips = await res.json();
+      expect(trips.map((t: any) => t.id)).toEqual([newer.id, older.id]);
+      // Another driver's ride must not leak into this list.
+      expect(trips).toHaveLength(2);
+    });
+
+    it('12. sends history fields as the apps index them', async () => {
+      await seedHistory();
+
+      const trips = await (
+        await fetch(`${url}/api/v1/ride/driver/drv-history/trips`)
+      ).json();
+      const completed = trips.find((t: any) => t.status === 'COMPLETED');
+
+      expect(completed.pickup_address).toBe('MG Road');
+      expect(completed.drop_address).toBe('Koramangala');
+      expect(completed.created_at).toBeTruthy();
+      // Postgres returns numeric as a string; the clients parse numbers.
+      expect(completed.fare_final).toBe(180.5);
+      expect(completed.distance_km).toBe(4.2);
+    });
+
+    it('13. my-rides resolves as a route, not as a ride id', async () => {
+      const { older, newer, other } = await seedHistory();
+
+      const res = await fetch(`${url}/api/v1/ride/my-rides`);
+      expect(res.status).toBe(200);
+
+      const mine = await res.json();
+      // Only this passenger's rides, newest first.
+      expect(mine.map((r: any) => r.id)).toEqual([newer.id, older.id]);
+      expect(mine.map((r: any) => r.id)).not.toContain(other.id);
+    });
+
+    it('14. caps how many rides a single call can return', async () => {
+      for (let i = 0; i < 5; i++) {
+        await repo.save({
+          passenger_id: PASSENGER_ID,
+          driver_id: 'drv-bulk',
+          ride_type: RideType.SEDAN,
+          pickup_address: `Stop ${i}`,
+          status: RideStatus.COMPLETED,
+          created_at: new Date(2026, 6, i + 1),
+        });
+      }
+
+      const trips = await (
+        await fetch(`${url}/api/v1/ride/driver/drv-bulk/trips?limit=2`)
+      ).json();
+      expect(trips).toHaveLength(2);
+      // Newest two, not the first two inserted.
+      expect(trips[0].pickup_address).toBe('Stop 4');
+    });
   });
 });
 

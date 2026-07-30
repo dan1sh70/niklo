@@ -10,6 +10,7 @@ import { In, Repository } from 'typeorm';
 import {
   Booking,
   HotelBookingStatus,
+  HotelPaymentMethod,
   OCCUPYING_STATUSES,
 } from './entities/booking.entity';
 import { Hotel } from '../hotels/entities/hotel.entity';
@@ -115,6 +116,11 @@ export class BookingsService {
       hourlyDurationHours: dto.hourlyDurationHours,
     });
 
+    // A cash booking has nothing to wait for: no gateway will ever report a
+    // capture, so leaving it pending would hold the room in a state the
+    // partner cannot act on and the guest cannot clear.
+    const paysCash = dto.paymentMethod === HotelPaymentMethod.Cash;
+
     const booking = this.bookingRepository.create({
       bookingId: this.generateBookingId(),
       hotelId: hotel.id,
@@ -140,7 +146,13 @@ export class BookingsService {
       totalAmount: breakdown.total,
       priceBreakdown: breakdown,
       userId,
-      status: HotelBookingStatus.PendingPayment,
+      status: paysCash
+        ? HotelBookingStatus.Confirmed
+        : HotelBookingStatus.PendingPayment,
+      confirmedAt: paysCash ? new Date() : null,
+      paymentMethod: paysCash
+        ? HotelPaymentMethod.Cash
+        : HotelPaymentMethod.Online,
       currency: breakdown.currency,
       paymentGatewayOrderId: null,
     });
@@ -153,6 +165,7 @@ export class BookingsService {
       amount: booking.totalAmount,
       currency: booking.currency,
       priceBreakdown: booking.priceBreakdown,
+      paymentMethod: booking.paymentMethod,
       paymentGatewayOrderId: booking.paymentGatewayOrderId,
     };
   }
@@ -199,6 +212,36 @@ export class BookingsService {
     if (dto.paymentGatewayOrderId) {
       booking.paymentGatewayOrderId = dto.paymentGatewayOrderId;
     }
+    await this.bookingRepository.save(booking);
+    return booking;
+  }
+
+  /**
+   * Switches a booking to settle in cash at the property and confirms it.
+   *
+   * The guest picks how to pay on the checkout screen, which runs after the
+   * booking already exists — so this is what a booking created for the online
+   * flow becomes when they choose cash instead. Only a booking still waiting
+   * for payment can move: one already paid for online would otherwise be
+   * quietly rewritten as unpaid.
+   */
+  async payAtProperty(bookingId: string, userId: string) {
+    const booking = await this.findByBookingId(bookingId);
+    if (booking.userId !== userId) {
+      throw new ForbiddenException('This booking belongs to another account.');
+    }
+    if (booking.paymentMethod === HotelPaymentMethod.Cash) {
+      return booking; // Already set; repeating the request changes nothing.
+    }
+    if (booking.status !== HotelBookingStatus.PendingPayment) {
+      throw new ConflictException(
+        `A booking that is ${booking.status.replace('_', ' ')} cannot be switched to cash.`,
+      );
+    }
+
+    booking.paymentMethod = HotelPaymentMethod.Cash;
+    booking.status = HotelBookingStatus.Confirmed;
+    booking.confirmedAt = new Date();
     await this.bookingRepository.save(booking);
     return booking;
   }
@@ -308,12 +351,32 @@ export class BookingsService {
       };
     });
 
+    const isCash = (b: Booking) => b.paymentMethod === HotelPaymentMethod.Cash;
+    const sum = (list: Booking[]) =>
+      list.reduce((total, b) => total + b.totalAmount, 0);
+
     return {
-      totalEarnings: earned.reduce((sum, b) => sum + b.totalAmount, 0),
-      // Money for stays that have not completed yet is not payable.
-      pendingPayout: earned
-        .filter((b) => b.status !== HotelBookingStatus.CheckedOut)
-        .reduce((sum, b) => sum + b.totalAmount, 0),
+      totalEarnings: sum(earned),
+      // What we owe the partner: money that actually passed through us, for
+      // stays that have not completed yet. Cash never reaches us, so paying it
+      // out would be paying twice.
+      pendingPayout: sum(
+        earned.filter(
+          (b) => !isCash(b) && b.status !== HotelBookingStatus.CheckedOut,
+        ),
+      ),
+      // Cash the partner takes at the desk. Split by whether the stay is done,
+      // so an unpaid arrival is visible rather than counted as money in hand.
+      cashToCollect: sum(
+        earned.filter(
+          (b) => isCash(b) && b.status !== HotelBookingStatus.CheckedOut,
+        ),
+      ),
+      cashCollected: sum(
+        earned.filter(
+          (b) => isCash(b) && b.status === HotelBookingStatus.CheckedOut,
+        ),
+      ),
       completedStays: earned.filter(
         (b) => b.status === HotelBookingStatus.CheckedOut,
       ).length,

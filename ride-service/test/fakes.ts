@@ -138,7 +138,16 @@ export class FakeRideRepository {
   }
 
   async save(entity: any) {
-    if (!entity.id) entity.id = `ride-${++this.seq}`;
+    const isInsert = !entity.id;
+    if (isInsert) entity.id = `ride-${++this.seq}`;
+
+    // Stand in for @CreateDateColumn / @UpdateDateColumn, which Postgres fills
+    // on insert. History orders on created_at, so a fake that left it undefined
+    // would let a broken sort pass.
+    const existing = this.rows.get(entity.id);
+    entity.created_at = existing?.created_at ?? entity.created_at ?? new Date();
+    entity.updated_at = new Date();
+
     this.rows.set(entity.id, { ...entity });
     return { ...entity };
   }
@@ -148,14 +157,27 @@ export class FakeRideRepository {
     return row ? { ...row } : null;
   }
 
-  async find({ where }: any) {
+  async find({ where, order, take }: any) {
     const clauses = Array.isArray(where) ? where : [where];
-    return [...this.rows.values()]
+    let rows = [...this.rows.values()]
       .filter((row) =>
         clauses.some((c) =>
           Object.entries(c).every(([k, v]) => row[k] === v),
         ),
       )
       .map((r) => ({ ...r }));
+
+    for (const [field, direction] of Object.entries(order ?? {})) {
+      const sign = String(direction).toUpperCase() === 'DESC' ? -1 : 1;
+      rows.sort((a, b) => {
+        const av = a[field] ?? 0;
+        const bv = b[field] ?? 0;
+        if (av === bv) return 0;
+        return av < bv ? -sign : sign;
+      });
+    }
+
+    if (typeof take === 'number') rows = rows.slice(0, take);
+    return rows;
   }
 }

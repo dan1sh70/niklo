@@ -102,6 +102,13 @@ export class BookingsController {
     return this.bookingsService.confirmPayment(bookingId, req.user.id, dto);
   }
 
+  /** Settle at the property instead of online. Confirms the booking. */
+  @UseGuards(JwtAuthGuard)
+  @Post('hotel/:bookingId/pay-at-property')
+  payAtProperty(@Request() req: any, @Param('bookingId') bookingId: string) {
+    return this.bookingsService.payAtProperty(bookingId, req.user.id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('hotel/:bookingId/cancel')
   cancelBooking(

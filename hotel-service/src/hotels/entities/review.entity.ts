@@ -18,7 +18,7 @@ export class Review {
 
   /** Author, taken from the JWT. One review per guest per property. */
   @Index()
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   userId: string | null;
 
   @Column()
