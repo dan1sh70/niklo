@@ -1,43 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+/**
+ * Verifies the bearer token, exactly as every other service does.
+ *
+ * This used to hand-decode the JWT payload without ever checking the signature
+ * and — worse — fall back to a hardcoded user whenever the header was missing
+ * or unparseable, always returning true. A caller with no token at all was
+ * silently treated as a signed-in passenger, so anyone could request, read and
+ * cancel anybody's rides. None of that behaviour was worth keeping.
+ */
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
-
-    const defaultUser = {
-      id: '123e4567-e89b-12d3-a456-426614174000',
-      email: 'user@example.com',
-      name: 'John Doe',
-    };
-
-    if (!authHeader) {
-      request.user = defaultUser;
-      return true;
-    }
-
-    try {
-      const parts = authHeader.split(' ');
-      if (parts.length === 2 && parts[0] === 'Bearer') {
-        const token = parts[1];
-        const tokenParts = token.split('.');
-        if (tokenParts.length === 3) {
-          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString('utf8'));
-          request.user = {
-            id: payload.sub || payload.id || defaultUser.id,
-            email: payload.email || defaultUser.email,
-            name: payload.name || defaultUser.name,
-            ...payload,
-          };
-          return true;
-        }
-      }
-    } catch (err) {
-      // Graceful fallback on token parse error
-    }
-
-    request.user = defaultUser;
-    return true;
-  }
-}
+export class JwtAuthGuard extends AuthGuard('jwt') {}

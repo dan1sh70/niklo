@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus, RideType } from './entities/ride.entity';
@@ -59,6 +64,51 @@ export class RidesService {
     private readonly redisService: RedisService,
     private readonly driverDirectory: DriverDirectoryService,
   ) {}
+
+  // ── Access control ────────────────────────────────────────────────────────
+  //
+  // A ride belongs to exactly two people: the passenger who booked it and the
+  // driver who took it. Every route that names a ride by id has to establish
+  // the caller is one of them — a verified token only proves *who* is calling,
+  // not that the ride is theirs to read, cancel or finish.
+
+  /** The ride, if [userId] is its passenger or its assigned driver. */
+  async findForParticipant(rideId: string, userId: string): Promise<Ride> {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException('Ride not found');
+    }
+    if (ride.passenger_id !== userId && ride.driver_id !== userId) {
+      // Deliberately the same shape as any other refusal: whether a given id
+      // exists is not something an unrelated caller should be able to probe.
+      throw new ForbiddenException('This ride belongs to someone else');
+    }
+    return ride;
+  }
+
+  /** The ride, if [passengerId] is the one who booked it. */
+  async findForPassenger(rideId: string, passengerId: string): Promise<Ride> {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException('Ride not found');
+    }
+    if (ride.passenger_id !== passengerId) {
+      throw new ForbiddenException('This ride belongs to another passenger');
+    }
+    return ride;
+  }
+
+  /** The ride, if [driverId] is the driver actually assigned to it. */
+  async findForAssignedDriver(rideId: string, driverId: string): Promise<Ride> {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException('Ride not found');
+    }
+    if (ride.driver_id !== driverId) {
+      throw new ForbiddenException('You are not the driver on this ride');
+    }
+    return ride;
+  }
 
   // ── Fare ──────────────────────────────────────────────────────────────────
 

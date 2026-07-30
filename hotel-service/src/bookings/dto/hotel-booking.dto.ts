@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsDateString,
   IsEmail,
+  IsEnum,
   IsIn,
   IsInt,
   IsNotEmpty,
@@ -16,6 +17,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { HotelPaymentMethod } from '../entities/booking.entity';
 
 export class BookingGuestDto {
   @IsString()
@@ -105,6 +107,14 @@ export class CreateHotelBookingDto {
   @IsString()
   @Length(8, 15)
   contactPhone: string;
+
+  /**
+   * `cash` books the room to be settled at the property. Defaulted rather than
+   * required so existing clients keep the online flow they already send.
+   */
+  @IsOptional()
+  @IsEnum(HotelPaymentMethod)
+  paymentMethod?: HotelPaymentMethod = HotelPaymentMethod.Online;
 }
 
 /** Same inputs as a booking, but priced without reserving anything. */

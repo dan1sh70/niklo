@@ -22,6 +22,11 @@ export enum HotelBookingStatus {
   Cancelled = 'cancelled',
 }
 
+export enum HotelPaymentMethod {
+  Online = 'online',
+  Cash = 'cash',
+}
+
 /** Statuses that still hold inventory for their date range. */
 export const OCCUPYING_STATUSES = [
   HotelBookingStatus.PendingPayment,
@@ -51,21 +56,21 @@ export class Booking {
    * Denormalized at creation so a cancelled or edited property never rewrites
    * what the guest actually booked.
    */
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   hotelName: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   hotelAddress: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   hotelImagePath: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   roomTitle: string | null;
 
   /** Owner of the property at booking time — drives the partner-side feed. */
   @Index()
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   hotelOwnerId: string | null;
 
   @Column()
@@ -92,7 +97,7 @@ export class Booking {
   @Column({ default: false })
   isHourly: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   hourlyCheckInTime: string | null;
 
   @Column('int', { nullable: true })
@@ -102,10 +107,10 @@ export class Booking {
   @Column({ type: 'jsonb', default: [] })
   guests: any[];
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   contactEmail: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   contactPhone: string | null;
 
   /** Authoritative, server-computed total. Never taken from the client. */
@@ -132,11 +137,21 @@ export class Booking {
   @Column({ default: 'INR' })
   currency: string;
 
-  @Column({ nullable: true })
+  /**
+   * How the guest is paying. `cash` means they settle at the property, so no
+   * gateway is involved and the money never passes through us — which is why
+   * the earnings figures below have to treat it separately from money we
+   * collected and still owe the partner.
+   */
+  @Index()
+  @Column({ default: HotelPaymentMethod.Online })
+  paymentMethod: HotelPaymentMethod;
+
+  @Column({ type: 'varchar', nullable: true })
   paymentGatewayOrderId: string | null;
 
   /** Set when the payment service confirms a successful capture. */
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   paymentId: string | null;
 
   @Column({ type: 'timestamptz', nullable: true })
@@ -145,7 +160,7 @@ export class Booking {
   @Column({ type: 'timestamptz', nullable: true })
   cancelledAt: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   cancellationReason: string | null;
 
   @Column({ type: 'timestamptz', nullable: true })
