@@ -10,7 +10,23 @@ export class AdventuresService implements OnApplicationBootstrap {
     private readonly adventureRepository: Repository<TravelAdventure>,
   ) {}
 
+  /**
+   * A seed that throws must not take the service down with it: Nest propagates
+   * a rejected bootstrap hook out of `app.listen()`, the process exits, and the
+   * container restart-loops. Starting without demo data is the lesser failure.
+   */
   async onApplicationBootstrap() {
+    try {
+      await this.seed();
+    } catch (err) {
+      console.error(
+        'adventure-service seeding failed; starting without demo data.',
+        err,
+      );
+    }
+  }
+
+  private async seed() {
     const count = await this.adventureRepository.count();
     if (count === 0) {
       await this.adventureRepository.save([

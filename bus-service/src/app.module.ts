@@ -64,7 +64,27 @@ import { Schedule, ScheduleStatus } from './schedules/entities/schedule.entity';
 export class AppModule implements OnApplicationBootstrap {
   constructor(private readonly dataSource: DataSource) {}
 
+  /**
+   * Seeds demo data on an empty database.
+   *
+   * Everything is wrapped, because a rejection here does not just skip the
+   * seed — Nest propagates it out of `app.listen()`, the process exits, and
+   * the container restart-loops. A service that cannot seed should still come
+   * up and serve; nginx also resolves upstreams per request, but a bus-service
+   * that never starts is still a bus-service nobody can reach.
+   */
   async onApplicationBootstrap() {
+    try {
+      await this.seed();
+    } catch (err) {
+      console.error(
+        'bus-service seeding failed; starting without demo data.',
+        err,
+      );
+    }
+  }
+
+  private async seed() {
     const operatorRepo = this.dataSource.getRepository(Operator);
     const busRepo = this.dataSource.getRepository(Bus);
     const routeRepo = this.dataSource.getRepository(Route);

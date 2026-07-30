@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  ParseUUIDPipe,
   Query,
   UseGuards,
   Req,
@@ -52,13 +53,13 @@ export class RidesController {
   // ── A named ride: passenger or assigned driver only ───────────────────────
 
   @Get(':id/status')
-  async getRideStatus(@Req() req: any, @Param('id') id: string) {
+  async getRideStatus(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     await this.ridesService.findForParticipant(id, this.callerId(req));
     return this.ridesService.getRideStatus(id);
   }
 
   @Post(':id/cancel')
-  async cancelRide(@Req() req: any, @Param('id') id: string) {
+  async cancelRide(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     // Either side can call a ride off, so a driver who cannot make the pickup
     // is not forced to leave the passenger waiting.
     await this.ridesService.findForParticipant(id, this.callerId(req));
@@ -68,7 +69,7 @@ export class RidesController {
   @Post(':id/rate')
   async rateRide(
     @Req() req: any,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() ratingDto: any,
   ) {
     // Rating is the passenger's verdict on the trip they actually took.
@@ -79,7 +80,7 @@ export class RidesController {
   // ── Driver side ───────────────────────────────────────────────────────────
 
   @Post(':id/accept')
-  async acceptRide(@Req() req: any, @Param('id') id: string) {
+  async acceptRide(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     // Taken from the token, never the body. A driverId in the body was all it
     // used to take to accept a ride as somebody else.
     const driverId = this.callerId(req);
@@ -98,7 +99,11 @@ export class RidesController {
   }
 
   @Post(':id/complete')
-  async completeRide(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+  async completeRide(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: any,
+  ) {
     // Completing a ride is what fixes the fare, so only the driver on it may.
     await this.ridesService.findForAssignedDriver(id, this.callerId(req));
 
@@ -142,6 +147,18 @@ export class RidesController {
     );
   }
 
+  /**
+   * The same list under the name the customer app asks for.
+   *
+   * `/ride/history` was never declared, so it fell through to `@Get(':id')`
+   * and asked Postgres for a ride whose id is the literal "history". Both
+   * names now answer, rather than one of them being a 500.
+   */
+  @Get('history')
+  getHistory(@Req() req: any, @Query('limit') limit?: string) {
+    return this.getMyRides(req, limit);
+  }
+
   @Get('driver/:driverId/trips')
   getDriverTrips(
     @Req() req: any,
@@ -157,7 +174,7 @@ export class RidesController {
   }
 
   @Get(':id')
-  async getRide(@Req() req: any, @Param('id') id: string) {
+  async getRide(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     await this.ridesService.findForParticipant(id, this.callerId(req));
     return this.ridesService.getRideStatus(id);
   }

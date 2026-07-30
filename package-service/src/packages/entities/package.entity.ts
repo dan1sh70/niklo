@@ -32,6 +32,16 @@ export class TravelPackage {
   @Column({ type: 'jsonb', default: [] })
   inclusions: string[];
 
+  /**
+   * What the customer app groups packages by on its browse screen.
+   *
+   * Nullable, because every package that already exists predates the column
+   * and has nothing sensible to backfill with — `GET /categories` skips those
+   * rather than reporting an empty category.
+   */
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  category: string | null;
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
