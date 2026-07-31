@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { Ride, RideStatus, RideType } from './entities/ride.entity';
 import { RedisService } from '../redis/redis.service';
 import { DriverDirectoryService } from './driver-directory.service';
-import { quoteFare, toLatLng, LatLng } from './fare';
+import { quoteFare, toLatLng, haversineKm, round2, LatLng } from './fare';
 
 // How long a single driver has to answer before the offer moves on.
 const OFFER_TIMEOUT_MS = 20_000;
@@ -17,6 +17,11 @@ const OFFER_TIMEOUT_MS = 20_000;
 // Widening search rings. Each ring is only searched if the previous one is
 // exhausted without an acceptance.
 const SEARCH_RADII_KM = [5, 10, 15];
+
+// How far from the booked drop a trip has to end before the fare is
+// recalculated. Below this, GPS scatter and a driver who stops a few doors
+// down must not change what the passenger was quoted.
+const DETOUR_THRESHOLD_KM = 0.5;
 
 // How many rides a history call returns by default, and the ceiling a caller
 // can ask for. Neither app pages yet, so the cap is what keeps a long-serving
@@ -557,27 +562,81 @@ export class RidesService {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (!ride) return;
 
+    // The partner app ends a trip twice — once over the socket (`ride:end`)
+    // and once over REST (`POST /:id/complete`). Settling only on the first
+    // one keeps the driver from being credited for the same trip twice.
+    if (ride.status === RideStatus.COMPLETED) {
+      this.logger.log(`Ride ${rideId} is already completed — ignoring`);
+      return;
+    }
+
     ride.status = RideStatus.COMPLETED;
     ride.ended_at = new Date();
 
-    // Re-quote against where the ride actually ended, so a detour or a changed
-    // destination is reflected. When the driver app has no GPS fix, fall back
-    // to the destination recorded at booking time; if that is missing too, keep
-    // the original estimate rather than inventing a number.
-    const pickup = toLatLng(ride.pickup_location);
-    const actualDrop =
-      toLatLng({ lat: finalLat, lng: finalLng }) ??
-      toLatLng(ride.drop_location);
-    const finalQuote = quoteFare(pickup, actualDrop, ride.ride_type);
+    // What the passenger agreed to at booking is what they pay.
+    //
+    // This used to re-quote every trip from the driver's last GPS fix, which
+    // meant a driver whose final fix was still near the pickup — no movement,
+    // stale location, indoor drop-off — collapsed the fare to the vehicle's
+    // minimum. It also re-rolled the surge against the completion time, so the
+    // total moved for a reason the passenger could not see.
+    ride.fare_final = ride.fare_estimate;
 
-    if (finalQuote) {
-      ride.distance_km = finalQuote.distanceKm;
-      ride.fare_final = finalQuote.fareEstimate;
-    } else {
-      ride.fare_final = ride.fare_estimate;
+    const bookedDrop = toLatLng(ride.drop_location);
+    const actualDrop = toLatLng({ lat: finalLat, lng: finalLng });
+    const detourKm =
+      bookedDrop && actualDrop ? haversineKm(bookedDrop, actualDrop) : 0;
+
+    if (actualDrop && detourKm > DETOUR_THRESHOLD_KM) {
+      // The trip ended somewhere other than the booked drop, so price the
+      // distance actually driven — at the surge the passenger was quoted, not
+      // whatever band the clock happens to be in now.
+      const requote = quoteFare(
+        toLatLng(ride.pickup_location),
+        actualDrop,
+        ride.ride_type,
+      );
+
+      if (requote) {
+        const bookedSurge =
+          toNumber(ride.surge_multiplier) ?? requote.surgeMultiplier;
+        const repriced = round2(
+          (requote.fareEstimate / requote.surgeMultiplier) * bookedSurge,
+        );
+
+        // Only ever upward. "Ended far from the booked drop" covers a genuine
+        // detour, but it also covers the driver whose last GPS fix is stale or
+        // still sitting at the pickup — and that must not quietly refund a
+        // trip down to the minimum fare, which is what used to happen. A trip
+        // that stopped short is a support decision, not an automatic one.
+        if (repriced > (toNumber(ride.fare_estimate) ?? 0)) {
+          ride.distance_km = requote.distanceKm;
+          ride.fare_final = repriced;
+          this.logger.log(
+            `Ride ${rideId} ended ${detourKm.toFixed(2)}km past the booked drop — re-priced to ${repriced}`,
+          );
+        } else {
+          this.logger.log(
+            `Ride ${rideId} ended ${detourKm.toFixed(2)}km from the booked drop but short of it — keeping the quoted fare`,
+          );
+        }
+      }
     }
 
     await this.rideRepository.save(ride);
+
+    // Credit the driver's ledger. Deliberately not awaited into the response
+    // path: a driver-service outage must not fail a trip that has already
+    // happened. Failures are logged, never swallowed.
+    const earned = toNumber(ride.fare_final);
+    if (ride.driver_id && earned !== null) {
+      void this.driverDirectory.recordRideEarning(
+        ride.driver_id,
+        ride.id,
+        earned,
+      );
+    }
+
     await this.redisService.publish(
       'ride:status_update',
       JSON.stringify({

@@ -94,19 +94,31 @@ export function haversineKm(a: LatLng, b: LatLng): number {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
 }
 
+// Peak windows below are Indian commercial hours, so they have to be read in
+// IST regardless of what the container's clock says. Nothing sets `TZ` in
+// docker-compose.yaml, so every service runs UTC — `getHours()` put the
+// "evening peak" at 22:30-02:30 IST and the morning one at 13:30-16:30.
+const IST_OFFSET_MINUTES = 5 * 60 + 30;
+
+/** Hour of the day in IST (0-23), whatever timezone the process runs in. */
+export function istHour(date: Date): number {
+  const utcMinutes = date.getUTCHours() * 60 + date.getUTCMinutes();
+  return Math.floor((((utcMinutes + IST_OFFSET_MINUTES) % 1440) + 1440) % 1440 / 60);
+}
+
 /**
  * Time-of-day surge. Morning and evening peaks only — deliberately simple and
  * deterministic so a quote can be reproduced from its inputs.
  */
 export function surgeFor(date = new Date()): number {
-  const hour = date.getHours();
+  const hour = istHour(date);
   if (hour >= 8 && hour < 11) return 1.3; // morning peak
   if (hour >= 17 && hour < 21) return 1.4; // evening peak
   if (hour >= 23 || hour < 5) return 1.25; // late night
   return 1.0;
 }
 
-const round2 = (n: number) => Math.round(n * 100) / 100;
+export const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /**
  * Distance-and-time based quote.

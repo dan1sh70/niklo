@@ -15,6 +15,11 @@ const DRIVER_SERVICE_URL =
 const CACHE_TTL_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 2_000;
 
+// Shared secret for service-to-service writes. driver-service refuses the
+// earnings endpoint without it, so an unset value here means trips silently
+// stop being credited — hence the warning on first use rather than a quiet 401.
+const INTERNAL_API_TOKEN = process.env.INTERNAL_API_TOKEN || '';
+
 /**
  * Read-only view of driver-service, used to put real vehicle details on a ride
  * status response instead of the placeholder string it used to return.
@@ -42,6 +47,61 @@ export class DriverDirectoryService {
     const value = await this.fetchDriver(driverId);
     this.cache.set(driverId, { value, expiresAt: Date.now() + CACHE_TTL_MS });
     return value;
+  }
+
+  /**
+   * Credits a completed trip to the driver's earnings ledger.
+   *
+   * Nothing used to write here at all: `driver_earnings` only ever held the
+   * rows driver-service seeds itself, so the partner app had no server-side
+   * number to show and fell back to a figure kept on the device. The endpoint
+   * is idempotent on `rideId`, which matters because a trip is completed twice
+   * (socket and REST).
+   */
+  async recordRideEarning(
+    driverId: string,
+    rideId: string,
+    amount: number,
+  ): Promise<void> {
+    if (!INTERNAL_API_TOKEN) {
+      this.logger.warn(
+        `INTERNAL_API_TOKEN is not set — ride ${rideId} will not be credited to driver ${driverId}`,
+      );
+      return;
+    }
+
+    const url = `${DRIVER_SERVICE_URL}/api/v1/driver/earnings/record`;
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-token': INTERNAL_API_TOKEN,
+        },
+        body: JSON.stringify({ driverId, rideId, amount }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (!res.ok) {
+        this.logger.error(
+          `Could not credit ride ${rideId} to driver ${driverId}: driver-service returned ${res.status}`,
+        );
+        return;
+      }
+
+      this.logger.log(
+        `Credited ${amount} to driver ${driverId} for ride ${rideId}`,
+      );
+    } catch (err) {
+      this.logger.error(
+        `Could not credit ride ${rideId} to driver ${driverId}: ${(err as Error).message}`,
+      );
+    }
   }
 
   private async fetchDriver(driverId: string): Promise<DriverProfile | null> {
