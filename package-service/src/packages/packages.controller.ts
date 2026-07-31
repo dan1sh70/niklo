@@ -24,8 +24,11 @@ export class PackagesController {
   }
 
   @Get()
-  async findAll() {
-    const data = await this.packagesService.findAll();
+  async findAll(
+    @Query('destination') destination?: string,
+    @Query('category') category?: string,
+  ) {
+    const data = await this.packagesService.findAll({ destination, category });
     return { success: true, data };
   }
 

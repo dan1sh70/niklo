@@ -99,8 +99,33 @@ export class PackagesService implements OnApplicationBootstrap {
     return await this.packageRepo.save(newPackage);
   }
 
-  async findAll() {
-    return await this.packageRepo.find();
+  /**
+   * The browse list, optionally narrowed by the customer app's destination
+   * chips ("Goa", "Manali") and category filter.
+   *
+   * A package has no single destination column — it carries a jsonb list of
+   * stops like `["North Goa Beaches", "South Goa Churches"]`. So the match is a
+   * substring over that list rendered as text, plus the title, because "Goa"
+   * has to find a package whose stops only ever spell out specific beaches.
+   * Without this the param was silently ignored and every chip returned the
+   * whole table.
+   */
+  async findAll(filters: { destination?: string; category?: string } = {}) {
+    const qb = this.packageRepo.createQueryBuilder('p');
+
+    if (filters.destination?.trim()) {
+      qb.andWhere('(p.destinations::text ILIKE :dest OR p.title ILIKE :dest)', {
+        dest: `%${filters.destination.trim()}%`,
+      });
+    }
+
+    if (filters.category?.trim() && filters.category.trim() !== 'All') {
+      qb.andWhere('p.category ILIKE :category', {
+        category: filters.category.trim(),
+      });
+    }
+
+    return await qb.getMany();
   }
 
   /**
