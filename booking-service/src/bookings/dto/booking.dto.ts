@@ -5,8 +5,20 @@ export class CreateBookingDto {
   @IsEnum(BookingType)
   booking_type: BookingType;
 
+  /**
+   * Required for seated types (BUS, JOURNEY_LEG) only. Enforced in
+   * BookingsService rather than here so the caller gets a message naming the
+   * booking type, instead of a bare "schedule_id must be a UUID" on a package
+   * booking that was never going to have one.
+   */
+  @IsOptional()
   @IsUUID('all')
-  schedule_id: string;
+  schedule_id?: string;
+
+  /** The package or adventure being booked. Required for unseated types. */
+  @IsOptional()
+  @IsUUID('all')
+  item_id?: string;
 
   @IsOptional()
   @IsUUID('all')
