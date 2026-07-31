@@ -203,6 +203,11 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      DRIVER_SERVICE_URL: http://driver-service:3011
+      # Must match driver-service. Without it, completed trips are never
+      # credited to the driver's ledger (logged as a warning, not silently).
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-niklo-internal-dev}
+      TZ: Asia/Kolkata
     depends_on:
       - postgres-db
       - redis
@@ -233,6 +238,10 @@ services:
       DB_PASSWORD: niklo_driver_password
       DB_NAME: niklo_driver
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      # Must match ride-service. Guards POST /driver/earnings/record, which
+      # credits completed trips — an app must never be able to call it.
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-niklo-internal-dev}
+      TZ: Asia/Kolkata
     depends_on:
       - postgres-db
     expose:

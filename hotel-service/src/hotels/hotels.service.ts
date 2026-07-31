@@ -6,7 +6,8 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, In, Repository } from 'typeorm';
+import { randomUUID } from 'node:crypto';
+import { Brackets, EntityManager, In, Repository } from 'typeorm';
 import { Hotel } from './entities/hotel.entity';
 import { Review } from './entities/review.entity';
 import { RoomType } from './entities/room-type.entity';
@@ -31,6 +32,20 @@ const REVIEW_ELIGIBLE_STATUSES = [
   HotelBookingStatus.CheckedOut,
 ];
 
+/**
+ * The id shape `@IsUUID()` accepts, as a POSIX pattern for Postgres.
+ *
+ * Postgres' own `uuid` type only checks that the value is 32 hex digits, so
+ * `11111111-1111-1111-1111-111111111111` stores happily — but class-validator
+ * also enforces the RFC-4122 version and variant nibbles, so those same ids are
+ * rejected the moment a client sends one back in a booking body. Rows created
+ * before this — the demo property that used to be seeded here — carried exactly
+ * such an id, which made them impossible to book: `POST /bookings/hotel`
+ * answered `400 hotelId must be a UUID`.
+ */
+const RFC_UUID_PATTERN =
+  '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
+
 @Injectable()
 export class HotelsService implements OnApplicationBootstrap {
   constructor(
@@ -45,100 +60,93 @@ export class HotelsService implements OnApplicationBootstrap {
   ) {}
 
   /**
-   * A seed that throws must not take the service down with it: Nest propagates
-   * a rejected bootstrap hook out of `app.listen()`, the process exits, and the
-   * container restart-loops. Starting without demo data is the lesser failure.
+   * Properties come from partners through `POST /api/v1/hotels`, never from
+   * this service — so nothing is seeded here. The one startup task is a repair
+   * of rows that already exist.
+   *
+   * It must not take the service down with it: Nest propagates a rejected
+   * bootstrap hook out of `app.listen()`, the process exits, and the container
+   * restart-loops. Starting with unrepaired data is the lesser failure.
    */
   async onApplicationBootstrap() {
+    await this.runStartupTask('legacy id repair', () => this.repairLegacyIds());
+  }
+
+  private async runStartupTask(name: string, task: () => Promise<void>) {
     try {
-      await this.seed();
+      await task();
     } catch (err) {
-      console.error(
-        'hotel-service seeding failed; starting without demo data.',
-        err,
-      );
+      console.error(`hotel-service ${name} failed; continuing without it.`, err);
     }
   }
 
-  private async seed() {
-    const count = await this.hotelRepository.count();
-    if (count > 0) return;
+  /**
+   * Rewrites hotel and room ids that Postgres accepts but `@IsUUID()` does not.
+   *
+   * Idempotent: rows that already carry an RFC-4122 id are not matched, so this
+   * is a no-op on every boot after the first. Bookings reference hotels and
+   * rooms by plain string columns rather than by foreign key, so they are
+   * repointed here too — otherwise a guest's existing stay would lose its hotel
+   * name the moment the property's id changed.
+   */
+  private async repairLegacyIds() {
+    await this.hotelRepository.manager.transaction(async (tx) => {
+      const rooms: Array<{ id: string }> = await tx.query(
+        `SELECT id::text AS id FROM room_types WHERE id::text !~* $1`,
+        [RFC_UUID_PATTERN],
+      );
+      for (const room of rooms) {
+        const nextId = randomUUID();
+        await tx.query(`UPDATE room_types SET id = $1 WHERE id = $2`, [
+          nextId,
+          room.id,
+        ]);
+        await tx.query(
+          `UPDATE bookings SET "roomTypeId" = $1 WHERE "roomTypeId" = $2`,
+          [nextId, room.id],
+        );
+        console.log(`Repaired room type id ${room.id} -> ${nextId}.`);
+      }
 
-    const hotel = this.hotelRepository.create({
-      id: '11111111-1111-1111-1111-111111111111',
-      hotelName: 'The Oberoi Bangalore',
-      badgeText: '5 Star Luxury',
-      imagePath: 'https://cdn.niklo.com/hotels/oberoi.jpg',
-      galleryImages: [
-        'https://cdn.niklo.com/hotels/oberoi_room.jpg',
-        'https://cdn.niklo.com/hotels/oberoi_lobby.jpg',
-      ],
-      distanceText: '1.2 km from city center',
-      ratingValue: 4.9,
-      ratingText: 'Exceptional',
-      reviewsCount: 0,
-      freeBreakfast: true,
-      freeWifi: true,
-      freeCancellation: true,
-      priceText: '₹9,500/night',
-      priceInt: 9500,
-      description:
-        'A luxurious five-star hotel located in the heart of Bangalore, surrounded by award-winning gardens.',
-      address: '37-39, Mahatma Gandhi Rd, Bengaluru, Karnataka 560001',
-      latitude: 12.9738,
-      longitude: 77.6119,
-      // Seeded in the object shape the clients expect. Legacy string rows are
-      // still handled, but new data should not add to that debt.
-      popularAmenities: normalizeAmenities([
-        'Spa',
-        'Pool',
-        'Fitness Center',
-        'Bar',
-      ]),
-      nearbyPlaces: [
-        { name: 'MG Road Metro Station', distance: '400 m', imagePath: '' },
-        { name: 'Cubbon Park', distance: '1.1 km', imagePath: '' },
-      ],
-      features: [
-        {
-          title: 'Garden View',
-          ratingText: 'Loved by guests',
-          description: 'Rooms open onto the property’s award-winning gardens.',
-          icon: 'star',
-        },
-      ],
-      roomTypes: [
-        {
-          id: '22222222-2222-2222-2222-222222222222',
-          title: 'Deluxe Garden View Room',
-          guestCount: '2 Guests',
-          size: '420 sq ft',
-          imageCount: 3,
-          images: ['https://cdn.niklo.com/hotels/oberoi_room1.jpg'],
-          mealPlan: 'Breakfast Included',
-          mealPlanDesc:
-            'Enjoy complimentary buffet breakfast at Lapis restaurant.',
-          price: 9500,
-          oldPrice: 12000,
-          taxes: '₹1,710 taxes & fees',
-          amenities: [
-            { icon: 'king_bed', label: 'King Bed' },
-            { icon: 'ac_unit', label: 'Air Conditioning' },
-            { icon: 'local_drink', label: 'Mini Bar' },
-            { icon: 'tv', label: 'Smart TV' },
-          ],
-          cancellationPolicy: {
-            type: 'refundable',
-            description: 'Free cancellation up to 24h before check-in',
-            table: [],
-          },
-          inclusions: ['Free High-Speed Wifi', 'Welcome Drink'],
-          totalRooms: 12,
-        } as any,
-      ],
+      const hotels: Array<{ id: string }> = await tx.query(
+        `SELECT id::text AS id FROM hotels WHERE id::text !~* $1`,
+        [RFC_UUID_PATTERN],
+      );
+      for (const hotel of hotels) {
+        await this.rehomeHotel(tx, hotel.id, randomUUID());
+      }
     });
-    await this.hotelRepository.save(hotel);
-    console.log('Seeded hotels mock data successfully.');
+  }
+
+  /**
+   * Moves a property to a new id.
+   *
+   * A plain `UPDATE hotels SET id = ...` cannot work: `room_types` and `reviews`
+   * hold a foreign key to the row being renamed, and those constraints are not
+   * deferrable. So the row is copied under the new id first, the children are
+   * repointed, and only then is the old row dropped — by which time nothing
+   * references it and the `ON DELETE CASCADE` has nothing to take with it.
+   */
+  private async rehomeHotel(tx: EntityManager, oldId: string, nextId: string) {
+    const legacy = await tx.findOne(Hotel, { where: { id: oldId } });
+    if (!legacy) return;
+
+    // `findOne` above loads no relations, so the spread carries columns only.
+    await tx.save(tx.create(Hotel, { ...legacy, id: nextId }));
+    await tx.query(`UPDATE room_types SET "hotelId" = $1 WHERE "hotelId" = $2`, [
+      nextId,
+      oldId,
+    ]);
+    await tx.query(`UPDATE reviews SET "hotelId" = $1 WHERE "hotelId" = $2`, [
+      nextId,
+      oldId,
+    ]);
+    await tx.query(`UPDATE bookings SET "hotelId" = $1 WHERE "hotelId" = $2`, [
+      nextId,
+      oldId,
+    ]);
+    await tx.query(`DELETE FROM hotels WHERE id = $1`, [oldId]);
+    console.log(`Repaired hotel id ${oldId} -> ${nextId} (${legacy.hotelName}).`);
   }
 
   // ------------------------------------------------------------- discovery

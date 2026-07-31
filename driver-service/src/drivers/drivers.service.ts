@@ -105,10 +105,41 @@ export class DriversService implements OnApplicationBootstrap {
   }
 
   async getEarnings(driverId: string) {
-    // Basic implementation: fetch all earnings
+    // The partner app knows the driver by the id on their profile, which is an
+    // auth user id — querying the earnings table with it directly matched
+    // nothing and read as "no earnings" rather than "wrong id".
+    const driver = await this.findByIdOrUserId(driverId);
+
     return await this.earningRepo.find({
-      where: { driver_id: driverId },
+      where: { driver_id: driver.id },
       order: { created_at: 'DESC' },
+    });
+  }
+
+  /**
+   * Credits a completed ride to a driver.
+   *
+   * Idempotent on `ride_id`: ride-service completes a trip on both the socket
+   * and the REST route, so this is called twice for every ride and must pay
+   * out once. Called service-to-service, never by an app.
+   */
+  async recordRideEarning(input: {
+    driverId: string;
+    rideId: string;
+    amount: number;
+  }) {
+    const driver = await this.findByIdOrUserId(input.driverId);
+
+    const existing = await this.earningRepo.findOne({
+      where: { ride_id: input.rideId, type: EarningType.RIDE_FARE },
+    });
+    if (existing) return existing;
+
+    return await this.earningRepo.save({
+      driver_id: driver.id,
+      ride_id: input.rideId,
+      amount: input.amount,
+      type: EarningType.RIDE_FARE,
     });
   }
 
