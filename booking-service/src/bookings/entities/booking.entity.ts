@@ -32,8 +32,21 @@ export class Booking {
   @Column({ type: 'enum', enum: BookingType })
   booking_type: BookingType;
 
-  @Column({ type: 'uuid' })
-  schedule_id: string;
+  /**
+   * The departure being travelled on. Only seated bookings have one — a
+   * package or an activity is sold as a whole, not as a seat on a schedule —
+   * so this is nullable and [item_id] carries the subject instead.
+   */
+  @Column({ type: 'uuid', nullable: true })
+  schedule_id: string | null;
+
+  /**
+   * What was booked when there is no schedule: the package or adventure id.
+   * Without it a PACKAGE booking would record an amount and a traveller list
+   * but no way to tell which package it was for.
+   */
+  @Column({ type: 'uuid', nullable: true })
+  item_id: string | null;
 
   @Column({ type: 'uuid', nullable: true })
   journey_id: string;

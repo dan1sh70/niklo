@@ -125,12 +125,28 @@ export class BookingsService {
       dto.booking_type === BookingType.JOURNEY_LEG;
     const seatNumbers = dto.seat_numbers ?? [];
 
-    if (isSeated && seatNumbers.length === 0) {
-      throw new BadRequestException('At least one seat is required');
-    }
+    // Held as a local so the seat-claim path below reads a definitely-present
+    // id: `schedule_id` is optional on the DTO now that unseated types exist.
+    let scheduleId = '';
 
     if (isSeated) {
-      await this.assertSeatsHeldBy(userId, dto.schedule_id, seatNumbers);
+      if (!dto.schedule_id) {
+        throw new BadRequestException(
+          `schedule_id is required for ${dto.booking_type} bookings`,
+        );
+      }
+      scheduleId = dto.schedule_id;
+      if (seatNumbers.length === 0) {
+        throw new BadRequestException('At least one seat is required');
+      }
+      await this.assertSeatsHeldBy(userId, scheduleId, seatNumbers);
+    } else if (!dto.item_id) {
+      // An unseated booking with neither a schedule nor an item records a
+      // payment against nothing — it would show up in the user's list with no
+      // way to tell what they bought.
+      throw new BadRequestException(
+        `item_id is required for ${dto.booking_type} bookings`,
+      );
     }
 
     let booking: Booking;
@@ -156,7 +172,7 @@ export class BookingsService {
 
     try {
       await this.busService.bookSeats(
-        dto.schedule_id,
+        scheduleId,
         {
           seats: this.toSeatAssignments(seatNumbers, dto.passenger_details),
           booking_id: booking.id,
@@ -177,7 +193,7 @@ export class BookingsService {
 
     // Seats are ours in the authoritative store now; the soft holds have done
     // their job.
-    await this.releaseLocks(userId, dto.schedule_id, seatNumbers);
+    await this.releaseLocks(userId, scheduleId, seatNumbers);
 
     // Re-read so the client gets DB defaults it did not send. Falling back to
     // the in-memory row matters: the caller parses this response into a booking
