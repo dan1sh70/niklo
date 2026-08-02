@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -33,8 +34,30 @@ export class BusesService {
       throw new BadRequestException('Operator not found');
     }
 
+    await this.assertRegistrationFree(dto.registration_number);
+
     const bus = this.busRepo.create(dto);
     return this.busRepo.save(bus);
+  }
+
+  /**
+   * `registration_number` is unique in the schema, and letting Postgres be the
+   * one to say so surfaced as a bare 500 with no message — indistinguishable,
+   * from the caller's side, from the service being broken.
+   */
+  private async assertRegistrationFree(
+    registrationNumber: string,
+    exceptBusId?: string,
+  ): Promise<void> {
+    const existing = await this.busRepo.findOne({
+      where: { registration_number: registrationNumber },
+      select: { id: true },
+    });
+    if (existing && existing.id !== exceptBusId) {
+      throw new ConflictException(
+        `A bus is already registered with number ${registrationNumber}`,
+      );
+    }
   }
 
   async findAll(operatorId?: string): Promise<Bus[]> {
@@ -54,6 +77,9 @@ export class BusesService {
 
   async update(id: string, dto: UpdateBusDto): Promise<Bus> {
     const bus = await this.findOne(id);
+    if (dto.registration_number) {
+      await this.assertRegistrationFree(dto.registration_number, id);
+    }
     Object.assign(bus, dto);
     return this.busRepo.save(bus);
   }

@@ -13,7 +13,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  // Shaped like every other service's strategy (`req.user.id`), which is what
+  // the controllers here already read. Returning only `userId` meant
+  // `req.user.id` was silently undefined: `POST /operators` stored a null
+  // `user_id` on every operator it created, and `GET /operators/me` queried on
+  // `user_id: undefined` and died with a 500 instead of a 404 — so an operator
+  // could never be linked to, or found from, the account that owned it.
   async validate(payload: any) {
-    return { userId: payload.sub, phone: payload.phone };
+    return { id: payload.sub, ...payload };
   }
 }
