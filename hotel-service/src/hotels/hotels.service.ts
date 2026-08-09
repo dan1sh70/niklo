@@ -21,6 +21,7 @@ import { SearchHotelsDto } from './dto/search-hotels.dto';
 import {
   CreateReviewDto,
   ReplyToReviewDto,
+  UpdateOfferDto,
   UpsertOfferDto,
 } from './dto/review.dto';
 import { normalizeAmenities, normalizeHotel } from './hotel-response.util';
@@ -700,13 +701,48 @@ export class HotelsService implements OnApplicationBootstrap {
       cta: dto.cta ?? 'Grab Deal',
       imagePath: dto.imagePath ?? '',
       discountPercent: dto.discountPercent ?? 0,
+      offerType: dto.offerType ?? 'percentage',
+      startsAt: dto.startsAt ?? null,
       expiresAt: dto.expiresAt ?? null,
-      isActive: true,
+      isActive: dto.isActive ?? true,
       createdAt: new Date().toISOString(),
     };
     hotel.offers = [...offers, offer];
     await this.hotelRepository.save(hotel);
     return offer;
+  }
+
+  /// Edits one offer in place — the partner's on/off switch lands here.
+  async updateOffer(
+    ownerId: string,
+    hotelId: string,
+    offerId: string,
+    dto: UpdateOfferDto,
+  ) {
+    const hotel = await this.findOwnedHotel(hotelId, ownerId);
+    const offers = Array.isArray(hotel.offers) ? hotel.offers : [];
+    const index = offers.findIndex((offer: any) => offer?.id === offerId);
+    if (index === -1) {
+      throw new NotFoundException(`Offer ${offerId} was not found.`);
+    }
+
+    const updated = { ...offers[index] };
+    for (const key of [
+      'title',
+      'description',
+      'discountPercent',
+      'expiresAt',
+      'startsAt',
+      'offerType',
+      'isActive',
+    ] as const) {
+      if (dto[key] !== undefined) updated[key] = dto[key];
+    }
+
+    hotel.offers = [...offers];
+    hotel.offers[index] = updated;
+    await this.hotelRepository.save(hotel);
+    return updated;
   }
 
   async removeOffer(ownerId: string, hotelId: string, offerId: string) {

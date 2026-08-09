@@ -37,6 +37,17 @@ export class CreatePackageDto {
   @IsOptional()
   inclusions?: string[];
 
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  exclusions?: string[];
+
+  /** One entry per day, `"Day 1: ..."`. See the entity for the format. */
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  itinerary?: string[];
+
   @IsString()
   @IsOptional()
   category?: string;

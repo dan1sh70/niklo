@@ -89,8 +89,17 @@ export class Booking {
   @Column({ type: 'text', nullable: true })
   qr_code: string;
 
+  /** When the trip starts. For seated bookings this is the only date there is. */
   @Column({ type: 'date', nullable: true })
   travel_date: Date | null;
+
+  /**
+   * The last day of the trip. Only multi-day types (PACKAGE, ADVENTURE) set it —
+   * a bus seat starts and ends the same day. Without it the app had a "Starts"
+   * row it could fill and an "Ends" row it could not.
+   */
+  @Column({ type: 'date', nullable: true })
+  end_date: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

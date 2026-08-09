@@ -31,6 +31,21 @@ const CANCELLABLE_STATUSES = [
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+const MONTH_LABELS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
 @Injectable()
 export class BookingsService {
   constructor(
@@ -315,12 +330,38 @@ export class BookingsService {
     return booking;
   }
 
+  /**
+   * Cancellation from the property's side. The guest-facing cancel only lets
+   * the account that made the booking cancel it, so the front desk needs its
+   * own door — ownership is checked instead of authorship.
+   */
+  async cancelPartnerBooking(
+    bookingId: string,
+    ownerId: string,
+    dto: CancelBookingDto,
+  ) {
+    const booking = await this.findOwnedBooking(bookingId, ownerId);
+    if (!CANCELLABLE_STATUSES.includes(booking.status)) {
+      throw new ConflictException(
+        `A booking that is ${booking.status.replace('_', ' ')} cannot be cancelled.`,
+      );
+    }
+    booking.status = HotelBookingStatus.Cancelled;
+    booking.cancelledAt = new Date();
+    booking.cancellationReason = dto?.reason ?? 'Cancelled by the property';
+    await this.bookingRepository.save(booking);
+    return booking;
+  }
+
   /** Revenue actually earned — pending and cancelled bookings are excluded. */
   async getPartnerEarnings(ownerId: string) {
     const hotelIds = await this.ownedHotelIds(ownerId);
     if (hotelIds.length === 0) {
       return {
         totalEarnings: 0,
+        todayEarnings: 0,
+        weeklyEarnings: 0,
+        monthlyEarnings: 0,
         pendingPayout: 0,
         completedStays: 0,
         upcomingStays: 0,
@@ -340,6 +381,19 @@ export class BookingsService {
         HotelBookingStatus.CheckedOut,
       ].includes(b.status),
     );
+
+    // Earned-on-the-day windows for the dashboard tiles. A booking counts on
+    // the day it was placed, which is when the money is owed to the property.
+    const now = new Date();
+    const startOfDay = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    ).getTime();
+    const placedAt = (b: Booking) =>
+      b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    const sumSince = (since: number) =>
+      earned
+        .filter((b) => placedAt(b) >= since)
+        .reduce((total, b) => total + b.totalAmount, 0);
 
     const byHotel = hotelIds.map((hotelId) => {
       const forHotel = earned.filter((b) => b.hotelId === hotelId);
@@ -367,6 +421,9 @@ export class BookingsService {
       ),
       // Cash the partner takes at the desk. Split by whether the stay is done,
       // so an unpaid arrival is visible rather than counted as money in hand.
+      todayEarnings: sumSince(startOfDay),
+      weeklyEarnings: sumSince(startOfDay - 6 * 86400000),
+      monthlyEarnings: sumSince(startOfDay - 29 * 86400000),
       cashToCollect: sum(
         earned.filter(
           (b) => isCash(b) && b.status !== HotelBookingStatus.CheckedOut,
@@ -395,10 +452,12 @@ export class BookingsService {
       return {
         properties: 0,
         totalBookings: 0,
+        todayBookings: 0,
         todayCheckIns: 0,
         todayCheckOuts: 0,
         currentlyHosted: 0,
         pendingPayment: 0,
+        todayRevenue: 0,
         totalEarnings: 0,
         currency: 'INR',
       };
@@ -409,9 +468,19 @@ export class BookingsService {
     });
     const today = new Date().toISOString().split('T')[0];
 
+    // Booked today, in local terms: the partner dashboard counts a booking on
+    // the day it was placed, not the day the guest arrives.
+    const bookedToday = bookings.filter(
+      (b) =>
+        b.createdAt &&
+        new Date(b.createdAt).toISOString().split('T')[0] === today &&
+        b.status !== HotelBookingStatus.Cancelled,
+    );
+
     return {
       properties: hotelIds.length,
       totalBookings: bookings.length,
+      todayBookings: bookedToday.length,
       todayCheckIns: bookings.filter(
         (b) =>
           b.checkInDate === today && b.status === HotelBookingStatus.Confirmed,
@@ -426,6 +495,7 @@ export class BookingsService {
       pendingPayment: bookings.filter(
         (b) => b.status === HotelBookingStatus.PendingPayment,
       ).length,
+      todayRevenue: bookedToday.reduce((sum, b) => sum + b.totalAmount, 0),
       totalEarnings: bookings
         .filter((b) =>
           [
@@ -486,6 +556,159 @@ export class BookingsService {
     });
 
     return { from: start, days: span, calendar };
+  }
+
+  /**
+   * Occupancy per calendar month, newest month last — what the dashboard's
+   * "Monthly Occupancy %" bars read from. The rate is the average of each day's
+   * occupied/total ratio across the month, so a half-full month reads 50%
+   * whatever its length.
+   */
+  async getPartnerMonthlyOccupancy(ownerId: string, months: number) {
+    const span = Math.min(Math.max(months || 6, 1), 24);
+    const hotelIds = await this.ownedHotelIds(ownerId);
+    if (hotelIds.length === 0) return { months: span, occupancy: [] };
+
+    const bookings = (
+      await this.bookingRepository.find({
+        where: { hotelId: In(hotelIds), status: In(OCCUPYING_STATUSES) },
+      })
+    ).filter((b) => ISO_DATE.test(b.checkInDate));
+
+    const rooms = await this.roomTypeRepository
+      .createQueryBuilder('room')
+      .leftJoin('room.hotel', 'hotel')
+      .where('hotel.id IN (:...hotelIds)', { hotelIds })
+      .andWhere('room.isActive = true')
+      .getMany();
+    const totalRooms = rooms.reduce((sum, r) => sum + (r.totalRooms || 1), 0);
+
+    const now = new Date();
+    const occupancy = Array.from({ length: span }, (_, index) => {
+      // index 0 is the oldest month in the window.
+      const monthStart = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (span - 1 - index), 1),
+      );
+      const year = monthStart.getUTCFullYear();
+      const month = monthStart.getUTCMonth();
+      const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+
+      let occupiedRoomDays = 0;
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(Date.UTC(year, month, day))
+          .toISOString()
+          .split('T')[0];
+        occupiedRoomDays += bookings
+          .filter((b) => this.coversDate(b, date))
+          .reduce((sum, b) => sum + b.rooms, 0);
+      }
+
+      const capacity = totalRooms * daysInMonth;
+      return {
+        month: `${year}-${String(month + 1).padStart(2, '0')}`,
+        label: MONTH_LABELS[month],
+        totalRooms,
+        occupiedRoomDays,
+        occupancyRate: capacity > 0 ? occupiedRoomDays / capacity : 0,
+      };
+    });
+
+    return { months: span, occupancy };
+  }
+
+  /**
+   * The partner's notification inbox, derived from their own bookings — there
+   * is no separate notification store for hotel partners, and every event a
+   * partner cares about (a new booking, an arrival, a cancellation, money still
+   * owed) is already recorded on the booking itself.
+   */
+  async getPartnerNotifications(ownerId: string, limit: number) {
+    const cap = Math.min(Math.max(limit || 30, 1), 100);
+    const hotelIds = await this.ownedHotelIds(ownerId);
+    if (hotelIds.length === 0) return { total: 0, notifications: [] };
+
+    const bookings = await this.bookingRepository.find({
+      where: { hotelId: In(hotelIds) },
+      order: { createdAt: 'DESC' },
+      take: 200,
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    const guestOf = (b: Booking) =>
+      (Array.isArray(b.guests) && b.guests[0]?.name) || 'A guest';
+    const roomOf = (b: Booking) => b.roomTitle || 'a room';
+
+    const notifications: any[] = [];
+    for (const b of bookings) {
+      const base = { bookingId: b.id, reference: b.bookingId };
+
+      if (b.status === HotelBookingStatus.Cancelled) {
+        notifications.push({
+          ...base,
+          id: `${b.id}:cancelled`,
+          type: 'booking_cancelled',
+          title: 'Booking Cancelled',
+          body: `${guestOf(b)} cancelled ${roomOf(b)}`,
+          createdAt: b.createdAt,
+        });
+        continue;
+      }
+
+      if (b.status === HotelBookingStatus.PendingPayment) {
+        notifications.push({
+          ...base,
+          id: `${b.id}:payment`,
+          type: 'payment_pending',
+          title: 'Payment Pending',
+          body: `${roomOf(b)} is held for ${guestOf(b)} until payment clears`,
+          createdAt: b.createdAt,
+        });
+      } else {
+        notifications.push({
+          ...base,
+          id: `${b.id}:new`,
+          type: 'new_booking',
+          title: 'New Booking Received',
+          body: `${guestOf(b)} booked ${roomOf(b)}`,
+          createdAt: b.createdAt,
+        });
+      }
+
+      if (
+        b.checkInDate === today &&
+        b.status === HotelBookingStatus.Confirmed
+      ) {
+        notifications.push({
+          ...base,
+          id: `${b.id}:checkin`,
+          type: 'check_in_today',
+          title: 'Check-in Today',
+          body: `${guestOf(b)} arrives today for ${roomOf(b)}`,
+          createdAt: b.createdAt,
+        });
+      }
+
+      if (
+        b.checkOutDate === today &&
+        b.status === HotelBookingStatus.CheckedIn
+      ) {
+        notifications.push({
+          ...base,
+          id: `${b.id}:checkout`,
+          type: 'check_out_today',
+          title: 'Check-out Today',
+          body: `${guestOf(b)} checks out of ${roomOf(b)} today`,
+          createdAt: b.createdAt,
+        });
+      }
+    }
+
+    notifications.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    const shown = notifications.slice(0, cap);
+    return { total: shown.length, notifications: shown };
   }
 
   // ----------------------------------------------------------------- internals

@@ -20,6 +20,7 @@ import {
   CreateReviewDto,
   ReplyToReviewDto,
   TransferOwnershipDto,
+  UpdateOfferDto,
   UpsertOfferDto,
 } from './dto/review.dto';
 
@@ -220,6 +221,17 @@ export class HotelsController {
     @Body() dto: UpsertOfferDto,
   ) {
     return this.hotelsService.addOffer(req.user.id, hotelId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':hotelId/offers/:offerId')
+  updateOffer(
+    @Request() req: any,
+    @Param('hotelId') hotelId: string,
+    @Param('offerId') offerId: string,
+    @Body() dto: UpdateOfferDto,
+  ) {
+    return this.hotelsService.updateOffer(req.user.id, hotelId, offerId, dto);
   }
 
   @UseGuards(JwtAuthGuard)

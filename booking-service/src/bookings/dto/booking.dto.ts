@@ -57,6 +57,11 @@ export class CreateBookingDto {
   @IsOptional()
   @IsDateString()
   travel_date?: string;
+
+  /** Last day of a multi-day booking. Ignored by the seated types. */
+  @IsOptional()
+  @IsDateString()
+  end_date?: string;
 }
 
 export class LockSeatsDto {

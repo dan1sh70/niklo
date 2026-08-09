@@ -12,6 +12,14 @@ export class RoomType {
   @Column()
   title: string;
 
+  /** Door number the property uses for this room, e.g. "302". */
+  @Column({ type: 'varchar', nullable: true })
+  roomNumber: string | null;
+
+  /** Category the property files this room under, e.g. "Deluxe". */
+  @Column({ type: 'varchar', nullable: true })
+  roomType: string | null;
+
   @Column()
   guestCount: string;
 
@@ -35,6 +43,14 @@ export class RoomType {
 
   @Column('int', { nullable: true })
   oldPrice: number;
+
+  /** Nightly rate applied on weekends; falls back to `price` when unset. */
+  @Column('int', { nullable: true })
+  weekendPrice: number | null;
+
+  /** Charged per guest beyond what the room's base rate covers. */
+  @Column('int', { nullable: true })
+  extraGuestCharge: number | null;
 
   @Column()
   taxes: string;

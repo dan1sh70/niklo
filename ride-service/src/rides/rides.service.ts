@@ -338,18 +338,68 @@ export class RidesService {
 
   // ── Reads ─────────────────────────────────────────────────────────────────
 
+  private async fetchPassengerDetails(passengerId: string) {
+    if (!passengerId) return null;
+    const url = `${process.env.USER_SERVICE_URL || 'http://user-service:3002'}/api/v1/users/${encodeURIComponent(passengerId)}`;
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      this.logger.warn(`Could not reach user-service for passenger ${passengerId}: ${(err as Error).message}`);
+      return null;
+    }
+  }
+
   async getRideStatus(id: string) {
     const ride = await this.rideRepository.findOne({ where: { id } });
     if (!ride) {
       throw new NotFoundException(`Ride with ID ${id} not found`);
     }
 
+    const passenger = await this.fetchPassengerDetails(ride.passenger_id);
+
+    const [pickupLat, pickupLng] = ride.pickup_location
+      ? ride.pickup_location.split(',').map(Number)
+      : [null, null];
+    const [dropLat, dropLng] = ride.drop_location
+      ? ride.drop_location.split(',').map(Number)
+      : [null, null];
+
     return {
       rideId: ride.id,
       status: ride.status,
-      fareEstimate: ride.fare_estimate,
-      fareFinal: ride.fare_final,
-      distanceKm: ride.distance_km,
+      
+      fareEstimate: toNumber(ride.fare_estimate),
+      fare_estimate: toNumber(ride.fare_estimate),
+      
+      fareFinal: toNumber(ride.fare_final),
+      fare_final: toNumber(ride.fare_final),
+      
+      distanceKm: toNumber(ride.distance_km),
+      distance_km: toNumber(ride.distance_km),
+      
+      pickupAddress: ride.pickup_address,
+      pickup_address: ride.pickup_address,
+      
+      dropAddress: ride.drop_address,
+      drop_address: ride.drop_address,
+      
+      pickupLat,
+      pickupLng,
+      dropLat,
+      dropLng,
+      
+      passengerName: passenger?.name ?? 'Rider',
+      riderName: passenger?.name ?? 'Rider',
+      rider_name: passenger?.name ?? 'Rider',
+      
+      passengerPhone: passenger?.phone ?? '+919876543210',
+      riderPhone: passenger?.phone ?? '+919876543210',
+      
       driverDetails: await this.buildDriverDetails(ride.driver_id),
     };
   }

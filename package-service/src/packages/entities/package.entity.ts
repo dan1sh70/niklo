@@ -33,6 +33,26 @@ export class TravelPackage {
   inclusions: string[];
 
   /**
+   * What is not covered by the price. The customer app has always had an
+   * Exclusions tab for this; with no column behind it the tab rendered empty.
+   */
+  @Column({ type: 'jsonb', default: [] })
+  exclusions: string[];
+
+  /**
+   * Day-by-day plan, one entry per day, written as `"Day 1: <what happens>"` —
+   * the app splits on the first colon to get the heading and the body, and
+   * falls back to showing the whole string as the heading when there is no
+   * colon.
+   *
+   * Operator content: left empty until a partner or the admin fills it in.
+   * Nothing generates a plan from the duration — an invented itinerary would
+   * read to the traveller as a promise the operator never made.
+   */
+  @Column({ type: 'jsonb', default: [] })
+  itinerary: string[];
+
+  /**
    * What the customer app groups packages by on its browse screen.
    *
    * Nullable, because every package that already exists predates the column

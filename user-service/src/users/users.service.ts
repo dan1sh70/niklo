@@ -11,16 +11,31 @@ export class UsersService {
   ) {}
 
   async getProfile(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     return {
       id: userId,
-      phone: '+919876543210',
-      email: 'user@example.com',
-      name: 'John Doe',
-      avatar_url: 'https://cdn.niklo.com/avatars/default.png',
-      kyc_status: KycStatus.VERIFIED,
-      wallet_balance: 1500.5,
-      preferred_language: 'en',
+      phone: user?.phone ?? '+919876543210',
+      email: user?.email ?? 'user@example.com',
+      name: user?.name ?? 'John Doe',
+      avatar_url: user?.avatar_url ?? 'https://cdn.niklo.com/avatars/default.png',
+      kyc_status: user?.kyc_status ?? KycStatus.VERIFIED,
+      wallet_balance: user?.wallet_balance ?? 1500.5,
+      preferred_language: user?.preferred_language ?? 'en',
     };
+  }
+
+  async getUserById(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      return {
+        id: userId,
+        phone: '+919876543210',
+        email: 'user@example.com',
+        name: 'John Doe',
+        avatar_url: 'https://cdn.niklo.com/avatars/default.png',
+      };
+    }
+    return user;
   }
 
   async updateProfile(userId: string, updateData: any) {

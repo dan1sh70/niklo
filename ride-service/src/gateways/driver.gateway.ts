@@ -30,11 +30,23 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
   async onModuleInit() {
     try {
-      await this.redisService.subscribe('ride:new_request_queue', (msg) => {
+      await this.redisService.subscribe('ride:new_request_queue', async (msg) => {
         try {
           const { rideId, driverId, timeout } = JSON.parse(msg);
           this.logger.log(`Forwarding new request for ride ${rideId} to driver ${driverId}`);
-          this.sendNewRequestToDriver(driverId, { rideId, timeout });
+          
+          let enrichedDetails = {};
+          try {
+            enrichedDetails = await this.ridesService.getRideStatus(rideId);
+          } catch (e) {
+            this.logger.error(`Error enriching ride request details for ${rideId}: ${(e as Error).message}`);
+          }
+
+          this.sendNewRequestToDriver(driverId, {
+            rideId,
+            timeout,
+            ...enrichedDetails,
+          });
         } catch (err) {
           this.logger.error('Error parsing ride:new_request_queue message', err);
         }

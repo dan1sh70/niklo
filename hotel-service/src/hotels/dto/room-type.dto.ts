@@ -72,6 +72,26 @@ export class CreateRoomTypeDto {
   totalRooms?: number;
 
   @IsOptional()
+  @IsString()
+  @Length(1, 20)
+  roomNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 60)
+  roomType?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  weekendPrice?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  extraGuestCharge?: number;
+
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 }
@@ -139,6 +159,26 @@ export class UpdateRoomTypeDto {
   @IsInt()
   @Min(1)
   totalRooms?: number;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 20)
+  roomNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 60)
+  roomType?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  weekendPrice?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  extraGuestCharge?: number;
 
   @IsOptional()
   @IsBoolean()

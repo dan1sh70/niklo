@@ -156,6 +156,7 @@ export class BookingsService {
         user_id: userId,
         status: BookingStatus.PENDING,
         travel_date: dto.travel_date ? new Date(dto.travel_date) : null,
+        end_date: dto.end_date ? new Date(dto.end_date) : null,
       } as Partial<Booking>);
       booking.qr_code = Buffer.from(
         `TICKET-${Date.now()}-${userId}`,

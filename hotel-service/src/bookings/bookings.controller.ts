@@ -84,6 +84,30 @@ export class BookingsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('hotel/partner/notifications')
+  getPartnerNotifications(
+    @Request() req: any,
+    @Query('limit') limit: string,
+  ) {
+    return this.bookingsService.getPartnerNotifications(
+      req.user.id,
+      limit ? parseInt(limit, 10) : 30,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('hotel/partner/occupancy/monthly')
+  getPartnerMonthlyOccupancy(
+    @Request() req: any,
+    @Query('months') months: string,
+  ) {
+    return this.bookingsService.getPartnerMonthlyOccupancy(
+      req.user.id,
+      months ? parseInt(months, 10) : 6,
+    );
+  }
+
   // --- single booking -------------------------------------------------------
 
   @UseGuards(JwtAuthGuard)
@@ -107,6 +131,20 @@ export class BookingsController {
   @Post('hotel/:bookingId/pay-at-property')
   payAtProperty(@Request() req: any, @Param('bookingId') bookingId: string) {
     return this.bookingsService.payAtProperty(bookingId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('hotel/partner/:bookingId/cancel')
+  cancelPartnerBooking(
+    @Request() req: any,
+    @Param('bookingId') bookingId: string,
+    @Body() dto: CancelBookingDto,
+  ) {
+    return this.bookingsService.cancelPartnerBooking(
+      bookingId,
+      req.user.id,
+      dto,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
