@@ -18,11 +18,11 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O /dev/null http://localhost/ || exit 1
+        - wget --spider -q http://localhost/ || exit 1
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 10s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.nginx.rule=Host(`irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io`)"
@@ -50,12 +50,14 @@ services:
       - '3001'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3001/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3001/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.auth-service.rule=Host(`szs601uiqefhc8jbpeq587f3.187.127.157.13.sslip.io`)"
@@ -78,12 +80,14 @@ services:
       - '3003'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3003/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3003/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.bus-service.rule=Host(`w1n68oxs2na9q9tbveqsqa4s.187.127.157.13.sslip.io`)"
@@ -109,12 +113,14 @@ services:
       - '3007'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3007/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3007/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.payment-service.rule=Host(`n13chiypv5vg517ffvioht20.187.127.157.13.sslip.io`)"
@@ -137,12 +143,14 @@ services:
       - '3004'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3004/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3004/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.hotel-service.rule=Host(`b5m0ntg98i0cpdaidmcvdqwd.187.127.157.13.sslip.io`)"
@@ -165,12 +173,14 @@ services:
       - '3002'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3002/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3002/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.user-service.rule=Host(`f11slpsqn3bkula8r1yr292u.187.127.157.13.sslip.io`)"
@@ -196,12 +206,14 @@ services:
       - '3005'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3005/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3005/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.ride-service.rule=Host(`my41fssoetuy2w34a2yettfe.187.127.157.13.sslip.io`)"
@@ -224,12 +236,14 @@ services:
       - '3011'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3011/api/v1/driver || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3011/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.driver-service.rule=Host(`ebzdp7jvp5z5bhrl05tkvxsa.187.127.157.13.sslip.io`)"
@@ -252,12 +266,14 @@ services:
       - '3012'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3012/api/v1/packages || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3012/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.package-service.rule=Host(`ltmzir9qa389f53ho5hkzlq0.187.127.157.13.sslip.io`)"
@@ -280,12 +296,14 @@ services:
       - '3013'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3013/api/v1 || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3013/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.adventure-service.rule=Host(`ra0qdnh3xfolrfu1y82bva9g.187.127.157.13.sslip.io`)"
@@ -308,12 +326,14 @@ services:
       - '3009'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3009/api/v1 || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3009/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.notification-service.rule=Host(`l2pdf6ail6mlmurxhtjjf44i.187.127.157.13.sslip.io`)"
@@ -332,6 +352,16 @@ services:
       - redis
     expose:
       - '3020'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3020/health',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.admin-service.rule=Host(`k1lrz8qb78v16uuvqngcahj0.187.127.157.13.sslip.io`)"
@@ -357,12 +387,14 @@ services:
       - '3014'
     healthcheck:
       test:
-        - CMD-SHELL
-        - wget -q -O /dev/null http://127.0.0.1:3014/ || exit 1
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3014/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 60s
     labels:
       - traefik.enable=true
       - "traefik.http.routers.booking-service.rule=Host(`yjfbvszz8e2yv5sefwcpxye4.187.127.157.13.sslip.io`)"
