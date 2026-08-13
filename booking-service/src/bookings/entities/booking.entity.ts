@@ -35,7 +35,7 @@ export class Booking {
   @Column({ type: 'enum', enum: BookingType })
   booking_type: BookingType;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   schedule_id: string;
 
   @Column({ type: 'uuid', nullable: true })

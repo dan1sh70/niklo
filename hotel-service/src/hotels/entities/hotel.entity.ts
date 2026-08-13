@@ -62,10 +62,10 @@ export class Hotel {
   @Column()
   address: string;
 
-  @Column('float')
+  @Column('float', { nullable: true })
   latitude: number;
 
-  @Column('float')
+  @Column('float', { nullable: true })
   longitude: number;
 
   @Column({ type: 'jsonb', default: [] })
