@@ -120,6 +120,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Add Bank Details",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": \"{{driverId}}\",\n  \"accountHolderName\": \"John Doe\",\n  \"bankName\": \"SBI\",\n  \"accountNumber\": \"1234567890\",\n  \"ifscCode\": \"SBIN0001\",\n  \"accountType\": \"SAVINGS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/driver/bank-details",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "driver",
+            "bank-details"
+          ]
+        }
+      }
     }
   ]
 }

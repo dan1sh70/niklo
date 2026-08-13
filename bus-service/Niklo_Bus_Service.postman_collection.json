@@ -719,6 +719,48 @@
           }
         }
       ]
+    },
+    {
+      "name": "Get Operator Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/api/v1/bus/operators/{{operatorId}}/summary",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bus",
+            "operators",
+            "{{operatorId}}",
+            "summary"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Schedule Manifest",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/api/v1/bus/schedules/{{scheduleId}}/manifest",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bus",
+            "schedules",
+            "{{scheduleId}}",
+            "manifest"
+          ]
+        }
+      }
     }
   ],
   "variable": [
