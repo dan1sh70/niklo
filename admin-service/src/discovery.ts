@@ -352,6 +352,11 @@ export function watchProjectChanges(callback: () => void): () => void {
 
   const setupWatchers = () => {
     try {
+      if (!fs.existsSync(workspacePath)) {
+        console.warn(`Workspace path ${workspacePath} does not exist. Skipping file watchers (Discovery will rely on initial scan).`);
+        return;
+      }
+      
       // Watch root
       const rootWatcher = fs.watch(workspacePath, (event, filename) => {
         if (filename && (filename.endsWith('.json') || filename === 'docker-compose.yaml' || filename === 'nginx.conf')) {
