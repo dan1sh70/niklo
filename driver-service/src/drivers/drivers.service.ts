@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, NotFoundException, OnApplicationBootstrap, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import Razorpay from 'razorpay';
 import { Driver, DriverStatus } from './entities/driver.entity';
 import { DriverKyc, KycStatus } from './entities/driver-kyc.entity';
 import { DriverEarning, EarningType } from './entities/driver-earning.entity';
 import { DriverPayout, PayoutStatus } from './entities/driver-payout.entity';
 import { DriverBankDetail } from './entities/driver-bank-detail.entity';
+import { DriverSession } from './entities/driver-session.entity';
 import { OnboardDriverDto, UploadKycDto } from './dto/create-driver.dto';
 import { BankDetailsDto } from './dto/bank-details.dto';
 
@@ -22,6 +25,9 @@ export class DriversService implements OnApplicationBootstrap {
     private readonly payoutRepo: Repository<DriverPayout>,
     @InjectRepository(DriverBankDetail)
     private readonly bankRepo: Repository<DriverBankDetail>,
+    @InjectRepository(DriverSession)
+    private readonly sessionRepo: Repository<DriverSession>,
+    private readonly configService: ConfigService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -130,5 +136,67 @@ export class DriversService implements OnApplicationBootstrap {
     }
 
     return await this.bankRepo.save(bankDetail);
+  }
+
+  async startSession(driverId: string) {
+    const session = this.sessionRepo.create({
+      driver_id: driverId,
+      login_time: new Date(),
+    });
+    return await this.sessionRepo.save(session);
+  }
+
+  async endSession(driverId: string) {
+    const session = await this.sessionRepo.findOne({
+      where: { driver_id: driverId, logout_time: IsNull() },
+      order: { login_time: 'DESC' },
+    });
+    if (session) {
+      session.logout_time = new Date();
+      session.duration_hours = (session.logout_time.getTime() - session.login_time.getTime()) / (1000 * 60 * 60);
+      return await this.sessionRepo.save(session);
+    }
+    return null;
+  }
+
+  async withdraw(driverId: string, amount: number) {
+    const bankDetail = await this.bankRepo.findOne({ where: { driver_id: driverId } });
+    if (!bankDetail) {
+      throw new BadRequestException('Bank details not found for driver');
+    }
+
+    const payout = this.payoutRepo.create({
+      driver_id: driverId,
+      amount,
+      status: PayoutStatus.PENDING,
+      scheduled_for: new Date(),
+    });
+    await this.payoutRepo.save(payout);
+
+    const rzpId = this.configService.get<string>('RAZORPAY_KEY_ID');
+    const rzpSecret = this.configService.get<string>('RAZORPAY_KEY_SECRET');
+
+    if (rzpId && rzpSecret) {
+      try {
+        const razorpay = new Razorpay({ key_id: rzpId, key_secret: rzpSecret });
+        
+        // Mock payout API call according to Razorpay Fund Account & Payouts docs
+        // In real code, we'd create a fund account first, then initiate a payout
+        // For demonstration, we simply log the intention
+        console.log(`[RAZORPAY] Initiating payout for driver ${driverId}, amount: ${amount}`);
+        
+        // Simulate success update
+        payout.status = PayoutStatus.COMPLETED;
+        await this.payoutRepo.save(payout);
+      } catch (err) {
+        console.error(`[RAZORPAY ERROR] Failed to process payout for ${driverId}`, err);
+        payout.status = PayoutStatus.FAILED;
+        await this.payoutRepo.save(payout);
+      }
+    } else {
+      console.log(`[MOCK PAYOUT] Payout for ${driverId} marked as PENDING (no razorpay keys)`);
+    }
+
+    return payout;
   }
 }

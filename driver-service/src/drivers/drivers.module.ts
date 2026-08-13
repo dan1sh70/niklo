@@ -7,10 +7,11 @@ import { DriverKyc } from './entities/driver-kyc.entity';
 import { DriverEarning } from './entities/driver-earning.entity';
 import { DriverPayout } from './entities/driver-payout.entity';
 import { DriverBankDetail } from './entities/driver-bank-detail.entity';
+import { DriverSession } from './entities/driver-session.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Driver, DriverKyc, DriverEarning, DriverPayout, DriverBankDetail]),
+    TypeOrmModule.forFeature([Driver, DriverKyc, DriverEarning, DriverPayout, DriverBankDetail, DriverSession]),
   ],
   controllers: [DriversController],
   providers: [DriversService],

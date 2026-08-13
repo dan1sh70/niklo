@@ -148,6 +148,92 @@
           ]
         }
       }
+    },
+    {
+      "name": "Start Driver Session",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": \"{{driverId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/driver/session/start",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "driver",
+            "session",
+            "start"
+          ]
+        }
+      }
+    },
+    {
+      "name": "End Driver Session",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": \"{{driverId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/driver/session/end",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "driver",
+            "session",
+            "end"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Withdraw Payout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driverId\": \"{{driverId}}\",\n  \"amount\": 100\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/driver/withdraw",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "driver",
+            "withdraw"
+          ]
+        }
+      }
     }
   ]
 }

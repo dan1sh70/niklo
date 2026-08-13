@@ -42,4 +42,22 @@ export class DriversController {
     const data = await this.driversService.saveBankDetails(bankDetailsDto);
     return { success: true, data };
   }
+
+  @Post('session/start')
+  async startSession(@Body() body: { driverId: string }) {
+    const data = await this.driversService.startSession(body.driverId);
+    return { success: true, data };
+  }
+
+  @Post('session/end')
+  async endSession(@Body() body: { driverId: string }) {
+    const data = await this.driversService.endSession(body.driverId);
+    return { success: true, data };
+  }
+
+  @Post('withdraw')
+  async withdraw(@Body() body: { driverId: string; amount: number }) {
+    const data = await this.driversService.withdraw(body.driverId, body.amount);
+    return { success: true, data };
+  }
 }

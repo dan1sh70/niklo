@@ -202,6 +202,35 @@
           ]
         }
       }
+    },
+    {
+      "name": "Rate Ride",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 5,\n  \"feedback\": \"Great ride!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/ride/{{rideId}}/rate",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ride",
+            "{{rideId}}",
+            "rate"
+          ]
+        }
+      }
     }
   ]
 }

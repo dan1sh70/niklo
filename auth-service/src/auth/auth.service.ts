@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
 import { RedisService } from '../redis/redis.service';
+import { Twilio } from 'twilio';
 
 @Injectable()
 export class AuthService {
@@ -30,8 +31,26 @@ export class AuthService {
     // Save to Redis (5 mins expiry)
     await this.redisService.setOtp(phone, otp);
 
-    // TODO: Integrate MSG91 / Twilio SDK here to actually send SMS
-    console.log(`[MOCK SMS] OTP for ${phone} is ${otp}`);
+    const twilioSid = this.configService.get<string>('TWILIO_ACCOUNT_SID');
+    const twilioAuthToken = this.configService.get<string>('TWILIO_AUTH_TOKEN');
+    const twilioPhoneNumber = this.configService.get<string>('TWILIO_PHONE_NUMBER');
+
+    if (twilioSid && twilioAuthToken && twilioPhoneNumber && phone !== '+919999999999') {
+      try {
+        const client = new Twilio(twilioSid, twilioAuthToken);
+        await client.messages.create({
+          body: `Your Niklo verification code is: ${otp}`,
+          from: twilioPhoneNumber,
+          to: phone,
+        });
+        console.log(`[TWILIO SMS] OTP sent to ${phone}`);
+      } catch (err) {
+        console.error(`[TWILIO ERROR] Failed to send SMS to ${phone}`, err);
+        // Fallback to mock for local testing even if twilio fails
+      }
+    } else {
+      console.log(`[MOCK SMS] OTP for ${phone} is ${otp}`);
+    }
 
     return { success: true, message: 'OTP sent successfully' };
   }

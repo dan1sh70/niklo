@@ -10,9 +10,11 @@ import {
 import { Driver } from './driver.entity';
 
 export enum PayoutStatus {
+  PENDING = 'pending',
   SCHEDULED = 'scheduled',
   PROCESSING = 'processing',
   COMPLETED = 'completed',
+  FAILED = 'failed',
 }
 
 @Entity('driver_payouts')

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus } from './entities/ride.entity';
+import { RideRating } from './entities/ride-rating.entity';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
@@ -11,6 +12,8 @@ export class RidesService {
   constructor(
     @InjectRepository(Ride)
     private readonly rideRepository: Repository<Ride>,
+    @InjectRepository(RideRating)
+    private readonly ratingRepository: Repository<RideRating>,
     private readonly redisService: RedisService,
   ) {}
 
@@ -165,6 +168,27 @@ export class RidesService {
   }
 
   async rateRide(id: string, ratingDto: any) {
+    const ride = await this.rideRepository.findOne({ where: { id } });
+    if (!ride) {
+      throw new NotFoundException(`Ride with ID ${id} not found`);
+    }
+
+    if (!ride.driver_id) {
+      throw new Error('Cannot rate a ride without a driver');
+    }
+
+    const rating = this.ratingRepository.create({
+      ride_id: id,
+      passenger_id: ride.passenger_id,
+      driver_id: ride.driver_id,
+      rating: ratingDto.rating,
+      feedback: ratingDto.feedback,
+    });
+    
+    await this.ratingRepository.save(rating);
+
+    // Here we could also queue an event to update the driver's aggregate rating asynchronously
+
     return {
       message: 'Rating submitted successfully',
       rating: ratingDto.rating,
@@ -253,13 +277,11 @@ export class RidesService {
 
   async setDriverLocation(driverId: string, lat: number, lng: number) {
     await this.redisService.setDriverLocation(driverId, lat, lng);
+    await this.redisService.publish('driver:online_status', JSON.stringify({ driverId, status: 'online' }));
   }
 
   async setDriverOffline(driverId: string) {
-    // Assuming there's a method in redisService to remove location
-    // Since we don't know the exact method, we'll try something generic or just log it
-    // In many geohash implementations, you just delete the key or remove from geo set
     this.logger.log(`Setting driver ${driverId} offline`);
-    // Example: await this.redisService.removeDriverLocation(driverId);
+    await this.redisService.publish('driver:online_status', JSON.stringify({ driverId, status: 'offline' }));
   }
 }
