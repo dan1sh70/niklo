@@ -1,0 +1,76 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/niklo-
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - auth-service
+          - bus-service
+          - payment-service
+          - hotel-service
+          - user-service
+          - ride-service
+          - driver-service
+          - package-service
+          - adventure-service
+          - notification-service
+          - admin-service
+          - booking-service
+          - nginx
+          - postgres-db
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}${{ matrix.service }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+
+      - name: Determine Dockerfile context
+        id: context
+        run: |
+          if [ "${{ matrix.service }}" = "nginx" ]; then
+            echo "context=." >> $GITHUB_OUTPUT
+            echo "dockerfile=nginx.Dockerfile" >> $GITHUB_OUTPUT
+          else
+            echo "context=./${{ matrix.service }}" >> $GITHUB_OUTPUT
+            echo "dockerfile=Dockerfile" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ steps.context.outputs.context }}
+          file: ${{ steps.context.outputs.context }}/${{ steps.context.outputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
