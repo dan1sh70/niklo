@@ -12,6 +12,7 @@ export enum BookingType {
   JOURNEY_LEG = 'JOURNEY_LEG',
   PACKAGE = 'PACKAGE',
   ADVENTURE = 'ADVENTURE',
+  HOTEL = 'HOTEL',
 }
 
 export enum BookingStatus {
@@ -19,6 +20,8 @@ export enum BookingStatus {
   CONFIRMED = 'CONFIRMED',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
+  CHECKED_IN = 'CHECKED_IN',
+  CHECKED_OUT = 'CHECKED_OUT',
 }
 
 @Entity('bookings')

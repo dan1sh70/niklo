@@ -14,6 +14,9 @@ export class Hotel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  partnerId: string;
+
   @Column()
   hotelName: string;
 

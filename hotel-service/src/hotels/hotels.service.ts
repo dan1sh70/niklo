@@ -1,8 +1,11 @@
-import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, NotFoundException, OnApplicationBootstrap, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Hotel } from './entities/hotel.entity';
 import { Review } from './entities/review.entity';
+import { RoomType } from './entities/room-type.entity';
+import { PartnerOffer } from './entities/partner-offer.entity';
+import { PartnerReviewReply } from './entities/partner-review-reply.entity';
 
 @Injectable()
 export class HotelsService implements OnApplicationBootstrap {
@@ -11,6 +14,12 @@ export class HotelsService implements OnApplicationBootstrap {
     private readonly hotelRepository: Repository<Hotel>,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(RoomType)
+    private readonly roomRepository: Repository<RoomType>,
+    @InjectRepository(PartnerOffer)
+    private readonly offerRepository: Repository<PartnerOffer>,
+    @InjectRepository(PartnerReviewReply)
+    private readonly replyRepository: Repository<PartnerReviewReply>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -253,5 +262,94 @@ export class HotelsService implements OnApplicationBootstrap {
   async createHotel(createHotelDto: any) {
     const hotel = this.hotelRepository.create(createHotelDto);
     return await this.hotelRepository.save(hotel);
+  }
+
+  // --- HOTEL PARTNER PROPERTY MANAGEMENT METHODS --- //
+
+  async getPartnerProperties(partnerId: string) {
+    return this.hotelRepository.find({ where: { partnerId } });
+  }
+
+  async getHotelRooms(hotelId: string) {
+    return this.roomRepository.find({ where: { hotel: { id: hotelId } } });
+  }
+
+  async addHotelRoom(hotelId: string, partnerId: string, roomData: any) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const room = this.roomRepository.create({ ...roomData, hotel });
+    return this.roomRepository.save(room);
+  }
+
+  async updateHotelRoom(hotelId: string, roomId: string, partnerId: string, roomData: any) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const room = await this.roomRepository.findOne({ where: { id: roomId, hotel: { id: hotelId } } });
+    if (!room) throw new NotFoundException('Room not found');
+
+    Object.assign(room, roomData);
+    return this.roomRepository.save(room);
+  }
+
+  async deleteHotelRoom(hotelId: string, roomId: string, partnerId: string) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const room = await this.roomRepository.findOne({ where: { id: roomId, hotel: { id: hotelId } } });
+    if (!room) throw new NotFoundException('Room not found');
+
+    await this.roomRepository.remove(room);
+    return { success: true, message: 'Room deleted' };
+  }
+
+  async getHotelOffers(hotelId: string) {
+    return this.offerRepository.find({ where: { hotel: { id: hotelId } } });
+  }
+
+  async addHotelOffer(hotelId: string, partnerId: string, offerData: any) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const offer = this.offerRepository.create({ ...offerData, hotel });
+    return this.offerRepository.save(offer);
+  }
+
+  async updateHotelOffer(hotelId: string, offerId: string, partnerId: string, offerData: any) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const offer = await this.offerRepository.findOne({ where: { id: offerId, hotel: { id: hotelId } } });
+    if (!offer) throw new NotFoundException('Offer not found');
+
+    Object.assign(offer, offerData);
+    return this.offerRepository.save(offer);
+  }
+
+  async deleteHotelOffer(hotelId: string, offerId: string, partnerId: string) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const offer = await this.offerRepository.findOne({ where: { id: offerId, hotel: { id: hotelId } } });
+    if (!offer) throw new NotFoundException('Offer not found');
+
+    await this.offerRepository.remove(offer);
+    return { success: true, message: 'Offer deleted' };
+  }
+
+  async replyToReview(hotelId: string, reviewId: string, partnerId: string, replyData: any) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const review = await this.reviewRepository.findOne({ where: { id: reviewId, hotel: { id: hotelId } } });
+    if (!review) throw new NotFoundException('Review not found');
+
+    const reply = this.replyRepository.create({
+      ...replyData,
+      review,
+      partnerId,
+    });
+    return this.replyRepository.save(reply);
   }
 }

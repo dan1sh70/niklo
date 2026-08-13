@@ -23,8 +23,12 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/",
-          "host": ["{{baseUrl}}"],
-          "path": [""]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
         }
       }
     },
@@ -48,8 +52,16 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/bookings/seats/lock",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "bookings", "seats", "lock"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "seats",
+            "lock"
+          ]
         }
       }
     },
@@ -73,8 +85,14 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/bookings",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "bookings"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings"
+          ]
         }
       }
     },
@@ -90,8 +108,15 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/v1/bookings/my-bookings",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "bookings", "my-bookings"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "my-bookings"
+          ]
         }
       }
     },
@@ -107,8 +132,15 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/v1/bookings/:id",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "bookings", ":id"],
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            ":id"
+          ],
           "variable": [
             {
               "key": "id",
@@ -130,13 +162,175 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/v1/bookings/:id/cancel",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "bookings", ":id", "cancel"],
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            ":id",
+            "cancel"
+          ],
           "variable": [
             {
               "key": "id",
               "value": "uuid-here"
             }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hotel Check-In",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/hotel/{{bookingId}}/check-in",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "hotel",
+            "{{bookingId}}",
+            "check-in"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hotel Check-Out",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/hotel/{{bookingId}}/check-out",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "hotel",
+            "{{bookingId}}",
+            "check-out"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hotel Partner Cancel",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/hotel/partner/{{bookingId}}/cancel",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "hotel",
+            "partner",
+            "{{bookingId}}",
+            "cancel"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hotel Partner Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/hotel/partner/summary",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "hotel",
+            "partner",
+            "summary"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hotel Partner Calendar",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/hotel/partner/calendar",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "hotel",
+            "partner",
+            "calendar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hotel Partner Earnings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/hotel/partner/earnings",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "hotel",
+            "partner",
+            "earnings"
           ]
         }
       }

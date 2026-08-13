@@ -44,4 +44,48 @@ export class BookingsController {
   async cancelBooking(@Request() req: any, @Param('id') id: string) {
     return this.bookingsService.cancelBooking(id, req.user.id);
   }
+
+  // --- HOTEL PARTNER ENDPOINTS --- //
+
+  @UseGuards(JwtAuthGuard)
+  @Post('hotel/:id/check-in')
+  async hotelCheckIn(@Request() req: any, @Param('id') id: string) {
+    return this.bookingsService.hotelCheckIn(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('hotel/:id/check-out')
+  async hotelCheckOut(@Request() req: any, @Param('id') id: string) {
+    return this.bookingsService.hotelCheckOut(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('hotel/partner/:id/cancel')
+  async hotelPartnerCancel(@Request() req: any, @Param('id') id: string) {
+    return this.bookingsService.hotelPartnerCancel(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('hotel/partner/summary')
+  async getHotelPartnerSummary(@Request() req: any) {
+    return this.bookingsService.getHotelPartnerSummary(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('hotel/partner/calendar')
+  async getHotelPartnerCalendar(@Request() req: any) {
+    return this.bookingsService.getHotelPartnerCalendar(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('hotel/partner/earnings')
+  async getHotelPartnerEarnings(@Request() req: any) {
+    return this.bookingsService.getHotelPartnerEarnings(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('hotel/partner/occupancy/monthly')
+  async getHotelPartnerOccupancy(@Request() req: any) {
+    return this.bookingsService.getHotelPartnerOccupancy(req.user.id);
+  }
 }

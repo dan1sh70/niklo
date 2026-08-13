@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, Patch, Delete } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { HotelsService } from './hotels.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
@@ -78,5 +78,67 @@ export class HotelsController {
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 30,
     );
+  }
+
+  // --- HOTEL PARTNER PROPERTY MANAGEMENT ENDPOINTS --- //
+
+  @UseGuards(JwtAuthGuard)
+  @Get('partner/properties')
+  getPartnerProperties(@Req() req: any) {
+    return this.hotelsService.getPartnerProperties(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':hotelId/rooms')
+  getHotelRooms(@Param('hotelId') hotelId: string) {
+    return this.hotelsService.getHotelRooms(hotelId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':hotelId/rooms')
+  addHotelRoom(@Req() req: any, @Param('hotelId') hotelId: string, @Body() roomData: any) {
+    return this.hotelsService.addHotelRoom(hotelId, req.user.id, roomData);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':hotelId/rooms/:roomId')
+  updateHotelRoom(@Req() req: any, @Param('hotelId') hotelId: string, @Param('roomId') roomId: string, @Body() roomData: any) {
+    return this.hotelsService.updateHotelRoom(hotelId, roomId, req.user.id, roomData);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':hotelId/rooms/:roomId')
+  deleteHotelRoom(@Req() req: any, @Param('hotelId') hotelId: string, @Param('roomId') roomId: string) {
+    return this.hotelsService.deleteHotelRoom(hotelId, roomId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':hotelId/offers')
+  getHotelOffers(@Param('hotelId') hotelId: string) {
+    return this.hotelsService.getHotelOffers(hotelId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':hotelId/offers')
+  addHotelOffer(@Req() req: any, @Param('hotelId') hotelId: string, @Body() offerData: any) {
+    return this.hotelsService.addHotelOffer(hotelId, req.user.id, offerData);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':hotelId/offers/:offerId')
+  updateHotelOffer(@Req() req: any, @Param('hotelId') hotelId: string, @Param('offerId') offerId: string, @Body() offerData: any) {
+    return this.hotelsService.updateHotelOffer(hotelId, offerId, req.user.id, offerData);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':hotelId/offers/:offerId')
+  deleteHotelOffer(@Req() req: any, @Param('hotelId') hotelId: string, @Param('offerId') offerId: string) {
+    return this.hotelsService.deleteHotelOffer(hotelId, offerId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':hotelId/reviews/:reviewId/reply')
+  replyToReview(@Req() req: any, @Param('hotelId') hotelId: string, @Param('reviewId') reviewId: string, @Body() replyData: any) {
+    return this.hotelsService.replyToReview(hotelId, reviewId, req.user.id, replyData);
   }
 }

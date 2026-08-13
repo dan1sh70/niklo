@@ -334,6 +334,55 @@
           }
         }
       ]
+    },
+    {
+      "name": "Partner Properties",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{host}}/api/v1/hotels/partner/properties",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "hotels",
+            "partner",
+            "properties"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Hotel Room",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Deluxe Suite\",\n  \"guestCount\": \"2 Guests\",\n  \"price\": 6500\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/api/v1/hotels/{{hotelId}}/rooms",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "hotels",
+            "{{hotelId}}",
+            "rooms"
+          ]
+        }
+      }
     }
   ],
   "event": [

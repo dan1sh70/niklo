@@ -44,6 +44,6 @@ export class LockSeatsDto {
   scheduleId: string;
 
   @IsArray()
-  @IsString({ each: true })
+  @IsUUID('all', { each: true })
   seatIds: string[];
 }
