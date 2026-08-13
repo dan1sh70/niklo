@@ -16,6 +16,10 @@ const port = process.env.PORT || 3020;
 app.use(cors());
 app.use(express.json());
 
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).send('OK');
+});
+
 const workspacePath = process.env.WORKSPACE_PATH || path.resolve(__dirname, '../../');
 
 app.get('/api/v1/admin/swagger-spec', (req: Request, res: Response) => {
