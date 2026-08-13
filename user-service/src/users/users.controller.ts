@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Put,
+  Patch,
   Post,
   Body,
   Req,
@@ -21,7 +22,7 @@ export class UsersController {
     return this.usersService.getProfile(userId);
   }
 
-  @Put('profile')
+  @Patch('profile')
   updateProfile(@Req() req: any, @Body() updateData: any) {
     const userId = req.user.id;
     return this.usersService.updateProfile(userId, updateData);

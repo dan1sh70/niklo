@@ -12,6 +12,14 @@ export enum KycStatus {
   REJECTED = 'rejected',
 }
 
+export enum UserRole {
+  PASSENGER = 'Passenger',
+  DRIVER = 'Car Driver',
+  BUS_OPERATOR = 'Bus Operator',
+  HOTEL_PARTNER = 'Hotel Partner',
+  ADMIN = 'Admin',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -43,4 +51,7 @@ export class User {
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.PASSENGER })
+  role: UserRole;
 }

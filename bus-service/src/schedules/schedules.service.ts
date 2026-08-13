@@ -111,4 +111,21 @@ export class SchedulesService {
     await this.scheduleRepo.save(schedule);
     return { success: true };
   }
+
+  async getManifest(id: string): Promise<any> {
+    const schedule = await this.findOne(id);
+    // Ideally this would query the booking service for all bookings linked to this schedule.
+    // For now, return a structured mock representing the passenger manifest.
+    return {
+      schedule_id: schedule.id,
+      route: `${schedule.route?.source_city} to ${schedule.route?.destination_city}`,
+      departure_time: schedule.departure_time,
+      bus_number: schedule.bus?.registration_number,
+      manifest: [
+        { seat: '1A', passengerName: 'John Doe', age: 30, gender: 'M', pnr: 'B123456' },
+        { seat: '1B', passengerName: 'Jane Doe', age: 28, gender: 'F', pnr: 'B123456' },
+      ],
+      generated_at: new Date(),
+    };
+  }
 }

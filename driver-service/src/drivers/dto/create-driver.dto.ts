@@ -12,6 +12,28 @@ export class OnboardDriverDto {
   @IsString()
   @IsOptional()
   vehicle_number?: string;
+
+  @IsString()
+  @IsOptional()
+  aadhaar_number?: string;
+
+  @IsString()
+  @IsOptional()
+  pan_number?: string;
+
+  @IsString()
+  @IsOptional()
+  rc_number?: string;
+
+  @IsOptional()
+  is_owner?: boolean;
+
+  @IsString()
+  @IsOptional()
+  date_of_birth?: string;
+
+  @IsOptional()
+  availability?: string[];
 }
 
 export class UploadKycDto {

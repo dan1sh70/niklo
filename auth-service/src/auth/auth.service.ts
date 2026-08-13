@@ -36,7 +36,7 @@ export class AuthService {
     return { success: true, message: 'OTP sent successfully' };
   }
 
-  async verifyOtp(phone: string, otp: string): Promise<any> {
+  async verifyOtp(phone: string, otp: string, role?: string): Promise<any> {
     try {
       const isTestCredentials = phone === '+919999999999' && otp === '123456';
 
@@ -53,9 +53,19 @@ export class AuthService {
 
       // Find or create user
       let user = await this.userRepository.findOne({ where: { phone } });
+      let isNewUser = false;
       if (!user) {
-        user = this.userRepository.create({ phone });
+        user = this.userRepository.create({ phone, role: role as any });
         await this.userRepository.save(user);
+        isNewUser = true;
+      } else if (role && user.role !== role) {
+        user.role = role as any;
+        await this.userRepository.save(user);
+      }
+
+      // TODO: Handle partner auto-creation here or via downstream event
+      if (isNewUser && role) {
+        console.log(`[MOCK] Auto-creating partner record for role: ${role}`);
       }
 
       return this.generateTokens(user);
@@ -97,7 +107,7 @@ export class AuthService {
     return { success: true };
   }
 
-  async socialLogin(provider: string, idToken: string): Promise<any> {
+  async socialLogin(provider: string, idToken: string, role?: string): Promise<any> {
     // TODO: Verify idToken with Google/Apple/Facebook API
     console.log(
       `[MOCK SOCIAL LOGIN] Verifying ${provider} idToken: ${idToken}`,
@@ -108,6 +118,7 @@ export class AuthService {
     let user = await this.userRepository.findOne({
       where: { email: mockEmail },
     });
+    let isNewUser = false;
     if (!user) {
       // Mocking phone since it's required and unique. In reality, we'd ask for phone if not provided.
       const mockPhone = '+91000000000' + Math.floor(Math.random() * 10);
@@ -115,15 +126,24 @@ export class AuthService {
         email: mockEmail,
         phone: mockPhone,
         name: 'Social User',
+        role: role as any,
       });
       await this.userRepository.save(user);
+      isNewUser = true;
+    } else if (role && user.role !== role) {
+      user.role = role as any;
+      await this.userRepository.save(user);
+    }
+
+    if (isNewUser && role) {
+      console.log(`[MOCK] Auto-creating partner record for role: ${role}`);
     }
 
     return this.generateTokens(user);
   }
 
   private async generateTokens(user: User) {
-    const payload = { sub: user.id, phone: user.phone };
+    const payload = { sub: user.id, phone: user.phone, role: user.role };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {

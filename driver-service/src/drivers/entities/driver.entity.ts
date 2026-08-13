@@ -26,6 +26,24 @@ export class Driver {
   @Column({ type: 'varchar', length: 50, nullable: true })
   vehicle_number: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  aadhaar_number: string;
+
+  @Column({ type: 'varchar', length: 15, nullable: true })
+  pan_number: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  rc_number: string;
+
+  @Column({ type: 'boolean', default: true })
+  is_owner: boolean;
+
+  @Column({ type: 'date', nullable: true })
+  date_of_birth: Date;
+
+  @Column({ type: 'jsonb', nullable: true })
+  availability: string[];
+
   @Column({
     type: 'enum',
     enum: DriverStatus,

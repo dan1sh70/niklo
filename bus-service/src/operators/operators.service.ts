@@ -42,4 +42,15 @@ export class OperatorsService {
     await this.operatorRepo.save(operator);
     return { success: true };
   }
+
+  async getSummary(id: string): Promise<any> {
+    // For now, mock the aggregated data until booking integration is complete
+    return {
+      total_buses: 12,
+      active_schedules_today: 8,
+      total_tickets_sold_today: 240,
+      total_earnings_today: 204000.00,
+      occupancy_rate_percent: 88.5,
+    };
+  }
 }

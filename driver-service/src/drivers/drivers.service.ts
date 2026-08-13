@@ -5,7 +5,9 @@ import { Driver, DriverStatus } from './entities/driver.entity';
 import { DriverKyc, KycStatus } from './entities/driver-kyc.entity';
 import { DriverEarning, EarningType } from './entities/driver-earning.entity';
 import { DriverPayout, PayoutStatus } from './entities/driver-payout.entity';
+import { DriverBankDetail } from './entities/driver-bank-detail.entity';
 import { OnboardDriverDto, UploadKycDto } from './dto/create-driver.dto';
+import { BankDetailsDto } from './dto/bank-details.dto';
 
 @Injectable()
 export class DriversService implements OnApplicationBootstrap {
@@ -18,6 +20,8 @@ export class DriversService implements OnApplicationBootstrap {
     private readonly earningRepo: Repository<DriverEarning>,
     @InjectRepository(DriverPayout)
     private readonly payoutRepo: Repository<DriverPayout>,
+    @InjectRepository(DriverBankDetail)
+    private readonly bankRepo: Repository<DriverBankDetail>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -101,5 +105,30 @@ export class DriversService implements OnApplicationBootstrap {
       where: { driver_id: driverId },
       order: { scheduled_for: 'DESC' },
     });
+  }
+
+  async saveBankDetails(dto: BankDetailsDto) {
+    let bankDetail = await this.bankRepo.findOne({
+      where: { driver_id: dto.driverId },
+    });
+
+    if (bankDetail) {
+      bankDetail.account_holder_name = dto.accountHolderName;
+      bankDetail.bank_name = dto.bankName;
+      bankDetail.account_number = dto.accountNumber;
+      bankDetail.ifsc_code = dto.ifscCode;
+      bankDetail.account_type = dto.accountType;
+    } else {
+      bankDetail = this.bankRepo.create({
+        driver_id: dto.driverId,
+        account_holder_name: dto.accountHolderName,
+        bank_name: dto.bankName,
+        account_number: dto.accountNumber,
+        ifsc_code: dto.ifscCode,
+        account_type: dto.accountType,
+      });
+    }
+
+    return await this.bankRepo.save(bankDetail);
   }
 }

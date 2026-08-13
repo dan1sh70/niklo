@@ -27,7 +27,7 @@ export class AuthController {
   @Post('otp/verify')
   @HttpCode(HttpStatus.OK)
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.authService.verifyOtp(verifyOtpDto.phone, verifyOtpDto.otp);
+    return this.authService.verifyOtp(verifyOtpDto.phone, verifyOtpDto.otp, verifyOtpDto.role);
   }
 
   @Post('refresh')
@@ -42,6 +42,7 @@ export class AuthController {
     return this.authService.socialLogin(
       socialLoginDto.provider,
       socialLoginDto.idToken,
+      socialLoginDto.role,
     );
   }
 

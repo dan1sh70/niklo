@@ -53,6 +53,12 @@ export class SchedulesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':id/manifest')
+  async getManifest(@Param('id') id: string) {
+    return this.schedulesService.getManifest(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateScheduleDto) {
     return this.schedulesService.update(id, dto);

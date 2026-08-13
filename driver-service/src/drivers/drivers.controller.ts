@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Body, Param, Query } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { OnboardDriverDto, UploadKycDto } from './dto/create-driver.dto';
+import { BankDetailsDto } from './dto/bank-details.dto';
 
 @Controller('api/v1/driver')
 export class DriversController {
@@ -33,6 +34,12 @@ export class DriversController {
   @Get('payouts')
   async getPayouts(@Query('driverId') driverId: string) {
     const data = await this.driversService.getPayouts(driverId);
+    return { success: true, data };
+  }
+
+  @Post('bank-details')
+  async saveBankDetails(@Body() bankDetailsDto: BankDetailsDto) {
+    const data = await this.driversService.saveBankDetails(bankDetailsDto);
     return { success: true, data };
   }
 }

@@ -27,9 +27,10 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     try {
       await this.redisService.subscribe('ride:new_request_queue', (msg) => {
         try {
-          const { rideId, driverId, timeout } = JSON.parse(msg);
+          const payload = JSON.parse(msg);
+          const { rideId, driverId } = payload;
           this.logger.log(`Forwarding new request for ride ${rideId} to driver ${driverId}`);
-          this.sendNewRequestToDriver(driverId, { rideId, timeout });
+          this.sendNewRequestToDriver(driverId, payload);
         } catch (err) {
           this.logger.error('Error parsing ride:new_request_queue message', err);
         }
@@ -99,8 +100,8 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   }
 
   @SubscribeMessage('ride:start')
-  async handleRideStart(@MessageBody() data: { rideId: string }) {
-    await this.ridesService.updateRideStatus(data.rideId, 'IN_PROGRESS');
+  async handleRideStart(@MessageBody() data: { rideId: string; otp: string }) {
+    await this.ridesService.verifyRideOtp(data.rideId, data.otp);
   }
 
   @SubscribeMessage('ride:end')

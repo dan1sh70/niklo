@@ -37,6 +37,12 @@ export class OperatorsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':id/summary')
+  async getSummary(@Param('id', ParseUUIDPipe) id: string) {
+    return this.operatorsService.getSummary(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateOperatorDto) {
     return this.operatorsService.update(id, dto);

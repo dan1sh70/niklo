@@ -54,6 +54,17 @@ export class RidesController {
     return { success: true, message: 'Ride completed successfully' };
   }
 
+  @Post(':id/verify-otp')
+  async verifyOtp(@Param('id') id: string, @Body() body: any) {
+    const { otp } = body;
+    if (!otp) {
+      return { success: false, message: 'OTP is required' };
+    }
+    // Verify OTP logic here
+    await this.ridesService.verifyRideOtp(id, otp);
+    return { success: true, status: 'IN_PROGRESS', started_at: new Date() };
+  }
+
   @Post('driver/go-online')
   async goOnline(@Body() body: any) {
     const lat = body.lat ?? 12.9716;
@@ -61,6 +72,13 @@ export class RidesController {
     const driverId = body.driverId || 'd1111111-1111-1111-1111-111111111111';
     await this.ridesService.setDriverLocation(driverId, lat, lng);
     return { success: true, message: 'Driver is now online' };
+  }
+
+  @Post('driver/go-offline')
+  async goOffline(@Body() body: any) {
+    const driverId = body.driverId || 'd1111111-1111-1111-1111-111111111111';
+    await this.ridesService.setDriverOffline(driverId);
+    return { success: true, message: 'Driver is now offline' };
   }
 
   @Get(':id')

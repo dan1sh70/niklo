@@ -67,6 +67,9 @@ export class Ride {
   @Column({ type: 'enum', enum: RideStatus, default: RideStatus.REQUESTED })
   status: RideStatus;
 
+  @Column({ type: 'varchar', length: 4, nullable: true })
+  otp: string;
+
   @Column({ type: 'timestamptz', nullable: true })
   scheduled_at: Date;
 

@@ -24,9 +24,24 @@ export class UsersService {
   }
 
   async updateProfile(userId: string, updateData: any) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    
+    // Whitelist allowed fields for update
+    const allowedFields = ['name', 'email', 'avatar_url', 'preferred_language'];
+    allowedFields.forEach(field => {
+      if (updateData[field] !== undefined) {
+        user[field] = updateData[field];
+      }
+    });
+
+    const updatedUser = await this.userRepository.save(user);
+
     return {
       message: 'Profile updated successfully',
-      data: updateData,
+      data: updatedUser,
     };
   }
 

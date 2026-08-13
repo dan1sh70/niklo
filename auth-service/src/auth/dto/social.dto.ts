@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsIn, IsOptional } from 'class-validator';
 
 export class SocialLoginDto {
   @IsString()
@@ -9,4 +9,8 @@ export class SocialLoginDto {
   @IsString()
   @IsNotEmpty()
   idToken: string;
+
+  @IsString()
+  @IsOptional()
+  role?: string;
 }

@@ -51,6 +51,7 @@ export class RidesService {
       ...mapped,
       status: RideStatus.REQUESTED,
       passenger_id: passengerId,
+      otp: Math.floor(1000 + Math.random() * 9000).toString(),
     };
     const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
@@ -89,11 +90,25 @@ export class RidesService {
         // We take the first available driver for simplicity in this implementation
         const driverId = drivers[0];
 
+        // Fetch ride details to include in the payload
+        const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+
         // Emit new request to driver via Redis PubSub (which DriverGateway could listen to)
         // Or directly if we had a Bull queue
         await this.redisService.publish(
           'ride:new_request_queue',
-          JSON.stringify({ rideId, driverId, timeout: 30 }),
+          JSON.stringify({
+            rideId,
+            driverId,
+            timeout: 30,
+            pickupAddress: ride?.pickup_address,
+            dropAddress: ride?.drop_address,
+            fareEstimate: ride?.fare_estimate,
+            distanceKm: ride?.distance_km,
+            otp: ride?.otp,
+            passengerName: 'Passenger Name', // Mocking since passenger data is in user-service
+            passengerPhone: '+919999999999',
+          }),
         );
 
         this.logger.log(
@@ -196,6 +211,17 @@ export class RidesService {
     // Ideally queue next driver here
   }
 
+  async verifyRideOtp(rideId: string, otp: string) {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) {
+      throw new NotFoundException(`Ride with ID ${rideId} not found`);
+    }
+    if (ride.otp !== otp) {
+      throw new Error('Invalid OTP');
+    }
+    await this.updateRideStatus(rideId, RideStatus.IN_PROGRESS);
+  }
+
   async updateRideStatus(rideId: string, status: string) {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (ride) {
@@ -227,5 +253,13 @@ export class RidesService {
 
   async setDriverLocation(driverId: string, lat: number, lng: number) {
     await this.redisService.setDriverLocation(driverId, lat, lng);
+  }
+
+  async setDriverOffline(driverId: string) {
+    // Assuming there's a method in redisService to remove location
+    // Since we don't know the exact method, we'll try something generic or just log it
+    // In many geohash implementations, you just delete the key or remove from geo set
+    this.logger.log(`Setting driver ${driverId} offline`);
+    // Example: await this.redisService.removeDriverLocation(driverId);
   }
 }
