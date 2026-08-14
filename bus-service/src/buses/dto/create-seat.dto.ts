@@ -4,10 +4,10 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
-  IsUUID,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
-import { Deck, SeatType } from '../entities/seat-layout.entity';
+import { SeatType } from '../entities/seat-layout.entity';
 import { Type } from 'class-transformer';
 import { ValidateNested, IsArray } from 'class-validator';
 
@@ -16,17 +16,21 @@ export class CreateSeatDto {
   @IsNotEmpty()
   seat_number: string;
 
-  @IsEnum(Deck)
-  deck: Deck;
+  @IsBoolean()
+  is_upper_deck: boolean;
 
   @IsInt()
-  row: number;
+  row_num: number;
 
   @IsInt()
-  column: number;
+  col_num: number;
 
   @IsEnum(SeatType)
   seat_type: SeatType;
+
+  @IsNumber()
+  @IsOptional()
+  price_offset?: number;
 
   @IsOptional()
   @IsBoolean()

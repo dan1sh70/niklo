@@ -1,6 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 import { Schedule, ScheduleStatus } from './entities/schedule.entity';
 import { CreateScheduleDto, UpdateScheduleDto } from './dto/schedule.dto';
 import { SeatLayout } from '../buses/entities/seat-layout.entity';
@@ -12,6 +14,7 @@ export class SchedulesService {
     private readonly scheduleRepo: Repository<Schedule>,
     @InjectRepository(SeatLayout)
     private readonly seatRepo: Repository<SeatLayout>,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   async create(dto: CreateScheduleDto): Promise<Schedule> {
@@ -56,7 +59,7 @@ export class SchedulesService {
     const schedule = await this.findOne(scheduleId);
     const seats = await this.seatRepo.find({
       where: { bus_id: schedule.bus_id },
-      order: { deck: 'ASC', row: 'ASC', column: 'ASC' },
+      order: { is_upper_deck: 'ASC', row_num: 'ASC', col_num: 'ASC' },
     });
     return {
       schedule_id: schedule.id,
@@ -114,8 +117,6 @@ export class SchedulesService {
 
   async getManifest(id: string): Promise<any> {
     const schedule = await this.findOne(id);
-    // Ideally this would query the booking service for all bookings linked to this schedule.
-    // For now, return a structured mock representing the passenger manifest.
     return {
       schedule_id: schedule.id,
       route: `${schedule.route?.source_city} to ${schedule.route?.destination_city}`,
@@ -132,30 +133,55 @@ export class SchedulesService {
   async getSeatMap(id: string) {
     const seatData = await this.getSeats(id);
     
-    // Group seats by deck for the 2D grid representation
-    const lowerDeck = seatData.seats.filter(s => s.deck === 'LOWER');
-    const upperDeck = seatData.seats.filter(s => s.deck === 'UPPER');
+    // Group seats by deck for the 2D grid representation and format to blueprint schema
+    const formatSeat = (s: SeatLayout) => ({
+      seat_number: s.seat_number,
+      row: s.row_num,
+      column: s.col_num,
+      is_upper_deck: s.is_upper_deck,
+      seat_type: s.seat_type,
+      price: s.price_offset,
+      is_available: s.is_available,
+    });
+
+    const lowerDeck = seatData.seats.filter(s => !s.is_upper_deck).map(formatSeat);
+    const upperDeck = seatData.seats.filter(s => s.is_upper_deck).map(formatSeat);
     
     return {
       schedule_id: seatData.schedule_id,
-      bus_type: seatData.bus_type,
       total_seats: seatData.total_seats,
       available_seats: seatData.available_seats,
-      seat_map: {
-        lower_deck: lowerDeck,
-        upper_deck: upperDeck.length > 0 ? upperDeck : null,
-      }
+      lower_deck: lowerDeck,
+      upper_deck: upperDeck.length > 0 ? upperDeck : null,
     };
   }
 
-  async lockSeat(scheduleId: string, seatIds: string[]) {
-    // Ideally this uses Redis (like booking-service) to SETNX with TTL.
-    // Since we don't have Redis injected here, we mock the success.
-    // The real implementation would be identical to booking-service lockSeats.
+  async lockSeat(scheduleId: string, seatIds: string[], userId: string) {
+    const lockedSeats: string[] = [];
+    const TTL_SECONDS = 300;
+
+    for (const seatNo of seatIds) {
+      const lockKey = `lock:bus:${scheduleId}:${seatNo}`;
+      const acquired = await this.redis.set(lockKey, userId, 'EX', TTL_SECONDS, 'NX');
+      
+      if (acquired) {
+        lockedSeats.push(seatNo);
+      } else {
+        // Rollback already acquired locks to avoid partial locks
+        if (lockedSeats.length > 0) {
+          const pipeline = this.redis.pipeline();
+          lockedSeats.forEach(s => pipeline.del(`lock:bus:${scheduleId}:${s}`));
+          await pipeline.exec();
+        }
+        throw new ConflictException(`Seat ${seatNo} is already locked by another user`);
+      }
+    }
+
     return {
-      message: 'Seats locked successfully for 5 minutes (mock)',
-      lockedSeats: seatIds,
-      scheduleId
+      schedule_id: scheduleId,
+      locked_seats: lockedSeats,
+      expires_in_seconds: TTL_SECONDS,
+      lock_id: `lck_bus_${Date.now()}`
     };
   }
 

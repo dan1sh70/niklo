@@ -18,6 +18,12 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 export class BusesController {
   constructor(private readonly busesService: BusesService) {}
 
+  @Get('locations/autocomplete')
+  async autocomplete(@Query('query') query: string) {
+    const data = await this.busesService.autocomplete(query);
+    return { success: true, statusCode: 200, data };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() dto: CreateBusDto) {

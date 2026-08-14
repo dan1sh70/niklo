@@ -59,10 +59,27 @@ export class BusesService {
     return this.seatRepo.save(seats);
   }
 
+  async autocomplete(query: string) {
+    if (!query || query.length < 2) return [];
+    
+    // In a real application, you'd use ILIKE on a locations table.
+    // For now, returning a static fuzzy match list per the blueprint.
+    const mockLocations = [
+      { city: 'Kolkata', state: 'West Bengal', code: 'CCU' },
+      { city: 'Siliguri', state: 'West Bengal', code: 'IXB' },
+      { city: 'Bangalore', state: 'Karnataka', code: 'BLR' },
+      { city: 'Chennai', state: 'Tamil Nadu', code: 'MAA' }
+    ];
+    
+    return mockLocations.filter(loc => 
+      loc.city.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
   async getSeats(busId: string): Promise<SeatLayout[]> {
     return this.seatRepo.find({
       where: { bus_id: busId },
-      order: { deck: 'ASC', row: 'ASC', column: 'ASC' },
+      order: { is_upper_deck: 'ASC', row_num: 'ASC', col_num: 'ASC' },
     });
   }
 }

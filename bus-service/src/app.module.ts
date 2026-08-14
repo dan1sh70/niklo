@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { DataSource } from 'typeorm';
+import { RedisModule } from '@nestjs-modules/ioredis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OperatorsModule } from './operators/operators.module';
@@ -18,7 +19,7 @@ import { LocationsController } from './locations/locations.controller';
 
 import { Operator } from './operators/entities/operator.entity';
 import { Bus } from './buses/entities/bus.entity';
-import { SeatLayout, Deck, SeatType } from './buses/entities/seat-layout.entity';
+import { SeatLayout, SeatType } from './buses/entities/seat-layout.entity';
 import { Route } from './routes/entities/route.entity';
 import { Schedule, ScheduleStatus } from './schedules/entities/schedule.entity';
 
@@ -32,6 +33,13 @@ import { Schedule, ScheduleStatus } from './schedules/entities/schedule.entity';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
+      }),
+    }),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'single',
+        url: configService.get<string>('REDIS_URL') || 'redis://redis:6379',
       }),
     }),
     ThrottlerModule.forRoot([
@@ -96,17 +104,18 @@ export class AppModule implements OnApplicationBootstrap {
         is_active: true,
       });
 
-      // 3. Seed Seat Layout (36 seats: 9 rows x 4 cols)
+      // 3. Seed Seat Layout (36 seats: 9 rows x 4 cols, Lower deck only for this bus)
       const seats: Partial<SeatLayout>[] = [];
       for (let row = 1; row <= 9; row++) {
         for (let col = 1; col <= 4; col++) {
           seats.push({
             bus_id: bus.id,
-            seat_number: `${row}${String.fromCharCode(64 + col)}`,
-            row,
-            column: col,
-            deck: Deck.LOWER,
+            seat_number: `L${row}${String.fromCharCode(64 + col)}`,
+            row_num: row,
+            col_num: col,
+            is_upper_deck: false,
             seat_type: SeatType.SLEEPER,
+            price_offset: 0,
             is_available: true,
           });
         }
