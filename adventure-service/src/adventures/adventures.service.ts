@@ -1,4 +1,4 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TravelAdventure } from './entities/adventure.entity';
@@ -15,28 +15,64 @@ export class AdventuresService implements OnApplicationBootstrap {
     if (count === 0) {
       await this.adventureRepository.save([
         {
-          id: 'ad111111-1111-1111-1111-111111111111',
-          title: 'White Water Rafting',
-          description: 'Thrilling white water rafting in Rishikesh along the Ganges.',
-          price: 2500.0,
-          duration_hours: 3,
-          location: 'Rishikesh, Uttarakhand',
-          requirements: ['18+ age', 'No heart conditions', 'Swim wear'],
-          is_active: true,
-        },
-        {
-          id: 'ad222222-2222-2222-2222-222222222222',
-          title: 'Paragliding in Bir Billing',
-          description: 'Fly like a bird over the scenic valleys of Bir Billing.',
+          id: 'exp_scuba_goa_01',
+          title: 'Grand Island Scuba Diving & Water Sports',
+          category: 'Water Sports',
+          location: 'Grand Island, Goa',
+          city: 'Goa',
           price: 3500.0,
-          duration_hours: 1,
-          location: 'Bir Billing, Himachal Pradesh',
-          requirements: ['Weight between 40-95kg', 'Sturdy shoes'],
+          original_price: 4500.0,
+          discount_percent: 22,
+          rating: 4.9,
+          reviews_count: 284,
+          duration_hours: 6,
+          difficulty: 'Easy',
+          group_size: 'Up to 15 People',
+          image_url: 'https://cdn.niklo.com/experiences/scuba_goa.jpg',
+          gallery_images: [
+            'https://cdn.niklo.com/experiences/scuba_1.jpg',
+            'https://cdn.niklo.com/experiences/scuba_2.jpg'
+          ],
+          description: 'Experience deep sea diving in pristine waters with certified PADI divers.',
+          highlights: ['Underwater Photos Included', 'PADI Instructor', 'Boat Ride'],
+          whats_included: ['Equipment', 'Snacks', 'Photos'],
+          what_to_bring: ['Swimwear', 'Valid ID Proof'],
+          meeting_point: 'Malim Jetty, Panaji, Goa',
+          latitude: 15.5011,
+          longitude: 73.8244,
           is_active: true,
         },
       ]);
       console.log('Seeded adventures mock data successfully.');
     }
+  }
+
+  private mapAdventureToDto(a: TravelAdventure) {
+    return {
+      id: a.id,
+      title: a.title,
+      category: a.category,
+      location: a.location,
+      city: a.city,
+      price: Number(a.price),
+      original_price: Number(a.original_price),
+      discount_percent: a.discount_percent,
+      rating: Number(a.rating),
+      reviews_count: a.reviews_count,
+      duration_hours: a.duration_hours,
+      duration: `${a.duration_hours} Hours`,
+      difficulty: a.difficulty,
+      group_size: a.group_size,
+      image_url: a.image_url,
+      gallery_images: a.gallery_images,
+      description: a.description,
+      highlights: a.highlights,
+      whats_included: a.whats_included,
+      what_to_bring: a.what_to_bring,
+      meeting_point: a.meeting_point,
+      latitude: Number(a.latitude),
+      longitude: Number(a.longitude),
+    };
   }
 
   async create(createAdventureDto: any) {
@@ -46,45 +82,68 @@ export class AdventuresService implements OnApplicationBootstrap {
     return await this.adventureRepository.save(adventure);
   }
 
-  async findAll() {
-    return await this.adventureRepository.find();
+  async findAll(query: any) {
+    const { category, location, min_price, max_price, page = 1, limit = 20 } = query;
+    const qb = this.adventureRepository.createQueryBuilder('adv');
+
+    if (category) {
+      qb.andWhere('adv.category = :category', { category });
+    }
+    if (location) {
+      qb.andWhere('adv.location ILIKE :loc', { loc: `%${location}%` });
+    }
+    if (min_price) {
+      qb.andWhere('adv.price >= :minPrice', { minPrice: min_price });
+    }
+    if (max_price) {
+      qb.andWhere('adv.price <= :maxPrice', { maxPrice: max_price });
+    }
+
+    const adventures = await qb
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return adventures.map(a => this.mapAdventureToDto(a));
   }
 
   async getCategories() {
-    // In a real app, query DISTINCT categories or a separate Category entity
-    return {
-      categories: [
-        { id: 'cat-1', name: 'Water Sports', icon: 'wave' },
-        { id: 'cat-2', name: 'Aerial', icon: 'airplane' },
-        { id: 'cat-3', name: 'Trekking', icon: 'mountain' },
-        { id: 'cat-4', name: 'Camping', icon: 'tent' }
-      ]
-    };
+    return [
+      { id: 'cat_water', title: 'Water Sports', icon: 'water', count: 12 },
+      { id: 'cat_air', title: 'Air Sports', icon: 'flight', count: 8 },
+      { id: 'cat_trek', title: 'Trekking', icon: 'hiking', count: 15 },
+      { id: 'cat_safari', title: 'Wildlife', icon: 'nature', count: 6 },
+    ];
   }
 
   async checkAvailability(id: string, checkParams: any) {
-    const adventure = await this.findOne(id);
+    const adventure = await this.adventureRepository.findOne({ where: { id } });
     if (!adventure) {
-      return { success: false, message: 'Adventure not found' };
+      throw new NotFoundException(`Adventure with ID ${id} was not found.`);
     }
     
     // Mock capacity/availability logic
     const requestedDate = new Date(checkParams.date);
     const isValidDate = requestedDate > new Date();
+    const participants = checkParams.participants || 1;
 
     return {
       adventure_id: id,
-      title: adventure.title,
-      requested_date: checkParams.date,
-      available_slots: isValidDate ? 8 : 0, // Mock 8 slots
-      price_per_person: adventure.price,
-      total_price: adventure.price * (checkParams.participants || 1),
-      is_available: isValidDate
+      date: checkParams.date,
+      available: isValidDate,
+      remaining_slots: isValidDate ? 8 : 0,
+      price_per_person: Number(adventure.price),
+      total_price: Number(adventure.price) * participants,
+      time_slots: ["07:30 AM", "10:30 AM", "01:30 PM"]
     };
   }
 
   async findOne(id: string) {
-    return await this.adventureRepository.findOne({ where: { id } });
+    const adventure = await this.adventureRepository.findOne({ where: { id } });
+    if (!adventure) {
+      throw new NotFoundException(`Adventure with ID ${id} was not found.`);
+    }
+    return this.mapAdventureToDto(adventure);
   }
 
   async update(id: string, updateAdventureDto: any) {

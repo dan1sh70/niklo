@@ -20,32 +20,47 @@ export class TravelAdventure {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price: number;
 
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
+  original_price: number;
+
+  @Column({ type: 'int', default: 0 })
+  discount_percent: number;
+
   @Column({ type: 'int' })
   duration_hours: number;
 
   @Column({ type: 'varchar', length: 255 })
   location: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  requirements: string[];
+  @Column({ type: 'varchar', length: 100, default: 'Goa' })
+  city: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100, default: 'Adventure' })
   category: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'text', default: 'Activity Headquarters' })
   meeting_point: string;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true })
   latitude: number;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true })
   longitude: number;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: 'numeric', precision: 3, scale: 2, default: 4.8 })
   rating: number;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'int', default: 120 })
+  reviews_count: number;
+
+  @Column({ type: 'varchar', length: 50, default: 'Moderate' })
   difficulty: string;
+
+  @Column({ type: 'varchar', length: 100, default: 'Up to 10 People' })
+  group_size: string;
+
+  @Column({ type: 'text', nullable: true })
+  image_url: string;
 
   @Column({ type: 'jsonb', default: [] })
   gallery_images: string[];

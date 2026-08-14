@@ -6,10 +6,11 @@ import {
   Param,
   Put,
   Delete,
+  Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AdventuresService } from './adventures.service';
-import { CreateAdventureDto } from './dto/create-adventure.dto';
-import { UpdateAdventureDto } from './dto/update-adventure.dto';
 
 @Controller(['adventure', 'adventures'])
 export class AdventuresController {
@@ -23,34 +24,35 @@ export class AdventuresController {
       location: createAdventureDto.location ?? 'Global',
     };
     const data = await this.adventuresService.create(dto);
-    return { success: true, data };
+    return { success: true, statusCode: 201, data };
   }
 
   @Get()
-  async findAll() {
-    const data = await this.adventuresService.findAll();
-    return { success: true, data };
+  async findAll(@Query() query: any) {
+    const data = await this.adventuresService.findAll(query);
+    return { success: true, statusCode: 200, data };
   }
 
   @Get('categories')
   async getCategories() {
     const data = await this.adventuresService.getCategories();
-    return { success: true, data };
-  }
-
-  @Post(':id/availability')
-  async checkAvailability(@Param('id') id: string, @Body() checkParams: any) {
-    const data = await this.adventuresService.checkAvailability(id, checkParams);
-    return { success: true, data };
+    return { success: true, statusCode: 200, data };
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
     if (id === 'uuid-here') {
-      return { success: false, message: 'Please provide a valid UUID' };
+      return { success: false, statusCode: 400, message: 'Please provide a valid UUID' };
     }
     const data = await this.adventuresService.findOne(id);
-    return { success: true, data };
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post(':id/availability')
+  @HttpCode(HttpStatus.OK)
+  async checkAvailability(@Param('id') id: string, @Body() checkParams: any) {
+    const data = await this.adventuresService.checkAvailability(id, checkParams);
+    return { success: true, statusCode: 200, data };
   }
 
   @Put(':id')
@@ -59,18 +61,18 @@ export class AdventuresController {
     @Body() updateAdventureDto: any,
   ) {
     if (id === 'uuid-here') {
-      return { success: false, message: 'Please provide a valid UUID' };
+      return { success: false, statusCode: 400, message: 'Please provide a valid UUID' };
     }
     const data = await this.adventuresService.update(id, updateAdventureDto);
-    return { success: true, data };
+    return { success: true, statusCode: 200, data };
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
     if (id === 'uuid-here') {
-      return { success: false, message: 'Please provide a valid UUID' };
+      return { success: false, statusCode: 400, message: 'Please provide a valid UUID' };
     }
     const data = await this.adventuresService.remove(id);
-    return { success: true, data };
+    return { success: true, statusCode: 200, data };
   }
 }
