@@ -1,87 +1,79 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import OpenAI from 'openai';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
-  private openai: OpenAI | null = null;
-  private genAI: GoogleGenerativeAI | null = null;
 
-  constructor(private configService: ConfigService) {
-    const openaiKey = this.configService.get<string>('OPENAI_API_KEY');
-    if (openaiKey) {
-      this.openai = new OpenAI({ apiKey: openaiKey });
-    }
-
-    const geminiKey = this.configService.get<string>('GEMINI_API_KEY');
-    if (geminiKey) {
-      this.genAI = new GoogleGenerativeAI(geminiKey);
-    }
-  }
+  constructor(private configService: ConfigService) {}
 
   async planJourney(requestData: any) {
-    const provider = this.configService.get<string>('AI_PROVIDER', 'gemini');
-    
-    if (provider === 'gemini' && this.genAI) {
-      return this.planWithGemini(requestData);
-    } else if (provider === 'openai' && this.openai) {
-      return this.planWithOpenAI(requestData);
-    }
-    
-    // Fallback to mock if API keys are missing
-    this.logger.warn('No AI API keys configured, falling back to mock response.');
-    return this.mockPlanJourney(requestData);
+    this.logger.log('Planning journey using algorithmic pathfinding...');
+    return this.algorithmicPlanJourney(requestData);
   }
 
-  private async planWithGemini(requestData: any) {
-    if (!this.genAI) return this.mockPlanJourney(requestData);
-
-    const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro", generationConfig: { responseMimeType: "application/json" } });
-    const prompt = `Plan a multi-modal journey from ${requestData.origin} to ${requestData.destination}. 
-Return a JSON object with this schema: { journey_id: string, origin: string, destination: string, estimated_total_cost: number, currency: string, legs: [{ leg_id: number, mode: string, provider: string, from: string, to: string, duration_mins: number, price: number }], ai_insights: string[] }`;
+  private algorithmicPlanJourney(requestData: any) {
+    // This is a stubbed implementation of the pathfinding algorithm.
+    // In production, this would query bus-service, hotel-service, etc.
+    const origin = requestData.origin || 'Point A';
+    const destination = requestData.destination || 'Point C';
     
-    try {
-      const result = await model.generateContent(prompt);
-      return JSON.parse(result.response.text());
-    } catch (e) {
-      this.logger.error('Gemini generation failed', e);
-      return this.mockPlanJourney(requestData);
-    }
-  }
-
-  private async planWithOpenAI(requestData: any) {
-    if (!this.openai) return this.mockPlanJourney(requestData);
-
-    const prompt = `Plan a multi-modal journey from ${requestData.origin} to ${requestData.destination}. 
-Return a JSON object with this schema: { journey_id: string, origin: string, destination: string, estimated_total_cost: number, currency: string, legs: [{ leg_id: number, mode: string, provider: string, from: string, to: string, duration_mins: number, price: number }], ai_insights: string[] }`;
-
-    try {
-      const completion = await this.openai.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: 'gpt-4o',
-        response_format: { type: 'json_object' }
-      });
-      return JSON.parse(completion.choices[0].message.content || '{}');
-    } catch (e) {
-      this.logger.error('OpenAI generation failed', e);
-      return this.mockPlanJourney(requestData);
-    }
-  }
-
-  private mockPlanJourney(requestData: any) {
     return {
       journey_id: `journey-${Date.now()}`,
-      origin: requestData.origin || 'Bangalore',
-      destination: requestData.destination || 'Goa',
+      origin: origin,
+      destination: destination,
       estimated_total_cost: 4500,
       currency: 'INR',
+      routing_strategy: 'multi_modal_transit',
       legs: [
-        { leg_id: 1, mode: 'cab', provider: 'Niklo Ride', from: 'Home', to: 'Majestic Bus Stand', duration_mins: 45, price: 350 },
-        { leg_id: 2, mode: 'bus', provider: 'National Travels', from: 'Majestic Bus Stand', to: 'Panjim Bus Stand', duration_mins: 720, price: 1500 }
+        { 
+          leg_id: 1, 
+          mode: 'bus', 
+          provider: 'Niklo Transit', 
+          from: origin, 
+          to: 'Point B (Transit Hub)', 
+          duration_mins: 120, 
+          price: 500 
+        },
+        { 
+          leg_id: 2, 
+          mode: 'hotel_layover', 
+          provider: 'Hotel Service', 
+          from: 'Point B (Transit Hub)', 
+          to: 'Point B (Transit Hub)', 
+          description: 'Overnight stay near transit hub due to no direct connecting buses',
+          recommended_hotels: [
+            { id: 'h1', name: 'Transit Inn Point B', price_per_night: 2500, distance_km: 1.2 },
+            { id: 'h2', name: 'Budget Stay Point B', price_per_night: 1200, distance_km: 2.5 }
+          ]
+        },
+        { 
+          leg_id: 3, 
+          mode: 'bus', 
+          provider: 'National Express', 
+          from: 'Point B (Transit Hub)', 
+          to: destination, 
+          duration_mins: 240, 
+          price: 800 
+        },
+        {
+          leg_id: 4,
+          mode: 'hotel_destination',
+          provider: 'Hotel Service',
+          from: destination,
+          to: destination,
+          description: `Recommended hotels near your destination: ${destination}`,
+          recommended_hotels: [
+            { id: 'h3', name: `Grand Plaza ${destination}`, price_per_night: 4000, distance_km: 0.5 },
+            { id: 'h4', name: `Sea View Resort ${destination}`, price_per_night: 6500, distance_km: 1.1 }
+          ]
+        }
       ],
-      ai_insights: ['Booking a cab 1 hour prior to bus departure is recommended due to traffic.']
+      insights: [
+        'Direct bus is not available.',
+        'Layover required at Point B.',
+        'Hotels near transit hub and destination are included in the itinerary.'
+      ]
     };
   }
 
@@ -99,7 +91,7 @@ Return a JSON object with this schema: { journey_id: string, origin: string, des
     return {
       user_id: userId,
       saved_journeys: [
-        { id: 'saved-1', name: 'Weekend trip to Goa', origin: 'Bangalore', destination: 'Goa', saved_at: new Date() }
+        { id: 'saved-1', name: 'Weekend trip', origin: 'Point A', destination: 'Point C', saved_at: new Date() }
       ]
     };
   }
