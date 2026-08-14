@@ -405,6 +405,15 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3015
+      DB_HOST: postgres-db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: niklo_postgres_password
+      DB_NAME: postgres
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - postgres-db
     expose:
       - '3015'
     healthcheck:
