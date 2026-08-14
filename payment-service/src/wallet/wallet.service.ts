@@ -56,4 +56,22 @@ export class WalletService {
       order: { created_at: 'DESC' },
     });
   }
+
+  async getBalance(userId: string) {
+    const transactions = await this.walletRepo.find({
+      where: { user_id: userId },
+    });
+
+    const balance = transactions.reduce((acc, tx) => {
+      return tx.transaction_type === TransactionType.CREDIT
+        ? acc + Number(tx.amount)
+        : acc - Number(tx.amount);
+    }, 0);
+
+    return {
+      userId,
+      balance: parseFloat(balance.toFixed(2)),
+      currency: 'INR',
+    };
+  }
 }

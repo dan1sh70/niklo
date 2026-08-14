@@ -9,91 +9,98 @@ import {
   Req,
   Param,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-@Controller(['api/v1/user', 'api/v1/users'])
-@UseGuards(JwtAuthGuard)
+@Controller('api/v1/user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('profile')
-  getProfile(@Req() req: any) {
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Req() req: any) {
     const userId = req.user.id;
-    return this.usersService.getProfile(userId);
+    const data = await this.usersService.getProfile(userId);
+    return { success: true, statusCode: 200, data };
   }
 
   @Patch('profile')
-  updateProfile(@Req() req: any, @Body() updateData: any) {
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@Req() req: any, @Body() updateData: any) {
     const userId = req.user.id;
-    return this.usersService.updateProfile(userId, updateData);
+    const data = await this.usersService.updateProfile(userId, updateData);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('kyc')
-  uploadKyc(@Req() req: any, @Body() kycData: any) {
+  @UseGuards(JwtAuthGuard)
+  async uploadKyc(@Req() req: any, @Body() kycData: any) {
     const userId = req.user.id;
-    return this.usersService.uploadKyc(userId, kycData);
+    const data = await this.usersService.uploadKyc(userId, kycData);
+    return { success: true, statusCode: 200, data };
   }
 
   @Get('wallet')
-  getWallet(@Req() req: any) {
+  @UseGuards(JwtAuthGuard)
+  async getWallet(@Req() req: any) {
     const userId = req.user.id;
-    return this.usersService.getWallet(userId);
+    const data = await this.usersService.getWallet(userId);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('locations')
-  addSavedLocation(@Req() req: any, @Body() locationData: any) {
+  @UseGuards(JwtAuthGuard)
+  async addSavedLocation(@Req() req: any, @Body() locationData: any) {
     const userId = req.user.id;
-    return this.usersService.addSavedLocation(userId, locationData);
+    const data = await this.usersService.addSavedLocation(userId, locationData);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('avatar')
-  uploadAvatar(@Req() req: any) {
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(@Req() req: any, @UploadedFile() file: any) {
     const userId = req.user.id;
-    // Mocking file upload since no real storage is configured yet
-    return this.usersService.uploadAvatar(userId, 'mock-file-data');
+    const data = await this.usersService.uploadAvatar(userId, file);
+    return { success: true, statusCode: 200, data };
   }
 
   @Get('emergency-contacts')
-  getEmergencyContacts(@Req() req: any) {
+  @UseGuards(JwtAuthGuard)
+  async getEmergencyContacts(@Req() req: any) {
     const userId = req.user.id;
-    return this.usersService.getEmergencyContacts(userId);
+    const data = await this.usersService.getEmergencyContacts(userId);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('emergency-contacts')
-  addEmergencyContact(@Req() req: any, @Body() contactData: any) {
+  @UseGuards(JwtAuthGuard)
+  async addEmergencyContact(@Req() req: any, @Body() contactData: any) {
     const userId = req.user.id;
-    return this.usersService.addEmergencyContact(userId, contactData);
+    const data = await this.usersService.addEmergencyContact(userId, contactData);
+    return { success: true, statusCode: 200, data };
   }
 
   @Delete('emergency-contacts/:id')
-  deleteEmergencyContact(@Req() req: any, @Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  async deleteEmergencyContact(@Req() req: any, @Param('id') id: string) {
     const userId = req.user.id;
-    return this.usersService.deleteEmergencyContact(userId, id);
+    const data = await this.usersService.deleteEmergencyContact(userId, id);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('emergency-sos/trigger')
-  triggerEmergencySos(@Req() req: any, @Body() sosData: any) {
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async triggerEmergencySos(@Req() req: any, @Body() sosData: any) {
     const userId = req.user.id;
-    return this.usersService.triggerEmergencySos(userId, sosData);
-  }
-
-  // --- Phase 3: Home Screen Aggregator ---
-  @Get('active-trip')
-  getActiveTrip(@Req() req: any) {
-    const userId = req.user.id;
-    return this.usersService.getActiveTrip(userId);
-  }
-
-  @Get('recommendations/smart-suggestions')
-  getSmartSuggestions(@Req() req: any) {
-    const userId = req.user.id;
-    return this.usersService.getSmartSuggestions(userId);
-  }
-
-  @Get('promotions/banners')
-  getPromotionsBanners() {
-    return this.usersService.getPromotionsBanners();
+    const data = await this.usersService.triggerEmergencySos(userId, sosData);
+    return { success: true, statusCode: 200, data };
   }
 }
