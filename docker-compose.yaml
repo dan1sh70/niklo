@@ -28,7 +28,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.nginx.rule=Host(`irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io`)"
       - traefik.http.services.nginx.loadbalancer.server.port=80
-    image: ghcr.io/dan1sh70/niklo-nginx:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-nginx:latest
   auth-service:
     environment:
       NODE_ENV: development
@@ -63,7 +63,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.auth-service.rule=Host(`szs601uiqefhc8jbpeq587f3.187.127.157.13.sslip.io`)"
       - traefik.http.services.auth-service.loadbalancer.server.port=3001
-    image: ghcr.io/dan1sh70/niklo-auth-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-auth-service:latest
   bus-service:
     environment:
       NODE_ENV: development
@@ -93,7 +93,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.bus-service.rule=Host(`w1n68oxs2na9q9tbveqsqa4s.187.127.157.13.sslip.io`)"
       - traefik.http.services.bus-service.loadbalancer.server.port=3003
-    image: ghcr.io/dan1sh70/niklo-bus-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-bus-service:latest
   payment-service:
     environment:
       NODE_ENV: development
@@ -126,7 +126,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.payment-service.rule=Host(`n13chiypv5vg517ffvioht20.187.127.157.13.sslip.io`)"
       - traefik.http.services.payment-service.loadbalancer.server.port=3007
-    image: ghcr.io/dan1sh70/niklo-payment-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-payment-service:latest
   hotel-service:
     environment:
       NODE_ENV: development
@@ -156,7 +156,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.hotel-service.rule=Host(`b5m0ntg98i0cpdaidmcvdqwd.187.127.157.13.sslip.io`)"
       - traefik.http.services.hotel-service.loadbalancer.server.port=3004
-    image: ghcr.io/dan1sh70/niklo-hotel-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-hotel-service:latest
   user-service:
     environment:
       NODE_ENV: development
@@ -186,7 +186,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.user-service.rule=Host(`f11slpsqn3bkula8r1yr292u.187.127.157.13.sslip.io`)"
       - traefik.http.services.user-service.loadbalancer.server.port=3002
-    image: ghcr.io/dan1sh70/niklo-user-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-user-service:latest
   ride-service:
     environment:
       NODE_ENV: development
@@ -219,7 +219,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.ride-service.rule=Host(`my41fssoetuy2w34a2yettfe.187.127.157.13.sslip.io`)"
       - traefik.http.services.ride-service.loadbalancer.server.port=3005
-    image: ghcr.io/dan1sh70/niklo-ride-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-ride-service:latest
   driver-service:
     environment:
       NODE_ENV: development
@@ -249,7 +249,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.driver-service.rule=Host(`ebzdp7jvp5z5bhrl05tkvxsa.187.127.157.13.sslip.io`)"
       - traefik.http.services.driver-service.loadbalancer.server.port=3011
-    image: ghcr.io/dan1sh70/niklo-driver-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-driver-service:latest
   package-service:
     environment:
       NODE_ENV: development
@@ -279,7 +279,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.package-service.rule=Host(`ltmzir9qa389f53ho5hkzlq0.187.127.157.13.sslip.io`)"
       - traefik.http.services.package-service.loadbalancer.server.port=3012
-    image: ghcr.io/dan1sh70/niklo-package-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-package-service:latest
   adventure-service:
     environment:
       NODE_ENV: development
@@ -309,7 +309,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.adventure-service.rule=Host(`ra0qdnh3xfolrfu1y82bva9g.187.127.157.13.sslip.io`)"
       - traefik.http.services.adventure-service.loadbalancer.server.port=3013
-    image: ghcr.io/dan1sh70/niklo-adventure-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-adventure-service:latest
   notification-service:
     environment:
       NODE_ENV: development
@@ -339,7 +339,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.notification-service.rule=Host(`l2pdf6ail6mlmurxhtjjf44i.187.127.157.13.sslip.io`)"
       - traefik.http.services.notification-service.loadbalancer.server.port=3009
-    image: ghcr.io/dan1sh70/niklo-notification-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-notification-service:latest
 #   admin-service:
 #     environment:
 #       NODE_ENV: development
@@ -367,7 +367,7 @@ services:
 #       - traefik.enable=true
 #       - "traefik.http.routers.admin-service.rule=Host(`k1lrz8qb78v16uuvqngcahj0.187.127.157.13.sslip.io`)"
 #       - traefik.http.services.admin-service.loadbalancer.server.port=3020
-#     image: ghcr.io/dan1sh70/niklo-admin-service:sha-189060a
+#     image: ghcr.io/dan1sh70/niklo-admin-service:latest
   booking-service:
     environment:
       NODE_ENV: development
@@ -400,7 +400,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.booking-service.rule=Host(`yjfbvszz8e2yv5sefwcpxye4.187.127.157.13.sslip.io`)"
       - traefik.http.services.booking-service.loadbalancer.server.port=3014
-    image: ghcr.io/dan1sh70/niklo-booking-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-booking-service:latest
   ai-planner-service:
     environment:
       NODE_ENV: development
@@ -421,7 +421,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.ai-planner-service.rule=Host(`aiplanner.187.127.157.13.sslip.io`)"
       - traefik.http.services.ai-planner-service.loadbalancer.server.port=3015
-    image: ghcr.io/dan1sh70/niklo-ai-planner-service:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-ai-planner-service:latest
   postgres-db:
     environment:
       POSTGRES_DB: postgres
@@ -437,7 +437,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    image: ghcr.io/dan1sh70/niklo-postgres-db:sha-189060a
+    image: ghcr.io/dan1sh70/niklo-postgres-db:latest
   redis:
     image: redis:7-alpine
     volumes:
