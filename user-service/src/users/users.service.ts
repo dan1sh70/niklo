@@ -1,3 +1,5 @@
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +9,9 @@ import { MarketingBanner } from './entities/marketing-banner.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly s3Client: S3Client;
+  private readonly s3BucketName: string;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -14,7 +19,17 @@ export class UsersService {
     private readonly emergencyContactRepository: Repository<EmergencyContact>,
     @InjectRepository(MarketingBanner)
     private readonly bannerRepository: Repository<MarketingBanner>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.s3Client = new S3Client({
+      region: this.configService.get<string>('AWS_REGION', 'ap-south-1'),
+      credentials: {
+        accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID', ''),
+        secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY', ''),
+      },
+    });
+    this.s3BucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME', 'niklo-avatars-bucket');
+  }
 
   async getProfile(userId: string) {
     return {
@@ -82,8 +97,24 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     
-    // In a real app, upload to S3/CDN and get URL. Mocking for now.
-    const avatarUrl = `https://cdn.niklo.com/avatars/${userId}-${Date.now()}.png`;
+    if (!fileData || !fileData.buffer) {
+      throw new Error('No file provided');
+    }
+
+    const fileExtension = fileData.originalname?.split('.').pop() || 'png';
+    const key = `avatars/${userId}-${Date.now()}.${fileExtension}`;
+
+    const command = new PutObjectCommand({
+      Bucket: this.s3BucketName,
+      Key: key,
+      Body: fileData.buffer,
+      ContentType: fileData.mimetype,
+      // ACL: 'public-read', // Uncomment if bucket allows public ACLs
+    });
+
+    await this.s3Client.send(command);
+
+    const avatarUrl = `https://${this.s3BucketName}.s3.${this.configService.get<string>('AWS_REGION', 'ap-south-1')}.amazonaws.com/${key}`;
     user.avatar_url = avatarUrl;
     await this.userRepository.save(user);
 
