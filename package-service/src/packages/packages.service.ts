@@ -17,25 +17,35 @@ export class PackagesService implements OnApplicationBootstrap {
     if (count === 0) {
       await this.packageRepo.save([
         {
-          id: '11111111-1111-1111-1111-111111111111',
-          title: 'Goa Sunshine Tour',
-          description: '5 days and 4 nights of pure bliss in Goa. Includes beaches, watersports, and heritage tours.',
-          price: 12999.0,
-          duration_days: 5,
-          duration_nights: 4,
-          destinations: ['North Goa Beaches', 'South Goa Churches', 'Dudhsagar Falls'],
-          inclusions: ['Hotel Stay', 'Breakfast', 'Airport Transfer', 'Sightseeing Tour'],
-          is_active: true,
-        },
-        {
-          id: '22222222-2222-2222-2222-222222222222',
-          title: 'Himachal Snow Adventure',
-          description: 'Explore the snowy peaks of Manali, Solang Valley, and Rohtang Pass.',
-          price: 18500.0,
-          duration_days: 6,
-          duration_nights: 5,
-          destinations: ['Manali Mall Road', 'Solang Valley', 'Rohtang Pass', 'Kasol'],
-          inclusions: ['3-Star Accommodation', 'Daily Breakfast & Dinner', 'Adventure Guide'],
+          id: 'pkg_goa_01',
+          title: 'Goa Beach & Heritage Experience',
+          destination: 'Goa',
+          start_city: 'Kolkata',
+          rating: 4.9,
+          reviews_count: 85,
+          location_text: 'North & South Goa',
+          snippet: '4 Days 3 Nights Luxury Beach Escape',
+          description: 'Explore pristine beaches, colonial heritage, and vibrant nightlife in Goa.',
+          duration: '4 Days 3 Nights',
+          group_size: '2-6 People',
+          price: 14999.0,
+          original_price: 18000.0,
+          discount_percent: 16,
+          image_url: 'https://cdn.niklo.com/packages/goa_hero.jpg',
+          gallery_images: [
+            'https://cdn.niklo.com/packages/goa_1.jpg',
+            'https://cdn.niklo.com/packages/goa_2.jpg'
+          ],
+          category: 'Beach Escapes',
+          itinerary: [
+            'Day 1: Arrival & Calangute Beach Sunset',
+            'Day 2: North Goa Fort & Beach Tour',
+            'Day 3: South Goa Heritage & Cruise',
+            'Day 4: Departure'
+          ],
+          inclusions: ['3-Star Hotel Stay', 'Daily Breakfast', 'Airport Transfers'],
+          exclusions: ['Airfare', 'Personal Expenses'],
+          is_trending: true,
           is_active: true,
         },
       ]);
@@ -43,43 +53,82 @@ export class PackagesService implements OnApplicationBootstrap {
     }
   }
 
-  async create(createPackageDto: CreatePackageDto) {
-    const newPackage = this.packageRepo.create(createPackageDto);
-    return await this.packageRepo.save(newPackage);
-  }
-
-  async findAll() {
-    return await this.packageRepo.find();
-  }
-
-  async getPopularDestinations() {
-    // In a real app, this would aggregate by destinations column
-    // or query a separate destinations table based on booking counts
+  private mapPackageToDto(p: TravelPackage) {
     return {
-      destinations: [
-        { name: 'Goa', image: 'https://cdn.niklo.com/dest/goa.jpg', packageCount: 42 },
-        { name: 'Manali', image: 'https://cdn.niklo.com/dest/manali.jpg', packageCount: 38 },
-        { name: 'Kerala', image: 'https://cdn.niklo.com/dest/kerala.jpg', packageCount: 25 },
-        { name: 'Rajasthan', image: 'https://cdn.niklo.com/dest/rajasthan.jpg', packageCount: 19 }
-      ]
+      id: p.id,
+      title: p.title,
+      destination: p.destination,
+      startCity: p.start_city,
+      rating: Number(p.rating),
+      reviews_count: p.reviews_count,
+      locationText: p.location_text,
+      snippet: p.snippet,
+      description: p.description,
+      duration: p.duration,
+      groupSize: p.group_size,
+      price: Number(p.price),
+      original_price: Number(p.original_price),
+      discount_percent: p.discount_percent,
+      imagePath: p.image_url,
+      galleryImages: p.gallery_images,
+      category: p.category,
+      itinerary: p.itinerary,
+      inclusions: p.inclusions,
+      exclusions: p.exclusions,
+      is_trending: p.is_trending,
     };
   }
 
+  async create(createPackageDto: CreatePackageDto) {
+    const newPackage = this.packageRepo.create(createPackageDto as Partial<TravelPackage>);
+    return await this.packageRepo.save(newPackage);
+  }
+
+  async findAll(query: any) {
+    const { destination, category, limit = 20, page = 1 } = query;
+    const qb = this.packageRepo.createQueryBuilder('pkg');
+
+    if (destination) {
+      qb.andWhere('pkg.destination ILIKE :dest', { dest: `%${destination}%` });
+    }
+    if (category) {
+      qb.andWhere('pkg.category = :category', { category });
+    }
+
+    const packages = await qb
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return packages.map(p => this.mapPackageToDto(p));
+  }
+
+  async getPopularDestinations() {
+    return [
+      { name: 'Goa', package_count: 14, image_url: 'https://cdn.niklo.com/dest/goa.jpg' },
+      { name: 'Manali', package_count: 10, image_url: 'https://cdn.niklo.com/dest/manali.jpg' },
+      { name: 'Kashmir', package_count: 8, image_url: 'https://cdn.niklo.com/dest/kashmir.jpg' }
+    ];
+  }
+
   async checkAvailability(id: string, checkParams: any) {
-    const travelPackage = await this.findOne(id);
+    const travelPackage = await this.packageRepo.findOne({ where: { id } });
+    if (!travelPackage) {
+      throw new NotFoundException(`Travel package with ID ${id} not found`);
+    }
     
     // Mock capacity/availability logic
     const requestedDate = new Date(checkParams.date);
     const isValidDate = requestedDate > new Date();
+    const travelers = checkParams.travelers || 1;
 
     return {
       package_id: id,
-      title: travelPackage.title,
-      requested_date: checkParams.date,
-      available_slots: isValidDate ? 12 : 0, // Mock 12 slots for future dates
-      price_per_person: travelPackage.price,
-      total_price: travelPackage.price * (checkParams.travelers || 1),
-      is_available: isValidDate
+      date: checkParams.date,
+      available: isValidDate,
+      remaining_slots: isValidDate ? 12 : 0,
+      price_per_person: Number(travelPackage.price),
+      total_price: Number(travelPackage.price) * travelers,
     };
   }
 
@@ -88,17 +137,25 @@ export class PackagesService implements OnApplicationBootstrap {
     if (!travelPackage) {
       throw new NotFoundException(`Travel package with ID ${id} not found`);
     }
-    return travelPackage;
+    return this.mapPackageToDto(travelPackage);
   }
 
   async update(id: string, updatePackageDto: UpdatePackageDto) {
-    const travelPackage = await this.findOne(id);
-    const updated = this.packageRepo.merge(travelPackage, updatePackageDto);
-    return await this.packageRepo.save(updated);
+    const travelPackage = await this.packageRepo.findOne({ where: { id } });
+    if (!travelPackage) {
+      throw new NotFoundException(`Travel package with ID ${id} not found`);
+    }
+    const updated = this.packageRepo.merge(travelPackage, updatePackageDto as Partial<TravelPackage>);
+    await this.packageRepo.save(updated);
+    return this.findOne(id);
   }
 
   async remove(id: string) {
-    const travelPackage = await this.findOne(id);
-    return await this.packageRepo.remove(travelPackage);
+    const travelPackage = await this.packageRepo.findOne({ where: { id } });
+    if (!travelPackage) {
+      throw new NotFoundException(`Travel package with ID ${id} not found`);
+    }
+    await this.packageRepo.remove(travelPackage);
+    return { message: 'Package deleted successfully' };
   }
 }
