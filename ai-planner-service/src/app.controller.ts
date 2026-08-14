@@ -10,6 +10,14 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 
+@Controller()
+export class HealthController {
+  @Get()
+  health() {
+    return { status: 'ok' };
+  }
+}
+
 @Controller('api/v1/ai-planner')
 export class AppController {
   constructor(private readonly appService: AppService) {}
