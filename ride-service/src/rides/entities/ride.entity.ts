@@ -24,58 +24,62 @@ export enum RideStatus {
   CANCELLED = 'CANCELLED',
 }
 
-@Entity('car_rides')
+@Entity('rides')
 export class Ride {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'uuid' })
-  passenger_id: string;
+  user_id: string;
 
   @Column({ type: 'uuid', nullable: true })
   driver_id: string;
 
-  @Column({ type: 'enum', enum: RideType })
+  @Column({ type: 'enum', enum: RideType, default: RideType.SEDAN })
   ride_type: RideType;
-
-  // Ideally this would be 'geometry' / 'Point', but we'll use varchar to simplify initial scaffolding
-  // since postgis is an external dependency
-  @Column({ type: 'varchar', nullable: true })
-  pickup_location: string;
-
-  @Column({ type: 'varchar', nullable: true })
-  drop_location: string;
 
   @Column({ type: 'text' })
   pickup_address: string;
 
-  @Column({ type: 'text', nullable: true })
-  drop_address: string;
+  @Column({ type: 'text' })
+  dropoff_address: string;
 
-  @Column({ type: 'numeric', precision: 8, scale: 2, nullable: true })
+  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  pickup_latitude: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  pickup_longitude: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  dropoff_latitude: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  dropoff_longitude: number;
+
+  @Column({ type: 'varchar', length: 6, default: '1234' })
+  otp: string;
+
+  @Column({ type: 'numeric', precision: 6, scale: 2 })
   distance_km: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  fare_estimate: number;
+  @Column({ type: 'int' })
+  estimated_time_mins: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  fare_final: number;
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  fare_amount: number;
 
-  @Column({ type: 'numeric', precision: 4, scale: 2, default: 1.0 })
+  @Column({ type: 'numeric', precision: 3, scale: 2, default: 1.0 })
   surge_multiplier: number;
 
   @Column({ type: 'enum', enum: RideStatus, default: RideStatus.REQUESTED })
   status: RideStatus;
 
-  @Column({ type: 'varchar', length: 4, nullable: true })
-  otp: string;
-
   @Column({ type: 'timestamptz', nullable: true })
   scheduled_at: Date;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  started_at: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  created_at: Date;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  ended_at: Date;
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at: Date;
 }

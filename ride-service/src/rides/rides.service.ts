@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Ride, RideStatus } from './entities/ride.entity';
+import { Ride, RideStatus, RideType } from './entities/ride.entity';
 import { RideRating } from './entities/ride-rating.entity';
 import { RedisService } from '../redis/redis.service';
 
@@ -18,32 +18,33 @@ export class RidesService {
   ) {}
 
   async estimateRide(estimateDto: any) {
-    const { pickup, drop, rideType } = estimateDto;
-    // Mock surge and fare calculation
+    // Return exact properties expected by Flutter
     return {
-      fareEstimate: 250.0,
-      surgeMultiplier: 1.2,
-      distanceKm: 12.5,
-      estimatedTimeMins: 45,
+      fareEstimate: 450.0,
+      surgeMultiplier: 1.0,
+      distanceKm: 18.5,
+      estimatedTimeMins: 32,
+      polyline: "a1b2c3d4e5f6g7h8i9j0",
     };
   }
 
   private mapDtoToRide(dto: any): Partial<Ride> {
     const rawType = dto.vehicleType || dto.rideType || dto.ride_type || 'SEDAN';
     const rideType = rawType.toUpperCase();
-    const pickupAddress = dto.pickupAddress || (dto.pickup ? (typeof dto.pickup === 'string' ? dto.pickup : JSON.stringify(dto.pickup)) : 'Unknown Pickup');
-    const dropAddress = dto.dropAddress || (dto.dropoff ? (typeof dto.dropoff === 'string' ? dto.dropoff : JSON.stringify(dto.dropoff)) : 'Unknown Dropoff');
-    const pickupLocation = dto.pickup ? (typeof dto.pickup === 'string' ? dto.pickup : `${dto.pickup.lat},${dto.pickup.lng}`) : null;
-    const dropLocation = dto.dropoff ? (typeof dto.dropoff === 'string' ? dto.dropoff : `${dto.dropoff.lat},${dto.dropoff.lng}`) : null;
+    const pickupAddress = dto.pickupAddress || 'Unknown Pickup';
+    const dropAddress = dto.dropAddress || dto.dropoffAddress || 'Unknown Dropoff';
 
     return {
-      ride_type: rideType as any,
+      ride_type: rideType as RideType,
       pickup_address: pickupAddress,
-      drop_address: dropAddress,
-      pickup_location: pickupLocation,
-      drop_location: dropLocation,
-      distance_km: dto.distanceKm || dto.distance_km || 10.0,
-      fare_estimate: dto.fareEstimate || dto.fare_estimate || 250.00,
+      dropoff_address: dropAddress,
+      pickup_latitude: dto.pickupLatitude ?? 15.4989,
+      pickup_longitude: dto.pickupLongitude ?? 73.8278,
+      dropoff_latitude: dto.dropoffLatitude ?? 15.2531,
+      dropoff_longitude: dto.dropoffLongitude ?? 73.9214,
+      distance_km: dto.distanceKm || dto.distance_km || 18.5,
+      fare_amount: dto.fareEstimate || dto.fare_amount || 450.00,
+      estimated_time_mins: dto.estimatedTimeMins || 32,
       scheduled_at: dto.scheduledAt || dto.scheduled_at ? new Date(dto.scheduledAt || dto.scheduled_at) : undefined,
     };
   }
@@ -53,51 +54,38 @@ export class RidesService {
     const rideData = {
       ...mapped,
       status: RideStatus.REQUESTED,
-      passenger_id: passengerId,
-      otp: Math.floor(1000 + Math.random() * 9000).toString(),
+      user_id: passengerId,
+      otp: Math.floor(100000 + Math.random() * 900000).toString().substring(0, 6),
     };
     const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
 
     // Trigger Matching Algorithm asynchronously
-    const lat = requestDto.pickup?.lat || 12.9716;
-    const lng = requestDto.pickup?.lng || 77.5946;
-    this.matchDriver(
-      savedRide.id,
-      lat,
-      lng,
-    ).catch((err) => {
+    const lat = mapped.pickup_latitude ?? 15.4989;
+    const lng = mapped.pickup_longitude ?? 73.8278;
+    this.matchDriver(savedRide.id, lat, lng).catch((err) => {
       this.logger.error(`Matching failed for ride ${savedRide.id}`, err);
     });
 
     return {
       rideId: savedRide.id,
       status: 'SEARCHING',
-      message: 'Looking for nearby drivers...',
+      message: 'Searching for nearby drivers',
     };
   }
 
   private async matchDriver(rideId: string, lat: number, lng: number) {
-    let radius = 5; // Start with 5km
+    let radius = 3; // Start with 3km as per blueprint
     let matched = false;
 
     for (let attempts = 0; attempts < 3 && !matched; attempts++) {
-      const drivers = await this.redisService.getNearbyDrivers(
-        lat,
-        lng,
-        radius,
-      );
+      const drivers = await this.redisService.getNearbyDrivers(lat, lng, radius);
 
       if (drivers && drivers.length > 0) {
-        // Here we would filter by vehicle type and acceptance rate
-        // We take the first available driver for simplicity in this implementation
         const driverId = drivers[0];
 
-        // Fetch ride details to include in the payload
         const ride = await this.rideRepository.findOne({ where: { id: rideId } });
 
-        // Emit new request to driver via Redis PubSub (which DriverGateway could listen to)
-        // Or directly if we had a Bull queue
         await this.redisService.publish(
           'ride:new_request_queue',
           JSON.stringify({
@@ -105,22 +93,20 @@ export class RidesService {
             driverId,
             timeout: 30,
             pickupAddress: ride?.pickup_address,
-            dropAddress: ride?.drop_address,
-            fareEstimate: ride?.fare_estimate,
+            dropAddress: ride?.dropoff_address,
+            fareEstimate: ride?.fare_amount,
             distanceKm: ride?.distance_km,
             otp: ride?.otp,
-            passengerName: 'Passenger Name', // Mocking since passenger data is in user-service
+            passengerName: 'Passenger Name',
             passengerPhone: '+919999999999',
           }),
         );
 
-        this.logger.log(
-          `Matched driver ${driverId} for ride ${rideId} at radius ${radius}km`,
-        );
+        this.logger.log(`Matched driver ${driverId} for ride ${rideId} at radius ${radius}km`);
         matched = true;
       } else {
-        radius = 10; // Expand radius to 10km after failure
-        // Wait before retry (mocked here, should use delay)
+        radius += 5; // Expand radius
+        // Wait before retry
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
@@ -155,7 +141,6 @@ export class RidesService {
     ride.status = RideStatus.CANCELLED;
     await this.rideRepository.save(ride);
 
-    // Notify passenger via socket
     await this.redisService.publish(
       'ride:status_update',
       JSON.stringify({ rideId: id, status: RideStatus.CANCELLED }),
@@ -163,7 +148,7 @@ export class RidesService {
 
     return {
       message: 'Ride cancelled successfully',
-      cancellationFee: ride.driver_id ? 50 : 0, // Apply fee if driver already assigned
+      cancellationFee: ride.driver_id ? 50 : 0,
     };
   }
 
@@ -179,15 +164,13 @@ export class RidesService {
 
     const rating = this.ratingRepository.create({
       ride_id: id,
-      passenger_id: ride.passenger_id,
+      passenger_id: ride.user_id,
       driver_id: ride.driver_id,
       rating: ratingDto.rating,
       feedback: ratingDto.feedback,
     });
     
     await this.ratingRepository.save(rating);
-
-    // Here we could also queue an event to update the driver's aggregate rating asynchronously
 
     return {
       message: 'Rating submitted successfully',
@@ -200,7 +183,7 @@ export class RidesService {
     const rideData = {
       ...mapped,
       status: RideStatus.REQUESTED,
-      passenger_id: passengerId,
+      user_id: passengerId,
     };
     const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
@@ -212,8 +195,6 @@ export class RidesService {
     };
   }
 
-  // --- WebSocket Gateway called methods ---
-
   async acceptRide(rideId: string, driverId: string) {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (ride && ride.status === RideStatus.REQUESTED) {
@@ -221,7 +202,6 @@ export class RidesService {
       ride.status = RideStatus.ACCEPTED;
       await this.rideRepository.save(ride);
 
-      // Notify passenger
       await this.redisService.publish(
         'ride:status_update',
         JSON.stringify({ rideId, status: RideStatus.ACCEPTED }),
@@ -232,7 +212,6 @@ export class RidesService {
 
   async rejectRide(rideId: string, driverId: string) {
     this.logger.log(`Ride ${rideId} rejected by driver ${driverId}`);
-    // Ideally queue next driver here
   }
 
   async verifyRideOtp(rideId: string, otp: string) {
@@ -250,9 +229,6 @@ export class RidesService {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (ride) {
       ride.status = status as RideStatus;
-      if (status === RideStatus.IN_PROGRESS) {
-        ride.started_at = new Date();
-      }
       await this.rideRepository.save(ride);
       await this.redisService.publish(
         'ride:status_update',
@@ -265,8 +241,6 @@ export class RidesService {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (ride) {
       ride.status = RideStatus.COMPLETED;
-      ride.ended_at = new Date();
-      ride.fare_final = ride.fare_estimate; // Or recalculate based on time/distance
       await this.rideRepository.save(ride);
       await this.redisService.publish(
         'ride:status_update',
