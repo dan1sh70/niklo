@@ -77,12 +77,12 @@ export class NotificationsService {
       deviceToken = this.deviceTokenRepo.create({
         user_id: userId,
         ...tokenData
-      });
+      }) as unknown as DeviceToken;
     } else {
       Object.assign(deviceToken, tokenData);
     }
     
-    return this.deviceTokenRepo.save(deviceToken);
+    return this.deviceTokenRepo.save(deviceToken as DeviceToken);
   }
 
   async markAsRead(notificationId: string, userId: string) {
@@ -95,7 +95,6 @@ export class NotificationsService {
     }
 
     userNotif.is_read = true;
-    userNotif.read_at = new Date();
     return this.userNotificationRepo.save(userNotif);
   }
 }

@@ -133,8 +133,8 @@ export class SchedulesService {
     const seatData = await this.getSeats(id);
     
     // Group seats by deck for the 2D grid representation
-    const lowerDeck = seatData.seats.filter(s => s.deck === 1);
-    const upperDeck = seatData.seats.filter(s => s.deck === 2);
+    const lowerDeck = seatData.seats.filter(s => s.deck === 'LOWER');
+    const upperDeck = seatData.seats.filter(s => s.deck === 'UPPER');
     
     return {
       schedule_id: seatData.schedule_id,
