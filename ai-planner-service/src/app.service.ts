@@ -36,6 +36,8 @@ export class AppService {
   }
 
   private async planWithGemini(requestData: any) {
+    if (!this.genAI) return this.mockPlanJourney(requestData);
+
     const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro", generationConfig: { responseMimeType: "application/json" } });
     const prompt = `Plan a multi-modal journey from ${requestData.origin} to ${requestData.destination}. 
 Return a JSON object with this schema: { journey_id: string, origin: string, destination: string, estimated_total_cost: number, currency: string, legs: [{ leg_id: number, mode: string, provider: string, from: string, to: string, duration_mins: number, price: number }], ai_insights: string[] }`;
@@ -50,6 +52,8 @@ Return a JSON object with this schema: { journey_id: string, origin: string, des
   }
 
   private async planWithOpenAI(requestData: any) {
+    if (!this.openai) return this.mockPlanJourney(requestData);
+
     const prompt = `Plan a multi-modal journey from ${requestData.origin} to ${requestData.destination}. 
 Return a JSON object with this schema: { journey_id: string, origin: string, destination: string, estimated_total_cost: number, currency: string, legs: [{ leg_id: number, mode: string, provider: string, from: string, to: string, duration_mins: number, price: number }], ai_insights: string[] }`;
 
@@ -59,7 +63,7 @@ Return a JSON object with this schema: { journey_id: string, origin: string, des
         model: 'gpt-4o',
         response_format: { type: 'json_object' }
       });
-      return JSON.parse(completion.choices[0].message.content);
+      return JSON.parse(completion.choices[0].message.content || '{}');
     } catch (e) {
       this.logger.error('OpenAI generation failed', e);
       return this.mockPlanJourney(requestData);
