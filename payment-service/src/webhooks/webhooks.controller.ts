@@ -80,6 +80,6 @@ export class WebhooksController {
       );
     }
 
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ success: true, statusCode: 200, message: 'Payment webhook processed successfully' });
   }
 }

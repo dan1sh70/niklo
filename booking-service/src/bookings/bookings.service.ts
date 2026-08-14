@@ -1,91 +1,99 @@
 import {
   Injectable,
-  Inject,
   NotFoundException,
-  ConflictException,
-  InternalServerErrorException,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Booking, BookingStatus, BookingType } from './entities/booking.entity';
-import Redis from 'ioredis';
 
 @Injectable()
-export class BookingsService {
+export class BookingsService implements OnApplicationBootstrap {
+  private readonly MOCK_USER_ID = '11111111-1111-1111-1111-111111111111';
+
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepo: Repository<Booking>,
-    @Inject('REDIS_CLIENT')
-    private readonly redisClient: Redis,
   ) {}
 
-  async lockSeats(userId: string, dto: { scheduleId: string; seatIds: string[] }) {
-    const failedSeats: string[] = [];
-    const lockedSeats: string[] = [];
-
-    for (const seatId of dto.seatIds) {
-      const lockKey = `seat:lock:${dto.scheduleId}:${seatId}`;
-      const setnxResult = await this.redisClient.setnx(lockKey, userId);
-
-      if (setnxResult === 1) {
-        await this.redisClient.expire(lockKey, 300); // 5 minutes
-        lockedSeats.push(seatId);
-      } else {
-        failedSeats.push(seatId);
-      }
-    }
-
-    if (failedSeats.length > 0) {
-      // Release any seats we locked since not all could be acquired
-      for (const seatId of lockedSeats) {
-        await this.redisClient.del(`seat:lock:${dto.scheduleId}:${seatId}`);
-      }
-      throw new ConflictException({
-        message: 'Seats already locked or booked',
-        failedSeats,
+  async onApplicationBootstrap() {
+    const count = await this.bookingRepo.count();
+    if (count === 0) {
+      const mockBooking = this.bookingRepo.create({
+        id: 'bkg_771029',
+        user_id: this.MOCK_USER_ID,
+        booking_type: BookingType.BUS,
+        reference_id: '22222222-2222-2222-2222-222222222222',
+        booking_reference: 'NIK-BUS-88210',
+        title: 'Greenline Travels (AC Sleeper)',
+        subtitle: 'Kolkata to Siliguri',
+        from_location: 'Esplanade, Kolkata',
+        to_location: 'Junction, Siliguri',
+        travel_date: new Date('2026-08-28'),
+        departure_time: '20:00',
+        total_amount: 1200.00,
+        status: BookingStatus.CONFIRMED,
+        qr_code_token: 'eyJhbGciOiJIUzI1Ni...'
       });
-    }
-
-    return { message: 'Seats locked successfully for 5 minutes', lockedSeats };
-  }
-
-  async createBooking(userId: string, dto: any) {
-    try {
-      const booking = this.bookingRepo.create({
-        user_id: userId,
-        ...dto,
-        status: BookingStatus.PENDING,
-      } as Partial<Booking>);
-      (booking as Booking).qr_code = Buffer.from(
-        `TICKET-${Date.now()}-${userId}`,
-      ).toString('base64');
-      return await this.bookingRepo.save(booking as Booking);
-    } catch (error: any) {
-      throw new InternalServerErrorException(error.message || 'Database error occurred');
+      await this.bookingRepo.save(mockBooking);
+      console.log('Seeded bookings mock data successfully.');
     }
   }
 
-  async getBookingDetails(id: string, userId: string) {
+  private mapBookingToDto(b: Booking) {
+    return {
+      id: b.id,
+      bookingReference: b.booking_reference,
+      bookingType: b.booking_type,
+      title: b.title,
+      subtitle: b.subtitle,
+      fromLocation: b.from_location,
+      toLocation: b.to_location,
+      travelDate: b.travel_date ? b.travel_date.toISOString().split('T')[0] : null,
+      departureTime: b.departure_time,
+      totalAmount: Number(b.total_amount),
+      status: b.status,
+      qrCodeToken: b.qr_code_token,
+    };
+  }
+
+  async getHistory(query: any) {
+    const { type, status, limit = 20, page = 1 } = query;
+    // In production, user_id should come from req.user
+    const qb = this.bookingRepo.createQueryBuilder('b')
+      .where('b.user_id = :userId', { userId: this.MOCK_USER_ID })
+      .orderBy('b.created_at', 'DESC');
+
+    if (type && type !== 'ALL') {
+      qb.andWhere('b.booking_type = :type', { type });
+    }
+
+    if (status) {
+      // Basic mock implementation for status, if UPCOMING we check date and status
+      if (status === 'UPCOMING') {
+        qb.andWhere('b.status = :bStatus', { bStatus: BookingStatus.CONFIRMED })
+          .andWhere('b.travel_date >= CURRENT_DATE');
+      } else if (status === 'PAST') {
+        qb.andWhere('b.status IN (:...bStatus)', { bStatus: [BookingStatus.COMPLETED, BookingStatus.CANCELLED] });
+      }
+    }
+
+    const bookings = await qb
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return bookings.map(b => this.mapBookingToDto(b));
+  }
+
+  async getCancellationQuote(id: string) {
     const booking = await this.bookingRepo.findOne({
-      where: { id, user_id: userId },
+      where: { id, user_id: this.MOCK_USER_ID },
     });
-    if (!booking) throw new NotFoundException('Booking not found');
-    return booking;
-  }
-
-  async getMyBookings(userId: string) {
-    return this.bookingRepo.find({
-      where: { user_id: userId },
-      order: { created_at: 'DESC' },
-    });
-  }
-
-  async getCancellationQuote(id: string, userId: string) {
-    const booking = await this.getBookingDetails(id, userId);
     
-    // Mock logic for cancellation quote calculation
-    // e.g. 10% penalty if cancelled more than 24h prior, 50% otherwise
-    const amountPaid = parseFloat(booking.total_amount as unknown as string) || 0;
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    const amountPaid = Number(booking.total_amount) || 0;
     const penaltyAmount = amountPaid * 0.10; // 10% penalty
     const refundAmount = amountPaid - penaltyAmount;
 
@@ -99,11 +107,9 @@ export class BookingsService {
     };
   }
 
-  async verifyQrTicket(qrCode: string, operatorUserId: string) {
-    // We mock JWT verify or just string match
-    // Typically qr_code is stored in DB on booking
+  async verifyTicket(token: string) {
     const booking = await this.bookingRepo.findOne({
-      where: { qr_code: qrCode },
+      where: { qr_code_token: token },
     });
 
     if (!booking) {
@@ -117,87 +123,5 @@ export class BookingsService {
       passenger_id: booking.user_id,
       status: booking.status,
     };
-  }
-
-  async cancelBooking(id: string, userId: string) {
-    const booking = await this.getBookingDetails(id, userId);
-    booking.status = BookingStatus.CANCELLED;
-    return this.bookingRepo.save(booking);
-  }
-
-  // --- HOTEL PARTNER METHODS --- //
-
-  // In a real system, you'd verify if the hotel belongs to the partner.
-  // For demonstration, we assume authorization is checked or hotel belongs to partner.
-  
-  async hotelCheckIn(bookingId: string, partnerId: string) {
-    const booking = await this.bookingRepo.findOne({ where: { id: bookingId, booking_type: BookingType.HOTEL } });
-    if (!booking) throw new NotFoundException('Booking not found');
-    
-    booking.status = BookingStatus.CHECKED_IN;
-    // You could also record checkedInAt here if you add it to schema
-    return this.bookingRepo.save(booking);
-  }
-
-  async hotelCheckOut(bookingId: string, partnerId: string) {
-    const booking = await this.bookingRepo.findOne({ where: { id: bookingId, booking_type: BookingType.HOTEL } });
-    if (!booking) throw new NotFoundException('Booking not found');
-
-    booking.status = BookingStatus.CHECKED_OUT;
-    return this.bookingRepo.save(booking);
-  }
-
-  async hotelPartnerCancel(bookingId: string, partnerId: string) {
-    const booking = await this.bookingRepo.findOne({ where: { id: bookingId, booking_type: BookingType.HOTEL } });
-    if (!booking) throw new NotFoundException('Booking not found');
-
-    booking.status = BookingStatus.CANCELLED;
-    return this.bookingRepo.save(booking);
-  }
-
-  async getHotelPartnerSummary(partnerId: string) {
-    // Aggregation query: count bookings by status for hotels owned by this partner.
-    // For simplicity, we are returning mock values for the structural API.
-    // Ideally this does a query builder matching schedule_id = hotel_id.
-    return {
-      totalBookings: 142,
-      todayCheckIns: 8,
-      todayCheckOuts: 5,
-      activeStays: 18,
-      totalEarnings: 485000.00,
-      monthlyEarnings: 125000.00,
-      occupancyRate: 82.5
-    };
-  }
-
-  async getHotelPartnerCalendar(partnerId: string) {
-    return {
-      calendar: [
-        {
-          date: new Date().toISOString().split('T')[0],
-          totalAvailableRooms: 25,
-          bookedRooms: 20,
-          blockedRooms: 2,
-          occupancyRate: 80.0,
-          averageDailyRate: 5800.00
-        }
-      ]
-    };
-  }
-
-  async getHotelPartnerEarnings(partnerId: string) {
-    return {
-      totalEarnings: 485000.00,
-      monthlyEarnings: 125000.00,
-      recentPayouts: []
-    };
-  }
-
-  async getHotelPartnerOccupancy(partnerId: string) {
-    return [
-      { month: 'January', occupancy: 75.0 },
-      { month: 'February', occupancy: 82.5 },
-      { month: 'March', occupancy: 90.0 }
-    ];
   }
 }
