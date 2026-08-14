@@ -6,9 +6,20 @@ import {
   Delete,
   Body,
   Param,
-  Req,
+  Request,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AppService } from './app.service';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import {
+  PlanJourneyDto,
+  BookMultiModalDto,
+  SaveJourneyDto,
+  UpdateAlertsDto,
+  OptimizeScheduleDto,
+} from './dto/ai-planner.dto';
 
 @Controller()
 export class HealthController {
@@ -23,45 +34,60 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post('plan-journey')
-  planJourney(@Body() requestData: any) {
-    return this.appService.planJourney(requestData);
+  @HttpCode(HttpStatus.OK)
+  async planJourney(@Body() dto: PlanJourneyDto) {
+    const data = await this.appService.planJourney(dto);
+    return { success: true, statusCode: 200, data };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('book-multimodal')
-  bookMultimodal(@Body() bookingData: any) {
-    return this.appService.bookMultimodal(bookingData);
+  @HttpCode(HttpStatus.OK)
+  async bookMultiModal(@Request() req: any, @Body() dto: BookMultiModalDto) {
+    const data = await this.appService.bookMultiModal(req.user.id, dto);
+    return { success: true, statusCode: 200, data };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('saved-journeys')
-  getSavedJourneys(@Req() req: any) {
-    // Assuming user id is passed via some middleware or headers in real app
-    const userId = req.headers['x-user-id'] || 'user-1';
-    return this.appService.getSavedJourneys(userId);
+  async getSavedJourneys(@Request() req: any) {
+    const data = await this.appService.getSavedJourneys(req.user.id);
+    return { success: true, statusCode: 200, data };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('save-journey')
-  saveJourney(@Body() journeyData: any) {
-    return this.appService.saveJourney(journeyData);
+  @HttpCode(HttpStatus.OK)
+  async saveJourney(@Request() req: any, @Body() dto: SaveJourneyDto) {
+    const data = await this.appService.saveJourney(req.user.id, dto);
+    return { success: true, statusCode: 200, message: 'Journey successfully saved to profile', data };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('saved-journeys/:id')
-  deleteSavedJourney(@Param('id') id: string) {
-    return this.appService.deleteSavedJourney(id);
+  async deleteSavedJourney(@Request() req: any, @Param('id') id: string) {
+    await this.appService.deleteSavedJourney(req.user.id, id);
+    return { success: true, statusCode: 200, message: 'Saved journey deleted successfully' };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('alerts')
-  getAlerts(@Req() req: any) {
-    const userId = req.headers['x-user-id'] || 'user-1';
-    return this.appService.getAlerts(userId);
+  async getAlerts(@Request() req: any) {
+    const data = await this.appService.getAlerts(req.user.id);
+    return { success: true, statusCode: 200, data };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('alerts')
-  updateAlerts(@Body() alertData: any) {
-    return this.appService.updateAlerts(alertData);
+  async updateAlerts(@Request() req: any, @Body() dto: UpdateAlertsDto) {
+    const data = await this.appService.updateAlerts(req.user.id, dto);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('smart-schedule-optimizer')
-  optimizeSchedule(@Body() scheduleData: any) {
-    return this.appService.optimizeSchedule(scheduleData);
+  @HttpCode(HttpStatus.OK)
+  async optimizeSchedule(@Body() dto: OptimizeScheduleDto) {
+    const data = await this.appService.optimizeSchedule(dto);
+    return { success: true, statusCode: 200, data };
   }
 }
