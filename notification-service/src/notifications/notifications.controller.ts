@@ -3,78 +3,33 @@ import {
   Get,
   Post,
   Put,
-  Delete,
   Body,
   Param,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 
-@Controller(['notify', 'notifications'])
+@Controller('api/v1/notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
-  @Post('sms')
-  async sendSms(@Body() payload: { phone: string; message: string }) {
-    const data = await this.notificationsService.sendSms(payload);
-    return { success: true, data };
-  }
-
-  @Post('email')
-  async sendEmail(
-    @Body() payload: { to: string; subject: string; body: string },
-  ) {
-    const data = await this.notificationsService.sendEmail(payload);
-    return { success: true, data };
-  }
-
-  @Post('push')
-  async sendPush(
-    @Body() payload: { token: string; title: string; body: string },
-  ) {
-    const data = await this.notificationsService.sendPush(payload);
-    return { success: true, data };
-  }
-
-  // Travel Notification CRUD endpoints
-  @Post()
-  async create(@Body() dto: any) {
-    const data = await this.notificationsService.create(dto);
-    return { success: true, data };
-  }
-
   @Get()
-  async findAll() {
-    const data = await this.notificationsService.findAll();
-    return { success: true, data };
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const data = await this.notificationsService.findOne(id);
-    return { success: true, data };
-  }
-
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: any) {
-    const data = await this.notificationsService.update(id, dto);
-    return { success: true, data };
+  async getUserNotifications() {
+    const data = await this.notificationsService.getUserNotifications();
+    return { success: true, statusCode: 200, data };
   }
 
   @Post('device-token')
-  async addDeviceToken(@Body() payload: { userId: string; tokenData: any }) {
-    const data = await this.notificationsService.addDeviceToken(payload.userId, payload.tokenData);
-    return { success: true, data };
+  @HttpCode(HttpStatus.OK)
+  async registerDeviceToken(@Body() dto: any) {
+    const data = await this.notificationsService.registerDeviceToken(dto);
+    return { success: true, statusCode: 200, data };
   }
 
   @Put(':id/read')
-  async markAsRead(@Param('id') id: string, @Body() payload: { userId: string }) {
-    const data = await this.notificationsService.markAsRead(id, payload.userId);
-    return { success: true, data };
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const data = await this.notificationsService.remove(id);
-    return { success: true, data };
+  async markAsRead(@Param('id') id: string) {
+    const data = await this.notificationsService.markAsRead(id);
+    return { success: true, statusCode: 200, data };
   }
 }

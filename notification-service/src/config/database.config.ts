@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { TravelNotification } from '../notifications/entities/notification.entity';
+import { UserNotification } from '../notifications/entities/user-notification.entity';
+import { DeviceToken } from '../notifications/entities/device-token.entity';
 
 export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -8,6 +9,6 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'notification_db',
-  entities: [TravelNotification],
+  entities: [UserNotification, DeviceToken],
   synchronize: process.env.DB_SYNCHRONIZE !== 'false', // Use migrations in production
 });

@@ -1,100 +1,120 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TravelNotification } from './entities/notification.entity';
 import { UserNotification } from './entities/user-notification.entity';
 import { DeviceToken } from './entities/device-token.entity';
 
 @Injectable()
-export class NotificationsService {
+export class NotificationsService implements OnApplicationBootstrap {
   private readonly logger = new Logger(NotificationsService.name);
+  
+  // Mock User ID for local development until auth is fully wired
+  private readonly MOCK_USER_ID = '11111111-1111-1111-1111-111111111111';
 
   constructor(
-    @InjectRepository(TravelNotification)
-    private readonly notificationRepository: Repository<TravelNotification>,
     @InjectRepository(UserNotification)
     private readonly userNotificationRepo: Repository<UserNotification>,
     @InjectRepository(DeviceToken)
     private readonly deviceTokenRepo: Repository<DeviceToken>,
   ) {}
 
-  async sendSms(payload: { phone: string; message: string }) {
-    this.logger.log(`Sending SMS to ${payload.phone}: ${payload.message}`);
-    return { messageId: 'msg91-mock-id', status: 'sent' };
-  }
-
-  async sendEmail(payload: { to: string; subject: string; body: string }) {
-    this.logger.log(`Sending Email to ${payload.to}: ${payload.subject}`);
-    return { messageId: 'sendgrid-mock-id', status: 'sent' };
-  }
-
-  async sendPush(payload: { token: string; title: string; body: string }) {
-    this.logger.log(
-      `Sending Push Notification to ${payload.token}: ${payload.title}`,
-    );
-    return { messageId: 'fcm-mock-id', status: 'sent' };
-  }
-
-  // TravelNotification CRUD logic
-  async create(dto: any) {
-    const notification = this.notificationRepository.create(dto);
-    return this.notificationRepository.save(notification);
-  }
-
-  async findAll() {
-    return this.notificationRepository.find();
-  }
-
-  async findOne(id: string) {
-    const notification = await this.notificationRepository.findOne({
-      where: { id },
-    });
-    if (!notification) {
-      throw new NotFoundException(`Notification with ID ${id} not found`);
+  async onApplicationBootstrap() {
+    const count = await this.userNotificationRepo.count();
+    if (count === 0) {
+      await this.userNotificationRepo.save([
+        {
+          id: 'ntf_mock_01',
+          user_id: this.MOCK_USER_ID,
+          title: 'Booking Confirmed! 🎉',
+          message: 'Your bus ticket to Siliguri (NIK-BUS-88210) has been confirmed.',
+          category: 'BOOKING',
+          deep_link: 'niklo://bookings/bkg_771029',
+          is_read: false,
+        },
+        {
+          id: 'ntf_mock_02',
+          user_id: this.MOCK_USER_ID,
+          title: 'Upcoming Ride',
+          message: 'Your cab to the airport arrives in 30 minutes. Driver: Raj Kumar.',
+          category: 'RIDE_UPDATE',
+          deep_link: 'niklo://rides/ride_5521',
+          is_read: true,
+        },
+        {
+          id: 'ntf_mock_03',
+          user_id: this.MOCK_USER_ID,
+          title: 'Exclusive Offer!',
+          message: 'Get 20% off on your next hotel booking in Manali.',
+          category: 'OFFER',
+          deep_link: 'niklo://offers/off_sum20',
+          is_read: false,
+        }
+      ] as any[]); // Cast to any to bypass uuid validation for mock seeds if DB enforces it
+      this.logger.log('Seeded user notifications mock data successfully.');
     }
-    return notification;
   }
 
-  async update(id: string, dto: any) {
-    const notification = await this.findOne(id);
-    Object.assign(notification, dto);
-    return this.notificationRepository.save(notification);
+  private mapNotificationToDto(n: UserNotification) {
+    return {
+      id: n.id,
+      title: n.title,
+      message: n.message,
+      category: n.category,
+      deep_link: n.deep_link,
+      is_read: n.is_read,
+      created_at: n.created_at ? n.created_at.toISOString() : new Date().toISOString(),
+    };
   }
 
-  async remove(id: string) {
-    const notification = await this.findOne(id);
-    await this.notificationRepository.remove(notification);
-    return { deleted: true };
+  async getUserNotifications() {
+    // Note: In production, user_id should come from req.user
+    const notifications = await this.userNotificationRepo.find({
+      where: { user_id: this.MOCK_USER_ID },
+      order: { created_at: 'DESC' },
+    });
+    
+    return notifications.map(n => this.mapNotificationToDto(n));
   }
 
-  async addDeviceToken(userId: string, tokenData: any) {
-    // Upsert logic for device token
+  async registerDeviceToken(dto: any) {
+    // Note: In production, user_id should come from req.user
+    const userId = this.MOCK_USER_ID;
+    const { fcmToken, platform } = dto;
+
+    if (!fcmToken) {
+      throw new Error('fcmToken is required');
+    }
+
     let deviceToken = await this.deviceTokenRepo.findOne({
-      where: { user_id: userId, token: tokenData.token }
+      where: { user_id: userId, fcm_token: fcmToken }
     });
 
     if (!deviceToken) {
       deviceToken = this.deviceTokenRepo.create({
         user_id: userId,
-        ...tokenData
-      }) as unknown as DeviceToken;
+        fcm_token: fcmToken,
+        platform: platform || 'ANDROID'
+      });
     } else {
-      Object.assign(deviceToken, tokenData);
+      deviceToken.platform = platform || deviceToken.platform;
     }
     
-    return this.deviceTokenRepo.save(deviceToken as DeviceToken);
+    await this.deviceTokenRepo.save(deviceToken);
+    
+    return { message: 'Device token registered successfully' };
   }
 
-  async markAsRead(notificationId: string, userId: string) {
+  async markAsRead(notificationId: string) {
     const userNotif = await this.userNotificationRepo.findOne({
-      where: { id: notificationId, user_id: userId }
+      where: { id: notificationId, user_id: this.MOCK_USER_ID }
     });
 
     if (!userNotif) {
-      throw new NotFoundException('Notification not found for user');
+      throw new NotFoundException('Notification not found');
     }
 
     userNotif.is_read = true;
-    return this.userNotificationRepo.save(userNotif);
+    const updated = await this.userNotificationRepo.save(userNotif);
+    return this.mapNotificationToDto(updated);
   }
 }

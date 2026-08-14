@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('user_device_tokens')
@@ -13,12 +14,15 @@ export class DeviceToken {
   @Column({ type: 'uuid' })
   user_id: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  token: string;
+  @Column({ type: 'text' })
+  fcm_token: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 20, default: 'ANDROID' })
   platform: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at: Date;
 }

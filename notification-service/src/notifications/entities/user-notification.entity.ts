@@ -13,10 +13,13 @@ export class UserNotification {
   @Column({ type: 'uuid' })
   user_id: string;
 
+  @Column({ type: 'varchar', length: 255 })
+  title: string;
+
   @Column({ type: 'text' })
   message: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 50, default: 'BOOKING' })
   category: string;
 
   @Column({ type: 'text', nullable: true })
