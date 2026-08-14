@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, Patch, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { HotelsService } from './hotels.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
@@ -43,18 +43,23 @@ export class HotelsController {
   }
 
   @Post('search')
-  searchHotels(@Body() searchParams: any) {
-    return this.hotelsService.searchHotels(searchParams);
+  @HttpCode(HttpStatus.OK)
+  async searchHotels(@Body() searchParams: any) {
+    const data = await this.hotelsService.searchHotels(searchParams);
+    return { success: true, statusCode: 200, data };
   }
 
   @Post(':hotelId/check-availability')
-  checkAvailability(@Param('hotelId') hotelId: string, @Body() checkParams: any) {
-    return this.hotelsService.checkAvailability(hotelId, checkParams);
+  @HttpCode(HttpStatus.OK)
+  async checkAvailability(@Param('hotelId') hotelId: string, @Body() checkParams: any) {
+    const data = await this.hotelsService.checkAvailability(hotelId, checkParams);
+    return { success: true, statusCode: 200, data };
   }
 
   @Get(':hotelId')
-  getHotelDetails(@Param('hotelId') hotelId: string) {
-    return this.hotelsService.getHotelDetails(hotelId);
+  async getHotelDetails(@Param('hotelId') hotelId: string) {
+    const data = await this.hotelsService.getHotelDetails(hotelId);
+    return { success: true, statusCode: 200, data };
   }
 
   @Get(':hotelId/reviews')

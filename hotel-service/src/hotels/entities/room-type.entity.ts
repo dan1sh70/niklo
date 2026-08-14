@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Hotel } from './hotel.entity';
 
 @Entity('room_types')
@@ -12,39 +12,36 @@ export class RoomType {
   @Column()
   title: string;
 
-  @Column()
-  guestCount: string;
+  @Column('numeric', { precision: 10, scale: 2 })
+  price_per_night: number;
 
-  @Column()
-  size: string;
+  @Column('int', { default: 2 })
+  max_guests: number;
 
-  @Column('int')
-  imageCount: number;
+  @Column('int', { default: 2 })
+  max_adults: number;
 
-  @Column('text', { array: true, default: [] })
-  images: string[];
+  @Column('int', { default: 1 })
+  max_children: number;
 
-  @Column()
-  mealPlan: string;
+  @Column('int', { default: 5 })
+  available_rooms_count: number;
 
-  @Column()
-  mealPlanDesc: string;
+  @Column('int', { default: 250 })
+  room_size_sqft: number;
 
-  @Column('int')
-  price: number;
-
-  @Column('int', { nullable: true })
-  oldPrice: number;
-
-  @Column()
-  taxes: string;
+  @Column({ length: 50, default: 'King Bed' })
+  bed_type: string;
 
   @Column({ type: 'jsonb', default: [] })
   amenities: any[];
 
-  @Column({ type: 'jsonb', nullable: true })
-  cancellationPolicy: any;
+  @Column({ type: 'jsonb', default: [] })
+  images: any[];
 
-  @Column('text', { array: true, default: [] })
-  inclusions: string[];
+  @Column({ default: true })
+  is_active: boolean;
+
+  @CreateDateColumn()
+  created_at: Date;
 }

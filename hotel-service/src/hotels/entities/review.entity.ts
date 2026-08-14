@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Hotel } from './hotel.entity';
 
-@Entity('reviews')
+@Entity('hotel_reviews')
 export class Review {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -15,27 +15,21 @@ export class Review {
   @ManyToOne(() => Hotel, (hotel) => hotel.reviews, { onDelete: 'CASCADE' })
   hotel: Hotel;
 
-  @Column()
-  title: string;
+  @Column('uuid')
+  user_id: string;
 
-  @Column()
-  reviewerName: string;
+  @Column({ length: 255 })
+  user_name: string;
 
-  @Column()
-  date: string;
+  @Column('text', { nullable: true })
+  user_avatar: string;
 
-  @Column('float')
+  @Column('numeric', { precision: 3, scale: 2 })
   rating: number;
 
   @Column('text')
   comment: string;
 
-  @Column({ default: false })
-  hasPropertyReply: boolean;
-
-  @Column('text', { nullable: true })
-  propertyReply: string;
-
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 }

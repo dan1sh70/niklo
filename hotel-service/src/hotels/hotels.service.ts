@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, OnApplicationBootstrap, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Hotel } from './entities/hotel.entity';
+import { Hotel, StayType } from './entities/hotel.entity';
 import { Review } from './entities/review.entity';
 import { RoomType } from './entities/room-type.entity';
 import { PartnerOffer } from './entities/partner-offer.entity';
@@ -26,51 +26,107 @@ export class HotelsService implements OnApplicationBootstrap {
     const count = await this.hotelRepository.count();
     if (count === 0) {
       const hotel = this.hotelRepository.create({
-        id: '11111111-1111-1111-1111-111111111111',
-        hotelName: 'The Oberoi Bangalore',
-        badgeText: '5 Star Luxury',
-        imagePath: 'https://cdn.niklo.com/hotels/oberoi.jpg',
-        galleryImages: [
-          'https://cdn.niklo.com/hotels/oberoi_room.jpg',
-          'https://cdn.niklo.com/hotels/oberoi_lobby.jpg',
+        id: 'htl_goa_091',
+        title: 'Taj Exotica Resort & Spa, Goa',
+        stay_type: StayType.RESORT,
+        city: 'Goa',
+        address: 'Benaulim Beach, South Goa',
+        latitude: 15.2559,
+        longitude: 73.9216,
+        star_rating: 5,
+        user_rating: 4.8,
+        rating_text: 'Exceptional',
+        reviews_count: 312,
+        price_per_night: 8500,
+        original_price_per_night: 10000,
+        discount_percent: 15,
+        badge_text: 'Top Rated',
+        distance_text: '500m from Benaulim Beach',
+        free_breakfast: true,
+        free_wifi: true,
+        free_cancellation: true,
+        image_url: 'https://cdn.niklo.com/hotels/taj_goa_hero.jpg',
+        gallery_images: [
+          'https://cdn.niklo.com/hotels/taj_goa_1.jpg',
+          'https://cdn.niklo.com/hotels/taj_goa_2.jpg'
         ],
-        distanceText: '1.2 km from city center',
-        ratingValue: 4.9,
-        ratingText: 'Exceptional',
-        reviewsCount: 342,
-        freeBreakfast: true,
-        freeWifi: true,
-        freeCancellation: true,
-        priceText: '₹9,500/night',
-        priceInt: 9500,
-        description: 'A luxurious five-star hotel located in the heart of Bangalore, surrounded by award-winning gardens.',
-        address: '37-39, Mahatma Gandhi Rd, Bengaluru, Karnataka 560001',
-        latitude: 12.9738,
-        longitude: 77.6119,
-        popularAmenities: ['Spa', 'Pool', 'Fitness Center', 'Bar'],
-        nearbyPlaces: ['MG Road Metro Station', 'Cubbon Park'],
-        features: ['Garden View', 'Fine Dining'],
+        amenities: [
+          { name: 'Free WiFi', icon: 'wifi' },
+          { name: 'Swimming Pool', icon: 'pool' }
+        ],
+        nearby_places: [
+          { title: 'Benaulim Beach', distance: '500m' },
+          { title: 'Airport', distance: '22km' }
+        ],
+        features: [
+          { title: 'Beachfront Access', icon: 'waves' }
+        ],
+        house_rules: [
+          'Check-in: 2:00 PM',
+          'Check-out: 11:00 AM',
+          'Govt ID Required'
+        ],
+        rating_breakdown: {
+          cleanliness: 4.8,
+          location: 4.9,
+          service: 4.7,
+          value: 4.6
+        },
+        description: 'A luxurious five-star resort located in the heart of Goa.',
+        is_active: true,
         roomTypes: [
           {
-            id: '22222222-2222-2222-2222-222222222222',
-            title: 'Deluxe Garden View Room',
-            guestCount: '2 Guests',
-            size: '420 sq ft',
-            imageCount: 3,
-            images: ['https://cdn.niklo.com/hotels/oberoi_room1.jpg'],
-            mealPlan: 'Breakfast Included',
-            mealPlanDesc: 'Enjoy complimentary buffet breakfast at Lapis restaurant.',
-            price: 9500,
-            oldPrice: 12000,
-            taxes: '₹1,710 taxes & fees',
-            amenities: ['King Bed', 'AC', 'Mini Bar', 'TV'],
-            inclusions: ['Free High-Speed Wifi', 'Welcome Drink'],
+            id: 'rm_deluxe_01',
+            title: 'Deluxe Ocean View Room',
+            price_per_night: 8500,
+            max_guests: 2,
+            max_adults: 2,
+            max_children: 1,
+            available_rooms_count: 5,
+            room_size_sqft: 450,
+            bed_type: 'King Bed',
+            amenities: ['Air Conditioning', 'Flat Screen TV', 'Private Bathroom'],
+            images: ['https://cdn.niklo.com/hotels/taj_goa_room1.jpg']
           }
         ]
       });
       await this.hotelRepository.save(hotel);
       console.log('Seeded hotels mock data successfully.');
     }
+  }
+
+  // Mapper to transform database entity to Flutter expected DTO
+  private mapHotelToDto(h: Hotel) {
+    return {
+      id: h.id,
+      hotelName: h.title,
+      title: h.title,
+      stay_type: h.stay_type,
+      city: h.city,
+      address: h.address,
+      latitude: h.latitude,
+      longitude: h.longitude,
+      star_rating: h.star_rating,
+      ratingValue: Number(h.user_rating),
+      ratingText: h.rating_text,
+      reviewsCount: h.reviews_count,
+      priceInt: Number(h.price_per_night),
+      price_per_night: Number(h.price_per_night),
+      priceText: `₹${Number(h.price_per_night).toLocaleString()}/night`,
+      badgeText: h.badge_text,
+      distanceText: h.distance_text,
+      freeBreakfast: h.free_breakfast,
+      freeWifi: h.free_wifi,
+      freeCancellation: h.free_cancellation,
+      imagePath: h.image_url,
+      galleryImages: h.gallery_images,
+      popularAmenities: h.amenities,
+      nearbyPlaces: h.nearby_places,
+      features: h.features,
+      rules: h.house_rules,
+      ratingBreakdown: h.rating_breakdown,
+      description: h.description,
+    };
   }
 
   async getPopularDestinations() {
@@ -117,18 +173,9 @@ export class HotelsService implements OnApplicationBootstrap {
   async getTrendingHotels(limit: number) {
     const hotels = await this.hotelRepository.find({
       take: limit,
-      order: { ratingValue: 'DESC' },
+      order: { user_rating: 'DESC' },
     });
-    return hotels.map((h) => ({
-      id: h.id,
-      hotelName: h.hotelName,
-      badgeText: h.badgeText,
-      imagePath: h.imagePath,
-      ratingValue: h.ratingValue,
-      priceInt: h.priceInt,
-      priceText: h.priceText,
-      distanceText: h.distanceText,
-    }));
+    return hotels.map((h) => this.mapHotelToDto(h));
   }
 
   async getActivePromotions() {
@@ -151,25 +198,26 @@ export class HotelsService implements OnApplicationBootstrap {
   }
 
   async searchHotels(searchParams: any) {
-    const { location, limit = 20, page = 1 } = searchParams;
+    const { city, limit = 20, page = 1 } = searchParams;
     const query = this.hotelRepository.createQueryBuilder('hotel');
 
-    if (location) {
+    if (city) {
       query
-        .where('hotel.hotelName ILIKE :loc', { loc: `%${location}%` })
-        .orWhere('hotel.address ILIKE :loc', { loc: `%${location}%` });
+        .where('hotel.city ILIKE :loc', { loc: `%${city}%` })
+        .orWhere('hotel.title ILIKE :loc', { loc: `%${city}%` })
+        .orWhere('hotel.address ILIKE :loc', { loc: `%${city}%` });
     }
 
-    const [hotels, totalResults] = await query
+    const [hotels, total] = await query
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
 
     return {
-      totalResults,
+      total,
       page,
       limit,
-      hotels,
+      hotels: hotels.map((h) => this.mapHotelToDto(h)),
     };
   }
 
@@ -183,19 +231,42 @@ export class HotelsService implements OnApplicationBootstrap {
       throw new NotFoundException(`Hotel with ID ${hotelId} was not found.`);
     }
 
-    // Mock availability logic: just return the room types with pricing for the requested dates
-    const availableRooms = hotel.roomTypes.map(room => ({
-      ...room,
-      available_count: 5, // Mock capacity
-      total_price: room.price * (checkParams.nights || 1),
-    }));
+    // Determine the room type to check, or default to the first one
+    const roomType = checkParams.room_type_id
+      ? hotel.roomTypes.find(rt => rt.id === checkParams.room_type_id)
+      : hotel.roomTypes[0];
+
+    if (!roomType) {
+      throw new NotFoundException(`Room type not found in hotel ${hotelId}.`);
+    }
+
+    // Calculate nights
+    let nightsCount = 1;
+    if (checkParams.check_in && checkParams.check_out) {
+      const start = new Date(checkParams.check_in);
+      const end = new Date(checkParams.check_out);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      nightsCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+    }
+
+    const requestedRooms = checkParams.rooms_count || 1;
+    const available = roomType.available_rooms_count >= requestedRooms;
+
+    const totalRoomPrice = Number(roomType.price_per_night) * nightsCount * requestedRooms;
+    const taxesAndFees = Math.round(totalRoomPrice * 0.12); // 12% tax mock
+    const grandTotal = totalRoomPrice + taxesAndFees;
 
     return {
-      hotelId,
-      checkIn: checkParams.checkIn,
-      checkOut: checkParams.checkOut,
-      guests: checkParams.guests,
-      availableRooms,
+      hotel_id: hotel.id,
+      room_type_id: roomType.id,
+      room_title: roomType.title,
+      available,
+      remaining_rooms: roomType.available_rooms_count,
+      nights_count: nightsCount,
+      price_per_night: Number(roomType.price_per_night),
+      total_room_price: totalRoomPrice,
+      taxes_and_fees: taxesAndFees,
+      grand_total: grandTotal,
     };
   }
 
@@ -211,25 +282,23 @@ export class HotelsService implements OnApplicationBootstrap {
 
     const topReviews = hotel.reviews ? hotel.reviews.slice(0, 3) : [];
 
-    // Rating breakdown calculation mock
-    const ratingBreakdown = {
-      overall: hotel.ratingValue,
-      label: hotel.ratingText,
-      totalRatings: hotel.reviewsCount,
-      breakdown: {
-        excellent: 0.8,
-        veryGood: 0.1,
-        average: 0.05,
-        poor: 0.03,
-        bad: 0.02,
-      },
-    };
-
     return {
-      ...hotel,
+      ...this.mapHotelToDto(hotel),
       topReviews,
-      ratingBreakdown,
-      guestPhotoCount: hotel.galleryImages ? hotel.galleryImages.length : 0,
+      guestPhotoCount: hotel.gallery_images ? hotel.gallery_images.length : 0,
+      roomTypes: hotel.roomTypes.map(rt => ({
+        id: rt.id,
+        title: rt.title,
+        price_per_night: Number(rt.price_per_night),
+        max_guests: rt.max_guests,
+        max_adults: rt.max_adults,
+        max_children: rt.max_children,
+        available_rooms_count: rt.available_rooms_count,
+        room_size_sqft: rt.room_size_sqft,
+        bed_type: rt.bed_type,
+        amenities: rt.amenities,
+        images: rt.images
+      }))
     };
   }
 
@@ -243,23 +312,14 @@ export class HotelsService implements OnApplicationBootstrap {
       where: { hotel: { id: hotelId } },
       skip: (page - 1) * limit,
       take: limit,
-      order: { createdAt: 'DESC' }, // Simplified sort
+      order: { created_at: 'DESC' },
     });
+
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId } });
 
     return {
       hotelId,
-      ratingBreakdown: {
-        overall: 4.6,
-        label: 'Excellent',
-        totalRatings: totalReviews,
-        breakdown: {
-          excellent: 0.8,
-          veryGood: 0.1,
-          average: 0.05,
-          poor: 0.03,
-          bad: 0.02,
-        },
-      },
+      ratingBreakdown: hotel?.rating_breakdown || {},
       totalReviews,
       page,
       limit,
@@ -274,7 +334,7 @@ export class HotelsService implements OnApplicationBootstrap {
     if (!hotel) {
       throw new NotFoundException(`Hotel with ID ${hotelId} was not found.`);
     }
-    const allPhotos = hotel.galleryImages || [];
+    const allPhotos = hotel.gallery_images || [];
     const photos = allPhotos.slice((page - 1) * limit, page * limit);
     return {
       hotelId,

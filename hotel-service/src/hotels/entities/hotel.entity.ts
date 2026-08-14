@@ -9,6 +9,14 @@ import {
 import { RoomType } from './room-type.entity';
 import { Review } from './review.entity';
 
+export enum StayType {
+  HOTEL = 'HOTEL',
+  RESORT = 'RESORT',
+  VILLA = 'VILLA',
+  HOMESTAY = 'HOMESTAY',
+  APARTMENT = 'APARTMENT',
+}
+
 @Entity('hotels')
 export class Hotel {
   @PrimaryGeneratedColumn('uuid')
@@ -18,76 +26,89 @@ export class Hotel {
   partnerId: string;
 
   @Column()
-  hotelName: string;
+  title: string;
 
-  @Column({ nullable: true })
-  badgeText: string;
+  @Column({
+    type: 'enum',
+    enum: StayType,
+    default: StayType.HOTEL,
+  })
+  stay_type: StayType;
 
-  @Column()
-  imagePath: string;
-
-  @Column('text', { array: true, default: [] })
-  galleryImages: string[];
-
-  @Column()
-  distanceText: string;
-
-  @Column('float')
-  ratingValue: number;
-
-  @Column()
-  ratingText: string;
-
-  @Column('int', { default: 0 })
-  reviewsCount: number;
-
-  @Column({ default: false })
-  freeBreakfast: boolean;
-
-  @Column({ default: false })
-  freeWifi: boolean;
-
-  @Column({ default: false })
-  freeCancellation: boolean;
-
-  @Column()
-  priceText: string;
-
-  @Column('int')
-  priceInt: number;
+  @Column({ length: 100, default: 'City' })
+  city: string;
 
   @Column('text')
-  description: string;
-
-  @Column()
   address: string;
 
-  @Column('float', { nullable: true })
+  @Column('numeric', { precision: 10, scale: 6, nullable: true })
   latitude: number;
 
-  @Column('float', { nullable: true })
+  @Column('numeric', { precision: 10, scale: 6, nullable: true })
   longitude: number;
 
-  @Column({ type: 'jsonb', default: [] })
-  popularAmenities: any[];
+  @Column('int', { default: 4 })
+  star_rating: number;
+
+  @Column('numeric', { precision: 3, scale: 2, default: 4.5 })
+  user_rating: number;
+
+  @Column({ length: 50, default: 'Very Good' })
+  rating_text: string;
+
+  @Column('int', { default: 0 })
+  reviews_count: number;
+
+  @Column('numeric', { precision: 10, scale: 2 })
+  price_per_night: number;
+
+  @Column('numeric', { precision: 10, scale: 2, nullable: true })
+  original_price_per_night: number;
+
+  @Column('int', { default: 0 })
+  discount_percent: number;
+
+  @Column({ length: 100, nullable: true })
+  badge_text: string;
+
+  @Column({ length: 100, nullable: true })
+  distance_text: string;
+
+  @Column({ default: true })
+  free_breakfast: boolean;
+
+  @Column({ default: true })
+  free_wifi: boolean;
+
+  @Column({ default: true })
+  free_cancellation: boolean;
+
+  @Column('text')
+  image_url: string;
 
   @Column({ type: 'jsonb', default: [] })
-  nearbyPlaces: any[];
+  gallery_images: string[];
+
+  @Column({ type: 'jsonb', default: [] })
+  amenities: any[];
+
+  @Column({ type: 'jsonb', default: [] })
+  nearby_places: any[];
 
   @Column({ type: 'jsonb', default: [] })
   features: any[];
 
-  @Column({ type: 'jsonb', nullable: true })
-  rules: any;
-
-  @Column({ type: 'jsonb', nullable: true })
-  house_rules: any;
+  @Column({ type: 'jsonb', default: [] })
+  house_rules: any[];
 
   @Column({ type: 'jsonb', nullable: true })
   rating_breakdown: any;
 
-  @Column({ type: 'jsonb', nullable: true })
-  hourlyOptions: any;
+  @Column('text')
+  description: string;
+
+  @Column({ default: true })
+  is_active: boolean;
 
   @OneToMany(() => RoomType, (roomType) => roomType.hotel, { cascade: true })
   roomTypes: RoomType[];
@@ -96,8 +117,8 @@ export class Hotel {
   reviews: Review[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }
