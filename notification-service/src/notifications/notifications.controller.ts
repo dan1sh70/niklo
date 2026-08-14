@@ -60,6 +60,18 @@ export class NotificationsController {
     return { success: true, data };
   }
 
+  @Post('device-token')
+  async addDeviceToken(@Body() payload: { userId: string; tokenData: any }) {
+    const data = await this.notificationsService.addDeviceToken(payload.userId, payload.tokenData);
+    return { success: true, data };
+  }
+
+  @Put(':id/read')
+  async markAsRead(@Param('id') id: string, @Body() payload: { userId: string }) {
+    const data = await this.notificationsService.markAsRead(id, payload.userId);
+    return { success: true, data };
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const data = await this.notificationsService.remove(id);

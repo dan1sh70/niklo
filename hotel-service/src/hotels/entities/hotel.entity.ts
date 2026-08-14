@@ -81,6 +81,12 @@ export class Hotel {
   rules: any;
 
   @Column({ type: 'jsonb', nullable: true })
+  house_rules: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  rating_breakdown: any;
+
+  @Column({ type: 'jsonb', nullable: true })
   hourlyOptions: any;
 
   @OneToMany(() => RoomType, (roomType) => roomType.hotel, { cascade: true })

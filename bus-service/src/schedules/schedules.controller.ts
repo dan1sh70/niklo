@@ -58,6 +58,23 @@ export class SchedulesController {
     return this.schedulesService.getManifest(id);
   }
 
+  @Get(':id/seat-map')
+  async getSeatMap(@Param('id') id: string) {
+    return this.schedulesService.getSeatMap(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/lock-seat')
+  async lockSeat(@Param('id') id: string, @Body() dto: { seatIds: string[] }) {
+    // In actual implementation, this calls Redis like booking-service does
+    return this.schedulesService.lockSeat(id, dto.seatIds);
+  }
+
+  @Get(':id/boarding-points')
+  async getBoardingPoints(@Param('id') id: string) {
+    return this.schedulesService.getBoardingPoints(id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateScheduleDto) {

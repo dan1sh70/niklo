@@ -143,6 +143,44 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Popular Destinations",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/packages/destinations/popular",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "packages",
+            "destinations",
+            "popular"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Package Availability",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/packages/1/availability",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "packages",
+            "1",
+            "availability"
+          ]
+        }
+      }
     }
   ]
 }

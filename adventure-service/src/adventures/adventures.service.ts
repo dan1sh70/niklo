@@ -50,6 +50,39 @@ export class AdventuresService implements OnApplicationBootstrap {
     return await this.adventureRepository.find();
   }
 
+  async getCategories() {
+    // In a real app, query DISTINCT categories or a separate Category entity
+    return {
+      categories: [
+        { id: 'cat-1', name: 'Water Sports', icon: 'wave' },
+        { id: 'cat-2', name: 'Aerial', icon: 'airplane' },
+        { id: 'cat-3', name: 'Trekking', icon: 'mountain' },
+        { id: 'cat-4', name: 'Camping', icon: 'tent' }
+      ]
+    };
+  }
+
+  async checkAvailability(id: string, checkParams: any) {
+    const adventure = await this.findOne(id);
+    if (!adventure) {
+      return { success: false, message: 'Adventure not found' };
+    }
+    
+    // Mock capacity/availability logic
+    const requestedDate = new Date(checkParams.date);
+    const isValidDate = requestedDate > new Date();
+
+    return {
+      adventure_id: id,
+      title: adventure.title,
+      requested_date: checkParams.date,
+      available_slots: isValidDate ? 8 : 0, // Mock 8 slots
+      price_per_person: adventure.price,
+      total_price: adventure.price * (checkParams.participants || 1),
+      is_available: isValidDate
+    };
+  }
+
   async findOne(id: string) {
     return await this.adventureRepository.findOne({ where: { id } });
   }

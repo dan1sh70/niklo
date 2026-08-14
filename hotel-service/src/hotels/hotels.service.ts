@@ -173,6 +173,32 @@ export class HotelsService implements OnApplicationBootstrap {
     };
   }
 
+  async checkAvailability(hotelId: string, checkParams: any) {
+    const hotel = await this.hotelRepository.findOne({
+      where: { id: hotelId },
+      relations: { roomTypes: true },
+    });
+
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${hotelId} was not found.`);
+    }
+
+    // Mock availability logic: just return the room types with pricing for the requested dates
+    const availableRooms = hotel.roomTypes.map(room => ({
+      ...room,
+      available_count: 5, // Mock capacity
+      total_price: room.price * (checkParams.nights || 1),
+    }));
+
+    return {
+      hotelId,
+      checkIn: checkParams.checkIn,
+      checkOut: checkParams.checkOut,
+      guests: checkParams.guests,
+      availableRooms,
+    };
+  }
+
   async getHotelDetails(hotelId: string) {
     const hotel = await this.hotelRepository.findOne({
       where: { id: hotelId },

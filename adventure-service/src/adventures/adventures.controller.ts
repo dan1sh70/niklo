@@ -32,6 +32,18 @@ export class AdventuresController {
     return { success: true, data };
   }
 
+  @Get('categories')
+  async getCategories() {
+    const data = await this.adventuresService.getCategories();
+    return { success: true, data };
+  }
+
+  @Post(':id/availability')
+  async checkAvailability(@Param('id') id: string, @Body() checkParams: any) {
+    const data = await this.adventuresService.checkAvailability(id, checkParams);
+    return { success: true, data };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     if (id === 'uuid-here') {

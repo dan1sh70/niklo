@@ -13,6 +13,7 @@ services:
       - notification-service
       - admin-service
       - booking-service
+      - ai-planner-service
     expose:
       - '80'
     healthcheck:
@@ -400,6 +401,27 @@ services:
       - "traefik.http.routers.booking-service.rule=Host(`yjfbvszz8e2yv5sefwcpxye4.187.127.157.13.sslip.io`)"
       - traefik.http.services.booking-service.loadbalancer.server.port=3014
     image: ghcr.io/dan1sh70/niklo-booking-service:sha-189060a
+  ai-planner-service:
+    environment:
+      NODE_ENV: development
+      PORT: 3015
+    expose:
+      - '3015'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3015/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.ai-planner-service.rule=Host(`aiplanner.187.127.157.13.sslip.io`)"
+      - traefik.http.services.ai-planner-service.loadbalancer.server.port=3015
+    image: ghcr.io/dan1sh70/niklo-ai-planner-service:sha-189060a
   postgres-db:
     environment:
       POSTGRES_DB: postgres

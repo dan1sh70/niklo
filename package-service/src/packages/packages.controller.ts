@@ -27,6 +27,18 @@ export class PackagesController {
     return { success: true, data };
   }
 
+  @Get('destinations/popular')
+  async getPopularDestinations() {
+    const data = await this.packagesService.getPopularDestinations();
+    return { success: true, data };
+  }
+
+  @Post(':id/availability')
+  async checkAvailability(@Param('id') id: string, @Body() checkParams: any) {
+    const data = await this.packagesService.checkAvailability(id, checkParams);
+    return { success: true, data };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.packagesService.findOne(id);

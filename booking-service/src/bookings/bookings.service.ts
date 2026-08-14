@@ -80,6 +80,45 @@ export class BookingsService {
     });
   }
 
+  async getCancellationQuote(id: string, userId: string) {
+    const booking = await this.getBookingDetails(id, userId);
+    
+    // Mock logic for cancellation quote calculation
+    // e.g. 10% penalty if cancelled more than 24h prior, 50% otherwise
+    const amountPaid = parseFloat(booking.total_amount as unknown as string) || 0;
+    const penaltyAmount = amountPaid * 0.10; // 10% penalty
+    const refundAmount = amountPaid - penaltyAmount;
+
+    return {
+      booking_id: booking.id,
+      total_paid: amountPaid,
+      penalty_amount: penaltyAmount,
+      refund_amount: refundAmount,
+      currency: 'INR',
+      cancellation_policy: '10% penalty applied for cancellation before 24 hours.'
+    };
+  }
+
+  async verifyQrTicket(qrCode: string, operatorUserId: string) {
+    // We mock JWT verify or just string match
+    // Typically qr_code is stored in DB on booking
+    const booking = await this.bookingRepo.findOne({
+      where: { qr_code: qrCode },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Invalid or expired QR Ticket');
+    }
+
+    return {
+      message: 'Ticket verified successfully',
+      valid: true,
+      booking_id: booking.id,
+      passenger_id: booking.user_id,
+      status: booking.status,
+    };
+  }
+
   async cancelBooking(id: string, userId: string) {
     const booking = await this.getBookingDetails(id, userId);
     booking.status = BookingStatus.CANCELLED;

@@ -128,4 +128,43 @@ export class SchedulesService {
       generated_at: new Date(),
     };
   }
+
+  async getSeatMap(id: string) {
+    const seatData = await this.getSeats(id);
+    
+    // Group seats by deck for the 2D grid representation
+    const lowerDeck = seatData.seats.filter(s => s.deck === 1);
+    const upperDeck = seatData.seats.filter(s => s.deck === 2);
+    
+    return {
+      schedule_id: seatData.schedule_id,
+      bus_type: seatData.bus_type,
+      total_seats: seatData.total_seats,
+      available_seats: seatData.available_seats,
+      seat_map: {
+        lower_deck: lowerDeck,
+        upper_deck: upperDeck.length > 0 ? upperDeck : null,
+      }
+    };
+  }
+
+  async lockSeat(scheduleId: string, seatIds: string[]) {
+    // Ideally this uses Redis (like booking-service) to SETNX with TTL.
+    // Since we don't have Redis injected here, we mock the success.
+    // The real implementation would be identical to booking-service lockSeats.
+    return {
+      message: 'Seats locked successfully for 5 minutes (mock)',
+      lockedSeats: seatIds,
+      scheduleId
+    };
+  }
+
+  async getBoardingPoints(id: string) {
+    const schedule = await this.findOne(id);
+    return {
+      schedule_id: schedule.id,
+      boarding_points: schedule.route?.boarding_points || [],
+      dropping_points: schedule.route?.dropping_points || []
+    };
+  }
 }

@@ -334,6 +334,44 @@
           ]
         }
       }
+    },
+    {
+      "name": "Cancellation Quote",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/1/cancellation-quote",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "1",
+            "cancellation-quote"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verify QR",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/bookings/tickets/verify-qr",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bookings",
+            "tickets",
+            "verify-qr"
+          ]
+        }
+      }
     }
   ]
 }

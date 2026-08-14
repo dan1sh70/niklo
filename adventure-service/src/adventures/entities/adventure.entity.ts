@@ -29,6 +29,36 @@ export class TravelAdventure {
   @Column({ type: 'jsonb', default: [] })
   requirements: string[];
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  category: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  meeting_point: string;
+
+  @Column({ type: 'float', nullable: true })
+  latitude: number;
+
+  @Column({ type: 'float', nullable: true })
+  longitude: number;
+
+  @Column({ type: 'float', nullable: true })
+  rating: number;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  difficulty: string;
+
+  @Column({ type: 'jsonb', default: [] })
+  gallery_images: string[];
+
+  @Column({ type: 'jsonb', default: [] })
+  highlights: string[];
+
+  @Column({ type: 'jsonb', default: [] })
+  whats_included: string[];
+
+  @Column({ type: 'jsonb', default: [] })
+  what_to_bring: string[];
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 

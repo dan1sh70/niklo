@@ -383,6 +383,25 @@
           ]
         }
       }
+    },
+    {
+      "name": "Check Availability",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/hotels/1/check-availability",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "hotels",
+            "1",
+            "check-availability"
+          ]
+        }
+      }
     }
   ],
   "event": [

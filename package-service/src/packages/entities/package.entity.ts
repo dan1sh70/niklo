@@ -32,6 +32,15 @@ export class TravelPackage {
   @Column({ type: 'jsonb', default: [] })
   inclusions: string[];
 
+  @Column({ type: 'jsonb', default: [] })
+  exclusions: string[];
+
+  @Column({ type: 'jsonb', default: [] })
+  itinerary: any[];
+
+  @Column({ type: 'jsonb', default: [] })
+  gallery_images: string[];
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 

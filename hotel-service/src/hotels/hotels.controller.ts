@@ -47,6 +47,11 @@ export class HotelsController {
     return this.hotelsService.searchHotels(searchParams);
   }
 
+  @Post(':hotelId/check-availability')
+  checkAvailability(@Param('hotelId') hotelId: string, @Body() checkParams: any) {
+    return this.hotelsService.checkAvailability(hotelId, checkParams);
+  }
+
   @Get(':hotelId')
   getHotelDetails(@Param('hotelId') hotelId: string) {
     return this.hotelsService.getHotelDetails(hotelId);

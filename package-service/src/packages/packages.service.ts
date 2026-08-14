@@ -52,6 +52,37 @@ export class PackagesService implements OnApplicationBootstrap {
     return await this.packageRepo.find();
   }
 
+  async getPopularDestinations() {
+    // In a real app, this would aggregate by destinations column
+    // or query a separate destinations table based on booking counts
+    return {
+      destinations: [
+        { name: 'Goa', image: 'https://cdn.niklo.com/dest/goa.jpg', packageCount: 42 },
+        { name: 'Manali', image: 'https://cdn.niklo.com/dest/manali.jpg', packageCount: 38 },
+        { name: 'Kerala', image: 'https://cdn.niklo.com/dest/kerala.jpg', packageCount: 25 },
+        { name: 'Rajasthan', image: 'https://cdn.niklo.com/dest/rajasthan.jpg', packageCount: 19 }
+      ]
+    };
+  }
+
+  async checkAvailability(id: string, checkParams: any) {
+    const travelPackage = await this.findOne(id);
+    
+    // Mock capacity/availability logic
+    const requestedDate = new Date(checkParams.date);
+    const isValidDate = requestedDate > new Date();
+
+    return {
+      package_id: id,
+      title: travelPackage.title,
+      requested_date: checkParams.date,
+      available_slots: isValidDate ? 12 : 0, // Mock 12 slots for future dates
+      price_per_person: travelPackage.price,
+      total_price: travelPackage.price * (checkParams.travelers || 1),
+      is_available: isValidDate
+    };
+  }
+
   async findOne(id: string) {
     const travelPackage = await this.packageRepo.findOne({ where: { id } });
     if (!travelPackage) {

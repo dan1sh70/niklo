@@ -14,6 +14,7 @@ import { RoutesModule } from './routes/routes.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { JwtStrategy } from './common/strategies/jwt.strategy';
 import databaseConfig from './config/database.config';
+import { LocationsController } from './locations/locations.controller';
 
 import { Operator } from './operators/entities/operator.entity';
 import { Bus } from './buses/entities/bus.entity';
@@ -51,7 +52,7 @@ import { Schedule, ScheduleStatus } from './schedules/entities/schedule.entity';
     RoutesModule,
     SchedulesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, LocationsController],
   providers: [
     AppService,
     JwtStrategy,

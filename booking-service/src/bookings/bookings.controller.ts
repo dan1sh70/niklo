@@ -40,6 +40,19 @@ export class BookingsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post(':id/cancellation-quote')
+  async getCancellationQuote(@Request() req: any, @Param('id') id: string) {
+    return this.bookingsService.getCancellationQuote(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('tickets/verify-qr')
+  async verifyQrTicket(@Request() req: any, @Body() body: { qr_code: string }) {
+    // Usually verified by an admin or operator, we pass user id just in case
+    return this.bookingsService.verifyQrTicket(body.qr_code, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post(':id/cancel')
   async cancelBooking(@Request() req: any, @Param('id') id: string) {
     return this.bookingsService.cancelBooking(id, req.user.id);

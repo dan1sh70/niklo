@@ -2,6 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TravelNotification } from './entities/notification.entity';
+import { UserNotification } from './entities/user-notification.entity';
+import { DeviceToken } from './entities/device-token.entity';
 
 @Injectable()
 export class NotificationsService {
@@ -10,6 +12,10 @@ export class NotificationsService {
   constructor(
     @InjectRepository(TravelNotification)
     private readonly notificationRepository: Repository<TravelNotification>,
+    @InjectRepository(UserNotification)
+    private readonly userNotificationRepo: Repository<UserNotification>,
+    @InjectRepository(DeviceToken)
+    private readonly deviceTokenRepo: Repository<DeviceToken>,
   ) {}
 
   async sendSms(payload: { phone: string; message: string }) {
@@ -59,5 +65,37 @@ export class NotificationsService {
     const notification = await this.findOne(id);
     await this.notificationRepository.remove(notification);
     return { deleted: true };
+  }
+
+  async addDeviceToken(userId: string, tokenData: any) {
+    // Upsert logic for device token
+    let deviceToken = await this.deviceTokenRepo.findOne({
+      where: { user_id: userId, token: tokenData.token }
+    });
+
+    if (!deviceToken) {
+      deviceToken = this.deviceTokenRepo.create({
+        user_id: userId,
+        ...tokenData
+      });
+    } else {
+      Object.assign(deviceToken, tokenData);
+    }
+    
+    return this.deviceTokenRepo.save(deviceToken);
+  }
+
+  async markAsRead(notificationId: string, userId: string) {
+    const userNotif = await this.userNotificationRepo.findOne({
+      where: { id: notificationId, user_id: userId }
+    });
+
+    if (!userNotif) {
+      throw new NotFoundException('Notification not found for user');
+    }
+
+    userNotif.is_read = true;
+    userNotif.read_at = new Date();
+    return this.userNotificationRepo.save(userNotif);
   }
 }

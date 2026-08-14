@@ -143,6 +143,43 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Get Categories",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/adventures/categories",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "adventures",
+            "categories"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Adventure Availability",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/adventures/1/availability",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "adventures",
+            "1",
+            "availability"
+          ]
+        }
+      }
     }
   ]
 }

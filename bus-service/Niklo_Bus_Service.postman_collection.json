@@ -761,6 +761,85 @@
           ]
         }
       }
+    },
+    {
+      "name": "Autocomplete Locations",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/bus/locations/autocomplete?q=bang",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bus",
+            "locations",
+            "autocomplete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Seat Map",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/bus/schedules/1/seat-map",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bus",
+            "schedules",
+            "1",
+            "seat-map"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Lock Seat",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/bus/schedules/1/lock-seat",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bus",
+            "schedules",
+            "1",
+            "lock-seat"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Boarding Points",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/bus/schedules/1/boarding-points",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bus",
+            "schedules",
+            "1",
+            "boarding-points"
+          ]
+        }
+      }
     }
   ],
   "variable": [

@@ -98,6 +98,117 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Upload Avatar",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/user/avatar",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "avatar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Emergency Contacts",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/user/emergency-contacts",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "emergency-contacts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Trigger SOS",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/user/emergency-sos/trigger",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "emergency-sos",
+            "trigger"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Active Trip",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/user/active-trip",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "active-trip"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Smart Suggestions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/user/recommendations/smart-suggestions",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "recommendations",
+            "smart-suggestions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Promotions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/user/promotions/banners",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "user",
+            "promotions",
+            "banners"
+          ]
+        }
+      }
     }
   ]
 }

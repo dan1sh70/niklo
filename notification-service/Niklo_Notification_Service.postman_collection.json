@@ -143,6 +143,43 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Register Device Token",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/notifications/device-token",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "notifications",
+            "device-token"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Toggle Read",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{host}}/api/v1/notifications/1/read",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "notifications",
+            "1",
+            "read"
+          ]
+        }
+      }
     }
   ]
 }
