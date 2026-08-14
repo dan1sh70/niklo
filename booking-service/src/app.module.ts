@@ -11,6 +11,7 @@ import { BookingsModule } from './bookings/bookings.module';
 import { RedisModule } from './redis/redis.module';
 import { JwtStrategy } from './common/strategies/jwt.strategy';
 import databaseConfig from './config/database.config';
+import { HomeModule } from './home/home.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import databaseConfig from './config/database.config';
     }),
     RedisModule,
     BookingsModule,
+    HomeModule,
   ],
   controllers: [AppController],
   providers: [
