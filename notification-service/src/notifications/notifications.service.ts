@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserNotification } from './entities/user-notification.entity';
 import { DeviceToken } from './entities/device-token.entity';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { RegisterDeviceTokenDto } from './dto/register-device-token.dto';
 
 @Injectable()
 export class NotificationsService implements OnApplicationBootstrap {
   private readonly logger = new Logger(NotificationsService.name);
-  
-  // Mock User ID for local development until auth is fully wired
   private readonly MOCK_USER_ID = '11111111-1111-1111-1111-111111111111';
 
   constructor(
@@ -49,7 +49,7 @@ export class NotificationsService implements OnApplicationBootstrap {
           deep_link: 'niklo://offers/off_sum20',
           is_read: false,
         }
-      ] as any[]); // Cast to any to bypass uuid validation for mock seeds if DB enforces it
+      ] as any[]);
       this.logger.log('Seeded user notifications mock data successfully.');
     }
   }
@@ -66,18 +66,30 @@ export class NotificationsService implements OnApplicationBootstrap {
     };
   }
 
-  async getUserNotifications() {
-    // Note: In production, user_id should come from req.user
+  async getUserNotifications(userId?: string) {
+    const targetUserId = userId || this.MOCK_USER_ID;
     const notifications = await this.userNotificationRepo.find({
-      where: { user_id: this.MOCK_USER_ID },
+      where: { user_id: targetUserId },
       order: { created_at: 'DESC' },
     });
-    
     return notifications.map(n => this.mapNotificationToDto(n));
   }
 
-  async registerDeviceToken(dto: any) {
-    // Note: In production, user_id should come from req.user
+  async createNotification(dto: CreateNotificationDto) {
+    const targetUserId = dto.userId || this.MOCK_USER_ID;
+    const newNotif = this.userNotificationRepo.create({
+      user_id: targetUserId,
+      title: dto.title,
+      message: dto.message,
+      category: dto.category || 'BOOKING',
+      deep_link: dto.deepLink || undefined,
+      is_read: false,
+    });
+    const saved = await this.userNotificationRepo.save(newNotif);
+    return this.mapNotificationToDto(saved as UserNotification);
+  }
+
+  async registerDeviceToken(dto: RegisterDeviceTokenDto) {
     const userId = this.MOCK_USER_ID;
     const { fcmToken, platform } = dto;
 
@@ -98,15 +110,14 @@ export class NotificationsService implements OnApplicationBootstrap {
     } else {
       deviceToken.platform = platform || deviceToken.platform;
     }
-    
+
     await this.deviceTokenRepo.save(deviceToken);
-    
     return { message: 'Device token registered successfully' };
   }
 
   async markAsRead(notificationId: string) {
     const userNotif = await this.userNotificationRepo.findOne({
-      where: { id: notificationId, user_id: this.MOCK_USER_ID }
+      where: { id: notificationId }
     });
 
     if (!userNotif) {
@@ -117,4 +128,18 @@ export class NotificationsService implements OnApplicationBootstrap {
     const updated = await this.userNotificationRepo.save(userNotif);
     return this.mapNotificationToDto(updated);
   }
+
+  async deleteNotification(notificationId: string) {
+    const userNotif = await this.userNotificationRepo.findOne({
+      where: { id: notificationId }
+    });
+
+    if (!userNotif) {
+      throw new NotFoundException('Notification not found');
+    }
+
+    await this.userNotificationRepo.remove(userNotif);
+    return { message: 'Notification deleted successfully' };
+  }
 }
+

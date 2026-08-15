@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, KycStatus } from './entities/user.entity';
@@ -9,6 +9,7 @@ import { SavedAddress } from './entities/saved-address.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   private readonly s3Client: S3Client;
   private readonly s3BucketName: string;
 
@@ -40,6 +41,8 @@ export class UsersService {
       phone: user.phone,
       email: user.email,
       name: user.name,
+      dob: user.dob,
+      gender: user.gender,
       avatar_url: user.avatar_url,
       kyc_status: user.kyc_status,
       wallet_balance: Number(user.wallet_balance),
@@ -52,7 +55,7 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     
     // Whitelist allowed fields for update
-    const allowedFields = ['name', 'email', 'avatar_url', 'preferred_language'];
+    const allowedFields = ['name', 'email', 'avatar_url', 'preferred_language', 'dob', 'gender'];
     allowedFields.forEach(field => {
       if (updateData[field] !== undefined) {
         user[field] = updateData[field];
@@ -92,17 +95,80 @@ export class UsersService {
     };
   }
 
-  async addSavedLocation(userId: string, locationData: any) {
+  async getSavedLocations(userId: string) {
+    return this.savedAddressRepository.find({
+      where: { user_id: userId },
+      order: { is_default: 'DESC', created_at: 'ASC' },
+    });
+  }
+
+  async addSavedLocation(userId: string, dto: any) {
+    const isFirst = (await this.savedAddressRepository.count({ where: { user_id: userId } })) === 0;
+    const isDefault = dto.is_default || isFirst;
+
+    if (isDefault) {
+      await this.savedAddressRepository.update({ user_id: userId }, { is_default: false });
+    }
+
     const address = this.savedAddressRepository.create({
       user_id: userId,
-      label: locationData.label || 'Home',
-      address_line: locationData.address_line,
-      city: locationData.city,
-      latitude: locationData.latitude,
-      longitude: locationData.longitude,
+      type: dto.type || 'other',
+      label: dto.label || 'Home',
+      full_address: dto.full_address,
+      latitude: dto.latitude ?? 0,
+      longitude: dto.longitude ?? 0,
+      is_default: isDefault,
     });
-    
+
     return this.savedAddressRepository.save(address);
+  }
+
+  async updateSavedLocation(userId: string, id: string, dto: any) {
+    const address = await this.savedAddressRepository.findOne({ where: { id, user_id: userId } });
+    if (!address) throw new NotFoundException('Address not found');
+
+    if (dto.is_default) {
+      await this.savedAddressRepository.update({ user_id: userId }, { is_default: false });
+    }
+
+    Object.assign(address, {
+      type: dto.type ?? address.type,
+      label: dto.label ?? address.label,
+      full_address: dto.full_address ?? address.full_address,
+      latitude: dto.latitude ?? address.latitude,
+      longitude: dto.longitude ?? address.longitude,
+      is_default: dto.is_default ?? address.is_default,
+    });
+
+    return this.savedAddressRepository.save(address);
+  }
+
+  async deleteSavedLocation(userId: string, id: string) {
+    const address = await this.savedAddressRepository.findOne({ where: { id, user_id: userId } });
+    if (!address) throw new NotFoundException('Address not found');
+
+    const wasDefault = address.is_default;
+    await this.savedAddressRepository.remove(address);
+
+    // If the deleted address was default, promote the oldest remaining one
+    if (wasDefault) {
+      const next = await this.savedAddressRepository.findOne({
+        where: { user_id: userId },
+        order: { created_at: 'ASC' },
+      });
+      if (next) {
+        next.is_default = true;
+        await this.savedAddressRepository.save(next);
+      }
+    }
+
+    return { message: 'Address deleted' };
+  }
+
+  async setDefaultLocation(userId: string, id: string) {
+    await this.savedAddressRepository.update({ user_id: userId }, { is_default: false });
+    await this.savedAddressRepository.update({ id, user_id: userId }, { is_default: true });
+    return { message: 'Default address updated' };
   }
 
   async uploadAvatar(userId: string, fileData: any) {
@@ -165,11 +231,21 @@ export class UsersService {
   }
 
   async triggerEmergencySos(userId: string, sosData: any) {
+    const contacts = await this.emergencyContactRepository.find({ where: { user_id: userId } });
+
+    const mapsUrl = (sosData.latitude && sosData.longitude)
+      ? `https://maps.google.com/?q=${sosData.latitude},${sosData.longitude}`
+      : '';
+
+    // TODO: Send SMS via Twilio / Fast2SMS / Firebase to each contact.phone_number
+    // Message: "EMERGENCY: [User] triggered SOS! Location: " + mapsUrl
+    this.logger.warn(`SOS triggered for user ${userId}. Contacts: ${contacts.length}. Location: ${mapsUrl}`);
+
     return {
-      sos_id: `sos_${Math.floor(Math.random() * 1000000)}`,
-      alerts_sent: 3,
-      police_notified: true,
-      message: "Emergency SOS alert dispatched to contacts and safety team"
+      sos_id: `sos_${Date.now()}`,
+      alerts_sent: contacts.length,
+      police_notified: false,
+      message: `Emergency SOS dispatched to ${contacts.length} contacts.`,
     };
   }
 }

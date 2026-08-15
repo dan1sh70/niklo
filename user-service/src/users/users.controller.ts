@@ -54,11 +54,40 @@ export class UsersController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Get('locations')
+  @UseGuards(JwtAuthGuard)
+  async getSavedLocations(@Req() req: any) {
+    const data = await this.usersService.getSavedLocations(req.user.id);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Post('locations')
   @UseGuards(JwtAuthGuard)
   async addSavedLocation(@Req() req: any, @Body() locationData: any) {
     const userId = req.user.id;
     const data = await this.usersService.addSavedLocation(userId, locationData);
+    return { success: true, statusCode: 201, data };
+  }
+
+  @Put('locations/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateSavedLocation(@Req() req: any, @Param('id') id: string, @Body() dto: any) {
+    const data = await this.usersService.updateSavedLocation(req.user.id, id, dto);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Delete('locations/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteSavedLocation(@Req() req: any, @Param('id') id: string) {
+    const data = await this.usersService.deleteSavedLocation(req.user.id, id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post('locations/:id/default')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async setDefaultLocation(@Req() req: any, @Param('id') id: string) {
+    const data = await this.usersService.setDefaultLocation(req.user.id, id);
     return { success: true, statusCode: 200, data };
   }
 

@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -16,20 +17,23 @@ export class SavedAddress {
   @Column({ type: 'uuid' })
   user_id: string;
 
+  @Column({ type: 'varchar', length: 20, default: 'other' })
+  type: string; // 'home' | 'work' | 'other'
+
   @Column({ type: 'varchar', length: 50, default: 'Home' })
   label: string;
 
   @Column({ type: 'text' })
-  address_line: string;
+  full_address: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  city: string;
-
-  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  @Column({ type: 'numeric', precision: 10, scale: 6, default: 0 })
   latitude: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  @Column({ type: 'numeric', precision: 10, scale: 6, default: 0 })
   longitude: number;
+
+  @Column({ type: 'boolean', default: false })
+  is_default: boolean;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
@@ -37,4 +41,8 @@ export class SavedAddress {
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at: Date;
 }
+

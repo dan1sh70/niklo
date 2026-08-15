@@ -1,43 +1,23 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsNumber,
-  IsInt,
-  IsArray,
-  IsOptional,
-  IsBoolean,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateNotificationDto {
+  @IsUUID()
+  @IsOptional()
+  userId?: string;
+
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  message: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  duration_days: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  duration_nights: number;
-
-  @IsArray()
+  @IsString()
   @IsOptional()
-  destinations?: string[];
+  category?: string;
 
-  @IsArray()
+  @IsString()
   @IsOptional()
-  inclusions?: string[];
-
-  @IsBoolean()
-  @IsOptional()
-  is_active?: boolean;
+  deepLink?: string;
 }

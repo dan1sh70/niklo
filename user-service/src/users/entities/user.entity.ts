@@ -37,6 +37,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   avatar_url: string;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  dob: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  gender: string;
+
   @Column({ type: 'varchar', length: 50, default: KycStatus.NOT_SUBMITTED })
   kyc_status: string;
 
