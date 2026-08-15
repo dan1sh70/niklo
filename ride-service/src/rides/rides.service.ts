@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Ride, RideStatus, RideType } from './entities/ride.entity';
 import { RideRating } from './entities/ride-rating.entity';
 import { RedisService } from '../redis/redis.service';
+import axios from 'axios';
 
 @Injectable()
 export class RidesService {
@@ -18,13 +19,52 @@ export class RidesService {
   ) {}
 
   async estimateRide(estimateDto: any) {
-    // Return exact properties expected by Flutter
+    const lat1 = estimateDto.pickupLatitude;
+    const lng1 = estimateDto.pickupLongitude;
+    const lat2 = estimateDto.dropoffLatitude;
+    const lng2 = estimateDto.dropoffLongitude;
+
+    let distanceKm = 18.5;
+    let estimatedTimeMins = 32;
+    let polyline = "a1b2c3d4e5f6g7h8i9j0";
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (apiKey && lat1 && lng1 && lat2 && lng2) {
+      try {
+        const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${lat1},${lng1}&destination=${lat2},${lng2}&key=${apiKey}`;
+        const response = await axios.get(url);
+        
+        if (response.data.status === 'OK' && response.data.routes.length > 0) {
+          const route = response.data.routes[0];
+          const leg = route.legs[0];
+          
+          distanceKm = leg.distance.value / 1000;
+          estimatedTimeMins = Math.ceil(leg.duration.value / 60);
+          polyline = route.overview_polyline.points;
+        }
+      } catch (err) {
+        this.logger.error('Failed to fetch from Google Maps API', err);
+      }
+    }
+
+    // Dynamic fare calculation (base 50 + 15 per km)
+    let fareEstimate = 50 + (distanceKm * 15);
+    let surgeMultiplier = 1.0;
+    
+    // Simulate surge pricing during certain hours
+    const hour = new Date().getHours();
+    if ((hour >= 8 && hour <= 10) || (hour >= 17 && hour <= 20)) {
+      surgeMultiplier = 1.4;
+    }
+    
+    fareEstimate = fareEstimate * surgeMultiplier;
+
     return {
-      fareEstimate: 450.0,
-      surgeMultiplier: 1.0,
-      distanceKm: 18.5,
-      estimatedTimeMins: 32,
-      polyline: "a1b2c3d4e5f6g7h8i9j0",
+      fareEstimate: Math.round(fareEstimate * 100) / 100,
+      surgeMultiplier,
+      distanceKm: Math.round(distanceKm * 10) / 10,
+      estimatedTimeMins,
+      polyline,
     };
   }
 
