@@ -23,7 +23,7 @@ export class NotificationsService implements OnApplicationBootstrap {
     if (count === 0) {
       await this.userNotificationRepo.save([
         {
-          id: 'ntf_mock_01',
+          id: '10000000-0000-0000-0000-000000000001',
           user_id: this.MOCK_USER_ID,
           title: 'Booking Confirmed! 🎉',
           message: 'Your bus ticket to Siliguri (NIK-BUS-88210) has been confirmed.',
@@ -32,7 +32,7 @@ export class NotificationsService implements OnApplicationBootstrap {
           is_read: false,
         },
         {
-          id: 'ntf_mock_02',
+          id: '10000000-0000-0000-0000-000000000002',
           user_id: this.MOCK_USER_ID,
           title: 'Upcoming Ride',
           message: 'Your cab to the airport arrives in 30 minutes. Driver: Raj Kumar.',
@@ -41,7 +41,7 @@ export class NotificationsService implements OnApplicationBootstrap {
           is_read: true,
         },
         {
-          id: 'ntf_mock_03',
+          id: '10000000-0000-0000-0000-000000000003',
           user_id: this.MOCK_USER_ID,
           title: 'Exclusive Offer!',
           message: 'Get 20% off on your next hotel booking in Manali.',
@@ -72,6 +72,7 @@ export class NotificationsService implements OnApplicationBootstrap {
       where: { user_id: targetUserId },
       order: { created_at: 'DESC' },
     });
+    
     return notifications.map(n => this.mapNotificationToDto(n));
   }
 
@@ -82,11 +83,12 @@ export class NotificationsService implements OnApplicationBootstrap {
       title: dto.title,
       message: dto.message,
       category: dto.category || 'BOOKING',
-      deep_link: dto.deepLink || undefined,
+      deep_link: dto.deepLink || null,
       is_read: false,
     });
+
     const saved = await this.userNotificationRepo.save(newNotif);
-    return this.mapNotificationToDto(saved as UserNotification);
+    return this.mapNotificationToDto(saved);
   }
 
   async registerDeviceToken(dto: RegisterDeviceTokenDto) {
@@ -110,7 +112,7 @@ export class NotificationsService implements OnApplicationBootstrap {
     } else {
       deviceToken.platform = platform || deviceToken.platform;
     }
-
+    
     await this.deviceTokenRepo.save(deviceToken);
     return { message: 'Device token registered successfully' };
   }
@@ -142,4 +144,3 @@ export class NotificationsService implements OnApplicationBootstrap {
     return { message: 'Notification deleted successfully' };
   }
 }
-

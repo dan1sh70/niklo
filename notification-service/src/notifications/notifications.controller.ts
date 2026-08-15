@@ -49,4 +49,3 @@ export class NotificationsController {
     return { success: true, statusCode: 200, data };
   }
 }
-
