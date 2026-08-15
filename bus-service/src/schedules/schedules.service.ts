@@ -67,6 +67,7 @@ export class SchedulesService {
       bus_type: schedule.bus.bus_type,
       total_seats: schedule.bus.total_seats,
       available_seats: schedule.available_seats,
+      base_fare: schedule.base_fare,
       seats,
     };
   }
@@ -140,8 +141,9 @@ export class SchedulesService {
       column: s.col_num,
       is_upper_deck: s.is_upper_deck,
       seat_type: s.seat_type,
-      price: s.price_offset,
+      price: Number(seatData.base_fare) + Number(s.price_offset),
       is_available: s.is_available,
+      is_ladies_seat: false,
     });
 
     const lowerDeck = seatData.seats.filter(s => !s.is_upper_deck).map(formatSeat);
