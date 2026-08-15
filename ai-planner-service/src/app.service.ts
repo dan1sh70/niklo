@@ -156,15 +156,20 @@ export class AppService {
       },
     ];
 
+    const srcLat = dto.source_location.latitude || 22.5726;
+    const srcLng = dto.source_location.longitude || 88.4339;
+    const dstLat = dto.destination_location.latitude || 27.3389;
+    const dstLng = dto.destination_location.longitude || 88.6065;
+
     // Save generated plan to DB
     await this.journeyPlanRepo.save({
       search_id,
       source_name: dto.source_location.name,
-      source_lat: dto.source_location.latitude,
-      source_lng: dto.source_location.longitude,
+      source_lat: srcLat,
+      source_lng: srcLng,
       destination_name: dto.destination_location.name,
-      destination_lat: dto.destination_location.latitude,
-      destination_lng: dto.destination_location.longitude,
+      destination_lat: dstLat,
+      destination_lng: dstLng,
       travel_date: dto.travel_date,
       passengers_count: dto.passengers_count,
       options_json: options,

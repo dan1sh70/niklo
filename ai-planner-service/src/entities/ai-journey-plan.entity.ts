@@ -14,19 +14,19 @@ export class AiJourneyPlan {
   @Column({ type: 'varchar', length: 255 })
   source_name: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true, default: 0 })
   source_lat: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true, default: 0 })
   source_lng: number;
 
   @Column({ type: 'varchar', length: 255 })
   destination_name: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true, default: 0 })
   destination_lat: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 6 })
+  @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true, default: 0 })
   destination_lng: number;
 
   @Column({ type: 'date' })

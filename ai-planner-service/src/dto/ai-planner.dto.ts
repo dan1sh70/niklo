@@ -6,12 +6,12 @@ export class LocationDto {
   name: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  latitude: number;
+  @IsOptional()
+  latitude?: number;
 
   @IsNumber()
-  @IsNotEmpty()
-  longitude: number;
+  @IsOptional()
+  longitude?: number;
 }
 
 export class PreferencesDto {
