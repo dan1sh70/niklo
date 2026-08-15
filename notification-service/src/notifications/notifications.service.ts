@@ -83,7 +83,7 @@ export class NotificationsService implements OnApplicationBootstrap {
       title: dto.title,
       message: dto.message,
       category: dto.category || 'BOOKING',
-      deep_link: dto.deepLink || null,
+      deep_link: dto.deepLink || undefined,
       is_read: false,
     });
 
