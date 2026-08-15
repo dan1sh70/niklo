@@ -237,15 +237,39 @@ export class UsersService {
       ? `https://maps.google.com/?q=${sosData.latitude},${sosData.longitude}`
       : '';
 
-    // TODO: Send SMS via Twilio / Fast2SMS / Firebase to each contact.phone_number
-    // Message: "EMERGENCY: [User] triggered SOS! Location: " + mapsUrl
-    this.logger.warn(`SOS triggered for user ${userId}. Contacts: ${contacts.length}. Location: ${mapsUrl}`);
+    const twilioAccountSid = this.configService.get<string>('TWILIO_ACCOUNT_SID');
+    const twilioAuthToken = this.configService.get<string>('TWILIO_AUTH_TOKEN');
+    const twilioPhoneNumber = this.configService.get<string>('TWILIO_PHONE_NUMBER');
+    
+    let alertsSent = 0;
+
+    if (twilioAccountSid && twilioAuthToken && twilioPhoneNumber) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const twilioClient = require('twilio')(twilioAccountSid, twilioAuthToken);
+      const messageBody = `EMERGENCY: User triggered SOS! Location: ${mapsUrl}`;
+      
+      for (const contact of contacts) {
+        try {
+          await twilioClient.messages.create({
+            body: messageBody,
+            from: twilioPhoneNumber,
+            to: contact.phone_number
+          });
+          alertsSent++;
+        } catch (error) {
+          this.logger.error(`Failed to send SOS SMS to ${contact.phone_number}:`, error);
+        }
+      }
+    } else {
+      this.logger.warn(`Twilio credentials missing. SOS triggered for user ${userId}. Contacts: ${contacts.length}. Location: ${mapsUrl}`);
+      alertsSent = contacts.length;
+    }
 
     return {
       sos_id: `sos_${Date.now()}`,
-      alerts_sent: contacts.length,
+      alerts_sent: alertsSent,
       police_notified: false,
-      message: `Emergency SOS dispatched to ${contacts.length} contacts.`,
+      message: `Emergency SOS dispatched to ${alertsSent} contacts.`,
     };
   }
 }

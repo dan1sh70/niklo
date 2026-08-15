@@ -328,13 +328,13 @@ Configured in both Flutter `.env` and `payment-service/.env`:
 
 ## Definition of Done (Backend Dev Checklist)
 
-- [ ] PostgreSQL migration executed for `user_saved_addresses` (`type`, `full_address`, `is_default`, `updated_at`, partial unique index).
-- [ ] PostgreSQL migration executed for `users` (`dob`, `gender`).
-- [ ] `GET /api/v1/user/locations` tested and returning list ordered with default first.
-- [ ] `POST /api/v1/user/locations` saving `full_address`, `type`, `is_default`.
-- [ ] `PUT /api/v1/user/locations/:id` updating address fields.
-- [ ] `DELETE /api/v1/user/locations/:id` deleting and promoting next default if needed.
-- [ ] `POST /api/v1/user/locations/:id/default` switching default address atomically.
-- [ ] `PATCH /api/v1/user/profile` and `GET /api/v1/user/profile` saving and returning `dob` & `gender`.
-- [ ] `POST /api/v1/user/emergency-sos/trigger` sending real SMS alerts to user's emergency contacts.
-- [ ] `payment-service` Top-up and Webhook tested using Razorpay test credentials `rzp_test_TPfs05QjqIFA0t`.
+- [x] PostgreSQL migration executed for `user_saved_addresses` (`type`, `full_address`, `is_default`, `updated_at`, partial unique index).
+- [x] PostgreSQL migration executed for `users` (`dob`, `gender`).
+- [x] `GET /api/v1/user/locations` tested and returning list ordered with default first.
+- [x] `POST /api/v1/user/locations` saving `full_address`, `type`, `is_default`.
+- [x] `PUT /api/v1/user/locations/:id` updating address fields.
+- [x] `DELETE /api/v1/user/locations/:id` deleting and promoting next default if needed.
+- [x] `POST /api/v1/user/locations/:id/default` switching default address atomically.
+- [x] `PATCH /api/v1/user/profile` and `GET /api/v1/user/profile` saving and returning `dob` & `gender`.
+- [x] `POST /api/v1/user/emergency-sos/trigger` sending real SMS alerts to user's emergency contacts.
+- [x] `payment-service` Top-up and Webhook tested using Razorpay test credentials `rzp_test_TPfs05QjqIFA0t`.

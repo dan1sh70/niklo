@@ -237,6 +237,14 @@ export class AppService {
     const journeyOption = plan.options_json.find((opt: any) => opt.journey_id === dto.journey_id);
     if (!journeyOption) throw new NotFoundException('Journey option not found in plan');
 
+    // Duplicate check
+    const existing = await this.savedJourneyRepo.findOne({
+      where: { user_id: userId, journey_id: dto.journey_id },
+    });
+    if (existing) {
+      return { id: existing.id, journey_id: existing.journey_id };
+    }
+
     // 3. Save it to user's saved journeys
     const newSaved = this.savedJourneyRepo.create({
       user_id: userId,
@@ -261,9 +269,14 @@ export class AppService {
   }
 
   async deleteSavedJourney(userId: string, id: string) {
-    const result = await this.savedJourneyRepo.delete({ id, user_id: userId });
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const deleteCondition = isUuid
+      ? [{ id, user_id: userId }, { journey_id: id, user_id: userId }]
+      : { journey_id: id, user_id: userId };
+
+    const result = await this.savedJourneyRepo.delete(deleteCondition);
     if (result.affected === 0) {
-      throw new NotFoundException('Saved journey not found');
+      this.logger.warn(`Saved journey not found for deletion: user ${userId}, target ${id}`);
     }
     return true;
   }
