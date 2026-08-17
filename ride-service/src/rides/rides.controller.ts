@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { RidesService } from './rides.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
@@ -94,6 +94,22 @@ export class RidesController {
     const driverId = body.driverId || 'd1111111-1111-1111-1111-111111111111';
     await this.ridesService.setDriverOffline(driverId);
     return { success: true, statusCode: 200, data: { message: 'Driver is now offline' } };
+  }
+
+  @Get('my-rides')
+  async getMyRides(
+    @Req() req: any,
+    @Query('limit') limit = '20',
+    @Query('offset') offset = '0',
+  ) {
+    const data = await this.ridesService.getMyRides(req.user.id, +limit, +offset);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get(':id/map-preview')
+  async getMapPreview(@Param('id') id: string) {
+    const ride = await this.ridesService.getRideMapPreview(id);
+    return { success: true, statusCode: 200, data: ride };
   }
 
   @Get(':id')

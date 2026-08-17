@@ -82,4 +82,34 @@ export class Ride {
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updated_at: Date;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  driver_name: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  driver_phone: string;
+
+  @Column({ type: 'text', nullable: true })
+  driver_photo_url: string;
+
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  vehicle_number: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  vehicle_model: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  vehicle_color: string;
+
+  @Column({ type: 'text', nullable: true })
+  vehicle_image_url: string;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
+  fare_final: number;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  started_at: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  ended_at: Date;
 }
