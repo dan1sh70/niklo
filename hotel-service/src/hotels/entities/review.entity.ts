@@ -32,4 +32,13 @@ export class Review {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  reviewer_name: string;
+
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  title: string;
+
+  @Column({ type: 'text', nullable: true })
+  property_reply: string;
 }

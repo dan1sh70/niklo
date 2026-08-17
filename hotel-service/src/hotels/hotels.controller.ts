@@ -74,7 +74,13 @@ export class HotelsController {
       sort,
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 20,
-    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':hotelId/reviews')
+  @HttpCode(HttpStatus.OK)
+  submitReview(@Req() req: any, @Param('hotelId') hotelId: string, @Body() body: any) {
+    return this.hotelsService.submitReview(req.user.id, hotelId, body);
   }
 
   @Get(':hotelId/photos')

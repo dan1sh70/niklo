@@ -44,4 +44,16 @@ export class RoomType {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  meal_plan: string;
+
+  @Column({ type: 'text', nullable: true })
+  meal_plan_desc: string;
+
+  @Column({ type: 'jsonb', default: [] })
+  inclusions: any[];
+
+  @Column({ type: 'jsonb', nullable: true })
+  cancellation_policy: any;
 }

@@ -67,4 +67,22 @@ export class Booking {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'text', nullable: true })
+  guests: string;
+
+  @Column({ nullable: true })
+  contactPhone: string;
+
+  @Column({ nullable: true })
+  contactEmail: string;
+
+  @Column({ default: 'online' })
+  paymentMethod: string;
+
+  @Column({ nullable: true })
+  paymentId: string;
+
+  @Column({ nullable: true })
+  cancellationReason: string;
 }

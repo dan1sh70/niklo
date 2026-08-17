@@ -6,6 +6,7 @@ import { Review } from './entities/review.entity';
 import { RoomType } from './entities/room-type.entity';
 import { PartnerOffer } from './entities/partner-offer.entity';
 import { PartnerReviewReply } from './entities/partner-review-reply.entity';
+import { Booking } from '../bookings/entities/booking.entity';
 
 @Injectable()
 export class HotelsService implements OnApplicationBootstrap {
@@ -20,77 +21,80 @@ export class HotelsService implements OnApplicationBootstrap {
     private readonly offerRepository: Repository<PartnerOffer>,
     @InjectRepository(PartnerReviewReply)
     private readonly replyRepository: Repository<PartnerReviewReply>,
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
   ) {}
 
   async onApplicationBootstrap() {
     const count = await this.hotelRepository.count();
     if (count === 0) {
-      const hotel = this.hotelRepository.create({
-        id: 'htl_goa_091',
-        title: 'Taj Exotica Resort & Spa, Goa',
-        stay_type: StayType.RESORT,
-        city: 'Goa',
-        address: 'Benaulim Beach, South Goa',
-        latitude: 15.2559,
-        longitude: 73.9216,
-        star_rating: 5,
-        user_rating: 4.8,
-        rating_text: 'Exceptional',
-        reviews_count: 312,
-        price_per_night: 8500,
-        original_price_per_night: 10000,
-        discount_percent: 15,
-        badge_text: 'Top Rated',
-        distance_text: '500m from Benaulim Beach',
-        free_breakfast: true,
-        free_wifi: true,
-        free_cancellation: true,
-        image_url: 'https://cdn.niklo.com/hotels/taj_goa_hero.jpg',
-        gallery_images: [
-          'https://cdn.niklo.com/hotels/taj_goa_1.jpg',
-          'https://cdn.niklo.com/hotels/taj_goa_2.jpg'
-        ],
-        amenities: [
-          { name: 'Free WiFi', icon: 'wifi' },
-          { name: 'Swimming Pool', icon: 'pool' }
-        ],
-        nearby_places: [
-          { title: 'Benaulim Beach', distance: '500m' },
-          { title: 'Airport', distance: '22km' }
-        ],
-        features: [
-          { title: 'Beachfront Access', icon: 'waves' }
-        ],
-        house_rules: [
-          'Check-in: 2:00 PM',
-          'Check-out: 11:00 AM',
-          'Govt ID Required'
-        ],
-        rating_breakdown: {
-          cleanliness: 4.8,
-          location: 4.9,
-          service: 4.7,
-          value: 4.6
+      const seedHotels = [
+        {
+          id: 'htl_kolkata_001', title: 'The Lalit Great Eastern Kolkata',
+          stay_type: StayType.HOTEL,
+          city: 'Kolkata', address: '1-2 Old Court House St, Dalhousie, Kolkata',
+          latitude: 22.5694, longitude: 88.3522, star_rating: 5, user_rating: 4.6,
+          rating_text: 'Excellent', reviews_count: 1234,
+          price_per_night: 6500, original_price_per_night: 8000, discount_percent: 18,
+          badge_text: 'Bestseller', distance_text: '1.2 km from city center',
+          free_breakfast: true, free_wifi: true, free_cancellation: true,
+          image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop',
+          gallery_images: [
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&auto=format&fit=crop',
+          ],
+          amenities: [
+            { name: 'Free Wi-Fi', icon: 'wifi' }, { name: 'Free Breakfast', icon: 'free_breakfast' },
+            { name: 'Swimming Pool', icon: 'pool' }, { name: 'Spa', icon: 'spa' },
+            { name: 'Parking', icon: 'local_parking' }, { name: 'Gym', icon: 'fitness_center' },
+          ],
+          nearby_places: [
+            { title: 'Victoria Memorial', distance: '1.8 km' },
+            { title: 'Park Street', distance: '2.2 km' },
+          ],
+          features: [{ title: 'Excellent Location', ratingText: 'Guests rated 4.7/5', description: '1.2 km from city center', icon: 'location_on' }],
+          house_rules: ['Check-in: 2:00 PM', 'Check-out: 11:00 AM', 'Govt ID Required'],
+          rating_breakdown: { cleanliness: 4.7, location: 4.8, service: 4.6, value: 4.5 },
+          description: 'The Lalit Great Eastern Kolkata blends heritage charm with modern luxury...',
+          is_active: true,
+          roomTypes: [{
+            id: 'rm_deluxe_01', title: 'Deluxe Ocean View Room', price_per_night: 6500,
+            max_guests: 2, max_adults: 2, max_children: 1, available_rooms_count: 5,
+            room_size_sqft: 450, bed_type: 'King Bed', amenities: ['AC', 'TV'], images: []
+          }]
         },
-        description: 'A luxurious five-star resort located in the heart of Goa.',
-        is_active: true,
-        roomTypes: [
-          {
-            id: 'rm_deluxe_01',
-            title: 'Deluxe Ocean View Room',
-            price_per_night: 8500,
-            max_guests: 2,
-            max_adults: 2,
-            max_children: 1,
-            available_rooms_count: 5,
-            room_size_sqft: 450,
-            bed_type: 'King Bed',
-            amenities: ['Air Conditioning', 'Flat Screen TV', 'Private Bathroom'],
-            images: ['https://cdn.niklo.com/hotels/taj_goa_room1.jpg']
-          }
-        ]
-      });
-      await this.hotelRepository.save(hotel);
+        {
+          id: 'htl_goa_002', title: 'Taj Exotica Resort & Spa, Goa',
+          stay_type: StayType.RESORT,
+          city: 'Goa', address: 'Benaulim Beach, South Goa',
+          latitude: 15.2559, longitude: 73.9216, star_rating: 5, user_rating: 4.8,
+          rating_text: 'Exceptional', reviews_count: 312,
+          price_per_night: 8500, original_price_per_night: 10000, discount_percent: 15,
+          badge_text: 'Top Rated', distance_text: '500m from Benaulim Beach',
+          free_breakfast: true, free_wifi: true, free_cancellation: false,
+          image_url: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&auto=format&fit=crop',
+          gallery_images: [
+            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=600&auto=format&fit=crop',
+          ],
+          amenities: [{ name: 'Free Wi-Fi', icon: 'wifi' }, { name: 'Pool', icon: 'pool' }],
+          nearby_places: [{ title: 'Benaulim Beach', distance: '500m' }],
+          features: [], house_rules: ['Check-in: 3:00 PM', 'No pets'],
+          rating_breakdown: { cleanliness: 4.9, location: 4.9, service: 4.8, value: 4.5 },
+          description: 'Luxury five-star resort on the shores of Goa.',
+          is_active: true,
+          roomTypes: [{
+            id: 'rm_deluxe_02', title: 'Luxury Villa', price_per_night: 8500,
+            max_guests: 2, max_adults: 2, max_children: 1, available_rooms_count: 2,
+            room_size_sqft: 600, bed_type: 'King Bed', amenities: ['AC', 'Pool'], images: []
+          }]
+        }
+      ];
+      for (const h of seedHotels) {
+        await this.hotelRepository.save(this.hotelRepository.create(h));
+      }
       console.log('Seeded hotels mock data successfully.');
     }
   }
@@ -130,42 +134,35 @@ export class HotelsService implements OnApplicationBootstrap {
   }
 
   async getPopularDestinations() {
+    const imageMap: Record<string, string> = {
+      'Goa':     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop',
+      'Manali':  'https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=500&auto=format&fit=crop',
+      'Andaman': 'https://images.unsplash.com/photo-1586359716568-3e1907e4cf9f?w=500&auto=format&fit=crop',
+      'Kashmir': 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?w=500&auto=format&fit=crop',
+      'Kolkata': 'https://images.unsplash.com/photo-1558431382-27e303142255?w=500&auto=format&fit=crop',
+      'Jaipur':  'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=500&auto=format&fit=crop',
+      'Delhi':   'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=500&auto=format&fit=crop',
+      'Mumbai':  'https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=500&auto=format&fit=crop',
+    };
+    const cities = await this.hotelRepository.createQueryBuilder('hotel')
+      .select('DISTINCT hotel.city', 'city').where('hotel.is_active = true')
+      .limit(8).getRawMany();
     return {
-      destinations: [
-        {
-          id: 'dest_001',
-          name: 'Delhi',
-          label: 'Explore',
-          imagePath: 'https://cdn.niklo.com/destinations/delhi.jpg',
-        },
-        {
-          id: 'dest_002',
-          name: 'Mumbai',
-          label: 'Explore',
-          imagePath: 'https://cdn.niklo.com/destinations/mumbai.jpg',
-        },
-      ],
+      destinations: cities.map((c, i) => ({
+        id: `dest_${i+1}`, name: c.city, label: 'Explore',
+        imagePath: imageMap[c.city] || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=500&auto=format&fit=crop',
+      })),
     };
   }
 
   async getStayTypes() {
     return {
       stayTypes: [
-        {
-          id: 'type_001',
-          label: 'Beach',
-          imagePath: 'https://cdn.niklo.com/stay_types/beach.jpg',
-        },
-        {
-          id: 'type_002',
-          label: 'Hill Station',
-          imagePath: 'https://cdn.niklo.com/stay_types/hills.jpg',
-        },
-        {
-          id: 'type_003',
-          label: 'Business',
-          imagePath: 'https://cdn.niklo.com/stay_types/business.jpg',
-        },
+        { id: 'type_001', label: 'Hotels',     imagePath: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&auto=format&fit=crop' },
+        { id: 'type_002', label: 'Resorts',    imagePath: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&auto=format&fit=crop' },
+        { id: 'type_003', label: 'Villas',     imagePath: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=300&auto=format&fit=crop' },
+        { id: 'type_004', label: 'Apartments', imagePath: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&auto=format&fit=crop' },
+        { id: 'type_005', label: 'Homestays',  imagePath: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=300&auto=format&fit=crop' },
       ],
     };
   }
@@ -197,28 +194,38 @@ export class HotelsService implements OnApplicationBootstrap {
     };
   }
 
-  async searchHotels(searchParams: any) {
-    const { city, limit = 20, page = 1 } = searchParams;
-    const query = this.hotelRepository.createQueryBuilder('hotel');
+  async searchHotels(params: any) {
+    const { location, city, filters = {}, limit = 20, page = 1 } = params;
+    const loc = location || city || '';
+    const query = this.hotelRepository.createQueryBuilder('hotel')
+      .where('hotel.is_active = true');
 
-    if (city) {
-      query
-        .where('hotel.city ILIKE :loc', { loc: `%${city}%` })
-        .orWhere('hotel.title ILIKE :loc', { loc: `%${city}%` })
-        .orWhere('hotel.address ILIKE :loc', { loc: `%${city}%` });
+    if (loc) {
+      query.andWhere('(hotel.city ILIKE :loc OR hotel.title ILIKE :loc OR hotel.address ILIKE :loc)', { loc: `%${loc}%` });
     }
 
-    const [hotels, total] = await query
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+    const category = filters.selectedCategory;
+    if (category === 'Budget')    query.andWhere('hotel.price_per_night < :max', { max: 5000 });
+    if (category === 'Luxury')    query.andWhere('hotel.price_per_night >= :min', { min: 7000 });
+    if (category === 'Mid-Range') query.andWhere('hotel.price_per_night BETWEEN :a AND :b', { a: 3000, b: 7000 });
 
-    return {
-      total,
-      page,
-      limit,
-      hotels: hotels.map((h) => this.mapHotelToDto(h)),
-    };
+    const ratingF = filters.ratingFilter;
+    if (ratingF === '5 Star')         query.andWhere('hotel.user_rating >= :r', { r: 4.7 });
+    if (ratingF === '4 Star & above') query.andWhere('hotel.user_rating >= :r', { r: 4.0 });
+    if (ratingF === '3 Star & above') query.andWhere('hotel.user_rating >= :r', { r: 3.0 });
+
+    const amenityF = filters.amenityFilter;
+    if (amenityF === 'Free WiFi')           query.andWhere('hotel.free_wifi = true');
+    if (amenityF === 'Breakfast Included')  query.andWhere('hotel.free_breakfast = true');
+    if (amenityF === 'Free Cancellation')   query.andWhere('hotel.free_cancellation = true');
+
+    const priceF = filters.priceFilter;
+    if (priceF === 'Low to High')  query.orderBy('hotel.price_per_night', 'ASC');
+    else if (priceF === 'High to Low') query.orderBy('hotel.price_per_night', 'DESC');
+    else query.orderBy('hotel.user_rating', 'DESC');
+
+    const [hotels, total] = await query.skip((page-1)*limit).take(Math.min(limit,50)).getManyAndCount();
+    return { total, page, limit, hotels: hotels.map(h => this.mapHotelToDto(h)) };
   }
 
   async checkAvailability(hotelId: string, checkParams: any) {
@@ -249,8 +256,17 @@ export class HotelsService implements OnApplicationBootstrap {
       nightsCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
     }
 
-    const requestedRooms = checkParams.rooms_count || 1;
-    const available = roomType.available_rooms_count >= requestedRooms;
+    const existingBookings = await this.bookingRepository
+      .createQueryBuilder('b')
+      .where('b.hotelId = :hotelId', { hotelId })
+      .andWhere('b.roomTypeId = :rtId', { rtId: roomType.id })
+      .andWhere('b.status NOT IN (:...statuses)', { statuses: ['cancelled', 'pending_payment'] })
+      .andWhere('b.checkInDate < :checkOut', { checkOut: checkParams.check_out })
+      .andWhere('b.checkOutDate > :checkIn',  { checkIn:  checkParams.check_in })
+      .getCount();
+
+    const availableCount = Math.max(0, roomType.available_rooms_count - existingBookings);
+    const available = availableCount >= (checkParams.rooms_count || 1);
 
     const totalRoomPrice = Number(roomType.price_per_night) * nightsCount * requestedRooms;
     const taxesAndFees = Math.round(totalRoomPrice * 0.12); // 12% tax mock
@@ -297,7 +313,11 @@ export class HotelsService implements OnApplicationBootstrap {
         room_size_sqft: rt.room_size_sqft,
         bed_type: rt.bed_type,
         amenities: rt.amenities,
-        images: rt.images
+        images: rt.images,
+        meal_plan: rt.meal_plan,
+        meal_plan_desc: rt.meal_plan_desc,
+        inclusions: rt.inclusions,
+        cancellation_policy: rt.cancellation_policy,
       }))
     };
   }
@@ -323,8 +343,45 @@ export class HotelsService implements OnApplicationBootstrap {
       totalReviews,
       page,
       limit,
-      reviews,
+      reviews: reviews.map((r) => ({
+        id: r.id,
+        reviewerName: r.reviewer_name || r.user_name,
+        reviewerAvatar: r.user_avatar,
+        rating: Number(r.rating),
+        title: r.title,
+        comment: r.comment,
+        propertyReply: r.property_reply,
+        date: r.created_at,
+      })),
     };
+  }
+
+  async submitReview(userId: string, hotelId: string, body: any) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId } });
+    if (!hotel) throw new NotFoundException('Hotel not found');
+
+    const review = this.reviewRepository.create({
+      hotel,
+      user_id: userId,
+      user_name: body.reviewerName || 'Anonymous',
+      reviewer_name: body.reviewerName || null,
+      title: body.title || '',
+      rating: body.rating,
+      comment: body.comment || '',
+    });
+    
+    await this.reviewRepository.save(review);
+    
+    // Update hotel average rating and counts
+    const newCount = (hotel.reviews_count || 0) + 1;
+    const oldTotal = (Number(hotel.user_rating) || 0) * (hotel.reviews_count || 0);
+    const newAvg = (oldTotal + body.rating) / newCount;
+    
+    hotel.reviews_count = newCount;
+    hotel.user_rating = Math.round(newAvg * 10) / 10;
+    await this.hotelRepository.save(hotel);
+    
+    return { success: true, message: 'Review submitted successfully' };
   }
 
   async getHotelPhotos(hotelId: string, page: number, limit: number) {
