@@ -97,7 +97,7 @@ export class BookingsService {
     const b = await this.bookingRepository.findOne({ where: { bookingId } });
     if (!b) throw new NotFoundException(`Booking ${bookingId} not found`);
     if (b.userId !== userId) throw new ForbiddenException('Access denied');
-    b.status = 'cancelled'; b.cancellationReason = reason || null;
+    b.status = 'cancelled'; b.cancellationReason = reason || '';
     await this.bookingRepository.save(b); return this._dto(b);
   }
 

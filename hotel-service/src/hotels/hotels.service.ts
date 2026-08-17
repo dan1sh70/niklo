@@ -266,7 +266,8 @@ export class HotelsService implements OnApplicationBootstrap {
       .getCount();
 
     const availableCount = Math.max(0, roomType.available_rooms_count - existingBookings);
-    const available = availableCount >= (checkParams.rooms_count || 1);
+    const requestedRooms = checkParams.rooms_count || 1;
+    const available = availableCount >= requestedRooms;
 
     const totalRoomPrice = Number(roomType.price_per_night) * nightsCount * requestedRooms;
     const taxesAndFees = Math.round(totalRoomPrice * 0.12); // 12% tax mock

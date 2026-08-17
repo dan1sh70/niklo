@@ -74,6 +74,7 @@ export class HotelsController {
       sort,
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 20,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
