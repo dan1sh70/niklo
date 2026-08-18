@@ -169,6 +169,9 @@ services:
       DB_PASSWORD: niklo_user_password
       DB_NAME: niklo_user
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
     depends_on:
       - postgres-db
     expose:
