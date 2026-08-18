@@ -2,12 +2,14 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PaymentStatus } from './entities/payment.entity';
 import { ConfigService } from '@nestjs/config';
 import { CreateOrderDto } from './dto/create-order.dto';
+import * as crypto from 'crypto';
 import Razorpay = require('razorpay');
 
 @Injectable()
@@ -27,14 +29,17 @@ export class PaymentsService {
   }
 
   async createOrder(userId: string, dto: CreateOrderDto) {
-    if (!this.razorpayInstance) {
-      throw new InternalServerErrorException(
-        'Razorpay credentials not configured',
-      );
-    }
-
-    // Amount should be in smallest currency unit (e.g. paise for INR)
     const amountInPaise = Math.round(dto.amount * 100);
+
+    if (!this.razorpayInstance) {
+      // Return sandbox order for local development
+      return {
+        payment_id: `pay_${Date.now()}`,
+        razorpay_order_id: `order_${Date.now()}`,
+        amount: amountInPaise,
+        currency: dto.currency || 'INR',
+      };
+    }
 
     const orderOptions = {
       amount: amountInPaise,
@@ -93,5 +98,35 @@ export class PaymentsService {
       return payment;
     }
     return null;
+  }
+
+  async handleWebhook(body: any, signature: string) {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || this.configService.get<string>('razorpay.webhook_secret');
+    if (!webhookSecret) {
+      throw new InternalServerErrorException('Webhook secret not configured');
+    }
+
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(JSON.stringify(body))
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      throw new BadRequestException('Invalid signature');
+    }
+
+    if (body.event === 'payment.captured') {
+      const payment = body.payload.payment.entity;
+      await this.updatePaymentStatus(payment.order_id, PaymentStatus.SUCCESS, payment.id, payment.method);
+    } else if (body.event === 'payment.failed') {
+      const payment = body.payload.payment.entity;
+      await this.updatePaymentStatus(payment.order_id, PaymentStatus.FAILED, payment.id, payment.method);
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Payment webhook processed successfully'
+    };
   }
 }

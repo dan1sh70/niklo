@@ -341,34 +341,34 @@ services:
       - "traefik.http.routers.notification-service.rule=Host(`l2pdf6ail6mlmurxhtjjf44i.187.127.157.13.sslip.io`)"
       - traefik.http.services.notification-service.loadbalancer.server.port=3009
     image: ghcr.io/dan1sh70/niklo-notification-service:latest
-#   admin-service:
-#     environment:
-#       NODE_ENV: development
-#       PORT: 3020
-#       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
-#       REDIS_HOST: redis
-#       REDIS_PORT: 6379
-#       WORKSPACE_PATH: /workspace
-#     depends_on:
-#       - postgres-db
-#       - redis
-#     expose:
-#       - '3020'
-#     healthcheck:
-#       test:
-#         - CMD
-#         - node
-#         - -e
-#         - "require('http').get('http://127.0.0.1:3020/health',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
-#       interval: 30s
-#       timeout: 10s
-#       retries: 5
-#       start_period: 60s
-#     labels:
-#       - traefik.enable=true
-#       - "traefik.http.routers.admin-service.rule=Host(`k1lrz8qb78v16uuvqngcahj0.187.127.157.13.sslip.io`)"
-#       - traefik.http.services.admin-service.loadbalancer.server.port=3020
-#     image: ghcr.io/dan1sh70/niklo-admin-service:latest
+  #   admin-service:
+  #     environment:
+  #       NODE_ENV: development
+  #       PORT: 3020
+  #       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+  #       REDIS_HOST: redis
+  #       REDIS_PORT: 6379
+  #       WORKSPACE_PATH: /workspace
+  #     depends_on:
+  #       - postgres-db
+  #       - redis
+  #     expose:
+  #       - '3020'
+  #     healthcheck:
+  #       test:
+  #         - CMD
+  #         - node
+  #         - -e
+  #         - "require('http').get('http://127.0.0.1:3020/health',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))"
+  #       interval: 30s
+  #       timeout: 10s
+  #       retries: 5
+  #       start_period: 60s
+  #     labels:
+  #       - traefik.enable=true
+  #       - "traefik.http.routers.admin-service.rule=Host(`k1lrz8qb78v16uuvqngcahj0.187.127.157.13.sslip.io`)"
+  #       - traefik.http.services.admin-service.loadbalancer.server.port=3020
+  #     image: ghcr.io/dan1sh70/niklo-admin-service:latest
   booking-service:
     environment:
       NODE_ENV: development

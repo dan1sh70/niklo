@@ -57,7 +57,7 @@ export class WebhooksController {
       this.logger.log(`Payment captured for order ${orderId}`);
       const payment = await this.paymentsService.updatePaymentStatus(
         orderId,
-        PaymentStatus.COMPLETED,
+        PaymentStatus.SUCCESS,
         paymentId,
         method,
       );

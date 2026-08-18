@@ -97,7 +97,10 @@ export class SchedulesService {
       });
     }
     if (date) {
-      qb.andWhere('schedule.departure_date = :date', { date });
+      qb.andWhere(
+        '(schedule.departure_date = :date OR schedule.departure_date <= :date)',
+        { date }
+      );
     }
 
     return qb.orderBy('schedule.departure_time', 'ASC').getMany();

@@ -57,6 +57,38 @@ export class BookingsService implements OnApplicationBootstrap {
     };
   }
 
+  async create(dto: any) {
+    let insurance_premium = 0;
+    if (dto.has_insurance && dto.passenger_details) {
+      insurance_premium = dto.passenger_details.length * 49;
+    }
+
+    const booking = this.bookingRepo.create({
+      user_id: this.MOCK_USER_ID,
+      booking_type: dto.booking_type || BookingType.BUS,
+      reference_id: dto.schedule_id,
+      booking_reference: `NIK-${dto.booking_type || 'B'}-${Math.floor(Math.random() * 100000)}`,
+      title: 'Booking Title',
+      subtitle: 'Booking Subtitle',
+      from_location: dto.boarding_point || 'Unknown',
+      to_location: dto.dropping_point || 'Unknown',
+      travel_date: dto.travel_date || new Date(),
+      departure_time: '10:00',
+      total_amount: dto.total_amount + insurance_premium,
+      status: BookingStatus.PENDING,
+      qr_code_token: 'dummy_token_to_be_replaced',
+      has_insurance: dto.has_insurance,
+      insurance_premium,
+      has_gov_id_verification: dto.has_gov_id_verification,
+      primary_gov_id_type: dto.primary_gov_id_type,
+      primary_gov_id_number: dto.primary_gov_id_number,
+      id_verification_status: dto.has_gov_id_verification ? 'PENDING' : 'UNVERIFIED',
+    });
+
+    await this.bookingRepo.save(booking);
+    return this.mapBookingToDto(booking);
+  }
+
   async getHistory(query: any) {
     const { type, status, limit = 20, page = 1 } = query;
     // In production, user_id should come from req.user
@@ -100,10 +132,65 @@ export class BookingsService implements OnApplicationBootstrap {
     return {
       booking_id: booking.id,
       total_paid: amountPaid,
-      penalty_amount: penaltyAmount,
-      refund_amount: refundAmount,
+      cancellation_fee: penaltyAmount,
+      refundable_amount: refundAmount,
       currency: 'INR',
-      cancellation_policy: '10% penalty applied for cancellation before 24 hours.'
+      refund_policy: '90% refund prior to 24 hours of departure',
+    };
+  }
+
+  async confirmPayment(id: string, body: any) {
+    const booking = await this.bookingRepo.findOne({
+      where: { id, user_id: this.MOCK_USER_ID },
+    });
+
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    booking.status = BookingStatus.CONFIRMED;
+    // Issue insurance policy if applicable
+    if (booking.has_insurance) {
+      booking.insurance_policy_number = `POL-${Date.now()}`;
+    }
+    await this.bookingRepo.save(booking);
+
+    return {
+      id: booking.id,
+      status: booking.status,
+      payment_id: body.payment_id,
+      total_amount: Number(booking.total_amount),
+    };
+  }
+
+  async verifyGovId(body: any) {
+    const { booking_id, id_type, id_number } = body;
+    const booking = await this.bookingRepo.findOne({ where: { id: booking_id } });
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    booking.id_verification_status = 'VERIFIED';
+    booking.primary_gov_id_type = id_type;
+    booking.primary_gov_id_number = id_number;
+    await this.bookingRepo.save(booking);
+
+    return {
+      verified: true,
+      status: 'VERIFIED',
+      id_type,
+      masked_id: id_number ? id_number.replace(/.(?=.{4})/g, 'X') : 'XXXX',
+      holder_name: 'Anish Dandapat', // Mock name
+      fast_boarding_pass: true,
+      verification_timestamp: new Date().toISOString(),
+    };
+  }
+
+  async getIdVerificationStatus(id: string) {
+    const booking = await this.bookingRepo.findOne({ where: { id } });
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    return {
+      booking_id: booking.id,
+      status: booking.id_verification_status,
+      fast_boarding_eligible: booking.id_verification_status === 'VERIFIED',
+      badge_text: booking.id_verification_status === 'VERIFIED' ? 'Verified Traveller' : 'Pending',
     };
   }
 

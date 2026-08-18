@@ -37,6 +37,20 @@ export class CreateBookingDto {
   @IsOptional()
   @IsDateString()
   travel_date?: string;
+
+  @IsOptional()
+  has_insurance?: boolean;
+
+  @IsOptional()
+  has_gov_id_verification?: boolean;
+
+  @IsOptional()
+  @IsString()
+  primary_gov_id_type?: string;
+
+  @IsOptional()
+  @IsString()
+  primary_gov_id_number?: string;
 }
 
 export class LockSeatsDto {
@@ -44,6 +58,6 @@ export class LockSeatsDto {
   scheduleId: string;
 
   @IsArray()
-  @IsUUID('all', { each: true })
+  @IsString({ each: true })
   seatIds: string[];
 }
