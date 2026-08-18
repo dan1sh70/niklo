@@ -34,6 +34,16 @@ export class BookingsController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Post(':id/apply-coupon')
+  @HttpCode(HttpStatus.OK)
+  async applyCoupon(
+    @Param('id') id: string,
+    @Body() body: { coupon_code: string; discount_amount: number },
+  ) {
+    const data = await this.bookingsService.applyCoupon(id, body);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Post('verify-ticket')
   @HttpCode(HttpStatus.OK)
   async verifyTicket(@Body('token') token: string) {

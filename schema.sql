@@ -10,7 +10,12 @@ ADD COLUMN insurance_partner VARCHAR(50) DEFAULT 'Digit / Acko',
 ADD COLUMN has_gov_id_verification BOOLEAN DEFAULT false,
 ADD COLUMN primary_gov_id_type VARCHAR(50),
 ADD COLUMN primary_gov_id_number VARCHAR(100),
-ADD COLUMN id_verification_status VARCHAR(30) DEFAULT 'UNVERIFIED';
+ADD COLUMN id_verification_status VARCHAR(30) DEFAULT 'UNVERIFIED',
+ADD COLUMN is_ladies_seat BOOLEAN DEFAULT false,
+ADD COLUMN booked_gender VARCHAR(5),
+ADD COLUMN seat_numbers TEXT,
+ADD COLUMN coupon_code VARCHAR(50),
+ADD COLUMN discount_amount NUMERIC(10, 2) DEFAULT 0.00;
 
 -- 2. New table for Coupons/Offers
 CREATE TABLE coupons (

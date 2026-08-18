@@ -9,8 +9,11 @@ import { Repository } from 'typeorm';
 import { Payment, PaymentStatus } from './entities/payment.entity';
 import { ConfigService } from '@nestjs/config';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 import * as crypto from 'crypto';
 import Razorpay = require('razorpay');
+
 
 @Injectable()
 export class PaymentsService {
@@ -20,6 +23,7 @@ export class PaymentsService {
     @InjectRepository(Payment)
     private readonly paymentRepo: Repository<Payment>,
     private configService: ConfigService,
+    private readonly httpService: HttpService,
   ) {
     const key_id = this.configService.get<string>('razorpay.key_id');
     const key_secret = this.configService.get<string>('razorpay.key_secret');
@@ -116,8 +120,21 @@ export class PaymentsService {
     }
 
     if (body.event === 'payment.captured') {
-      const payment = body.payload.payment.entity;
-      await this.updatePaymentStatus(payment.order_id, PaymentStatus.SUCCESS, payment.id, payment.method);
+      const paymentEntity = body.payload.payment.entity;
+      const payment = await this.updatePaymentStatus(paymentEntity.order_id, PaymentStatus.SUCCESS, paymentEntity.id, paymentEntity.method);
+      
+      // If payment is successful and has no booking_id, it's a wallet top-up
+      if (payment && !payment.booking_id) {
+        try {
+          const userServiceUrl = process.env.USER_SERVICE_URL || 'http://user-service:3002';
+          await lastValueFrom(this.httpService.post(`${userServiceUrl}/api/v1/user/${payment.user_id}/sync-wallet`, {
+            amount: Number(payment.amount),
+          }));
+        } catch (error) {
+          // Log error but don't fail webhook
+          console.error(`Failed to sync wallet for user ${payment.user_id}:`, error.message);
+        }
+      }
     } else if (body.event === 'payment.failed') {
       const payment = body.payload.payment.entity;
       await this.updatePaymentStatus(payment.order_id, PaymentStatus.FAILED, payment.id, payment.method);

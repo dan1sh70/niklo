@@ -35,6 +35,14 @@ export class CreateSeatDto {
   @IsOptional()
   @IsBoolean()
   is_available?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_ladies_seat?: boolean;
+
+  @IsOptional()
+  @IsString()
+  booked_gender?: string;
 }
 
 export class BulkCreateSeatsDto {

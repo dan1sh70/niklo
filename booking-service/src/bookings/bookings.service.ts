@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 import { Booking, BookingStatus, BookingType } from './entities/booking.entity';
 
 @Injectable()
@@ -14,6 +16,7 @@ export class BookingsService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepo: Repository<Booking>,
+    private readonly httpService: HttpService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -54,6 +57,8 @@ export class BookingsService implements OnApplicationBootstrap {
       totalAmount: Number(b.total_amount),
       status: b.status,
       qrCodeToken: b.qr_code_token,
+      couponCode: b.coupon_code,
+      discountAmount: b.discount_amount ? Number(b.discount_amount) : 0,
     };
   }
 
@@ -83,6 +88,7 @@ export class BookingsService implements OnApplicationBootstrap {
       primary_gov_id_type: dto.primary_gov_id_type,
       primary_gov_id_number: dto.primary_gov_id_number,
       id_verification_status: dto.has_gov_id_verification ? 'PENDING' : 'UNVERIFIED',
+      seat_numbers: dto.seat_numbers,
     });
 
     await this.bookingRepo.save(booking);
@@ -153,12 +159,42 @@ export class BookingsService implements OnApplicationBootstrap {
     }
     await this.bookingRepo.save(booking);
 
+    if (booking.booking_type === BookingType.BUS && booking.reference_id && booking.seat_numbers?.length) {
+      try {
+        const busServiceUrl = process.env.BUS_SERVICE_URL || 'http://bus-service:3003';
+        await lastValueFrom(
+          this.httpService.post(
+            `${busServiceUrl}/api/v1/bus/schedules/${booking.reference_id}/confirm-seats`,
+            { seat_numbers: booking.seat_numbers },
+          )
+        );
+      } catch (e) {
+        // Log but don't fail — seats will auto-release after Redis TTL anyway
+        console.error(`Failed to mark seats booked on bus-service: ${e.message}`);
+      }
+    }
+
     return {
       id: booking.id,
       status: booking.status,
       payment_id: body.payment_id,
       total_amount: Number(booking.total_amount),
     };
+  }
+
+  async applyCoupon(id: string, body: { coupon_code: string; discount_amount: number }) {
+    const booking = await this.bookingRepo.findOne({
+      where: { id },
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    const discount = Number(body.discount_amount) || 0;
+    booking.coupon_code = body.coupon_code;
+    booking.discount_amount = discount;
+    booking.total_amount = Math.max(0, Number(booking.total_amount) - discount);
+    await this.bookingRepo.save(booking);
+
+    return this.mapBookingToDto(booking);
   }
 
   async verifyGovId(body: any) {

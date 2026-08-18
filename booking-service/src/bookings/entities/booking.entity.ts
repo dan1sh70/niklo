@@ -90,6 +90,15 @@ export class Booking {
   @Column({ type: 'varchar', length: 30, default: 'UNVERIFIED' })
   id_verification_status: string;
 
+  @Column({ type: 'simple-array', nullable: true })
+  seat_numbers: string[];
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  coupon_code: string;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, default: 0.00 })
+  discount_amount: number;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 

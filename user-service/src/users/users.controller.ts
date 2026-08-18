@@ -132,4 +132,11 @@ export class UsersController {
     const data = await this.usersService.triggerEmergencySos(userId, sosData);
     return { success: true, statusCode: 200, data };
   }
+
+  @Post(':id/sync-wallet')
+  @HttpCode(HttpStatus.OK)
+  async syncWallet(@Param('id') id: string, @Body() body: { amount: number }) {
+    const data = await this.usersService.syncWalletBalance(id, body.amount);
+    return { success: true, statusCode: 200, data };
+  }
 }

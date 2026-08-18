@@ -137,6 +137,11 @@ export class SchedulesService {
   async getSeatMap(id: string) {
     const seatData = await this.getSeats(id);
     
+    // Check Redis for currently locked seats
+    const lockPattern = `lock:bus:${id}:*`;
+    const lockKeys = await this.redis.keys(lockPattern);
+    const lockedSeatNumbers = lockKeys.map(k => k.split(':').pop()!);
+    
     // Group seats by deck for the 2D grid representation and format to blueprint schema
     const formatSeat = (s: SeatLayout) => ({
       seat_number: s.seat_number,
@@ -145,8 +150,10 @@ export class SchedulesService {
       is_upper_deck: s.is_upper_deck,
       seat_type: s.seat_type,
       price: Number(seatData.base_fare) + Number(s.price_offset),
-      is_available: s.is_available,
-      is_ladies_seat: false,
+      // A seat is unavailable if marked in DB OR currently locked in Redis
+      is_available: s.is_available && !lockedSeatNumbers.includes(s.seat_number),
+      is_ladies_seat: s.is_ladies_seat ?? false,
+      booked_gender: s.booked_gender ?? null,
     });
 
     const lowerDeck = seatData.seats.filter(s => !s.is_upper_deck).map(formatSeat);
@@ -188,6 +195,31 @@ export class SchedulesService {
       expires_in_seconds: TTL_SECONDS,
       lock_id: `lck_bus_${Date.now()}`
     };
+  }
+
+  async markSeatsBooked(scheduleId: string, seatNumbers: string[]): Promise<void> {
+    // Mark seats as unavailable in the bus_seats table
+    await this.seatRepo
+      .createQueryBuilder()
+      .update()
+      .set({ is_available: false })
+      .where('bus_id = (SELECT bus_id FROM schedules WHERE id = :scheduleId)', { scheduleId })
+      .andWhere('seat_number IN (:...seatNumbers)', { seatNumbers })
+      .execute();
+
+    // Decrement available_seats count on the schedule
+    await this.scheduleRepo
+      .createQueryBuilder()
+      .update()
+      .set({ available_seats: () => `available_seats - ${seatNumbers.length}` })
+      .where('id = :scheduleId', { scheduleId })
+      .andWhere('available_seats >= :count', { count: seatNumbers.length })
+      .execute();
+
+    // Clear Redis locks (they are now permanently booked, locks no longer needed)
+    const pipeline = this.redis.pipeline();
+    seatNumbers.forEach(seat => pipeline.del(`lock:bus:${scheduleId}:${seat}`));
+    await pipeline.exec();
   }
 
   async getBoardingPoints(id: string) {

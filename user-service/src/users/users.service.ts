@@ -95,6 +95,21 @@ export class UsersService {
     };
   }
 
+  async syncWalletBalance(userId: string, amount: number) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const newBalance = Number(user.wallet_balance) + Number(amount);
+    user.wallet_balance = newBalance;
+    await this.userRepository.save(user);
+
+    return {
+      userId: user.id,
+      balance: newBalance,
+      message: 'Wallet balance synced successfully',
+    };
+  }
+
   async getSavedLocations(userId: string) {
     return this.savedAddressRepository.find({
       where: { user_id: userId },

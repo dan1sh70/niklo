@@ -65,6 +65,16 @@ export class SchedulesController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Post(':id/confirm-seats')
+  @HttpCode(HttpStatus.OK)
+  async confirmSeats(
+    @Param('id') scheduleId: string,
+    @Body() body: { seat_numbers: string[] },
+  ) {
+    await this.schedulesService.markSeatsBooked(scheduleId, body.seat_numbers);
+    return { success: true, statusCode: 200, message: 'Seats marked as booked' };
+  }
+
   @Get(':id/boarding-points')
   async getBoardingPoints(@Param('id') id: string) {
     const data = await this.schedulesService.getBoardingPoints(id);
