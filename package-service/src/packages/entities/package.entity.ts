@@ -18,7 +18,7 @@ export class TravelPackage {
   @Column({ type: 'varchar', length: 100, nullable: true })
   category: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   destination: string;
 
   @Column({ type: 'varchar', length: 100, default: 'Kolkata', nullable: true })
@@ -30,37 +30,37 @@ export class TravelPackage {
   @Column({ type: 'int', default: 85 })
   reviews_count: number;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   location_text: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   snippet: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   duration: string;
 
-  @Column({ type: 'int', default: 4 })
+  @Column({ type: 'int', default: 4, nullable: true })
   duration_days: number;
 
-  @Column({ type: 'int', default: 3 })
+  @Column({ type: 'int', default: 3, nullable: true })
   duration_nights: number;
 
   @Column({ type: 'varchar', length: 50, default: '2-6 Travelers', nullable: true })
   group_size: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   price: number;
 
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   original_price: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'int', default: 0, nullable: true })
   discount_percent: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   image_url: string;
 
   @Column({ type: 'jsonb', default: [], nullable: true })

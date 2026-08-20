@@ -14,22 +14,22 @@ export class TravelAdventure {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   price: number;
 
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   original_price: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'int', default: 0, nullable: true })
   discount_percent: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: true })
   duration_hours: number;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   location: string;
 
   @Column({ type: 'varchar', length: 100, default: 'Goa', nullable: true })
@@ -47,10 +47,10 @@ export class TravelAdventure {
   @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true })
   longitude: number;
 
-  @Column({ type: 'numeric', precision: 3, scale: 2, default: 4.8 })
+  @Column({ type: 'numeric', precision: 3, scale: 2, default: 4.8, nullable: true })
   rating: number;
 
-  @Column({ type: 'int', default: 120 })
+  @Column({ type: 'int', default: 120, nullable: true })
   reviews_count: number;
 
   @Column({ type: 'varchar', length: 50, default: 'Moderate', nullable: true })
@@ -80,10 +80,10 @@ export class TravelAdventure {
   @Column({ type: 'text', default: 'Follow pilot/guide instructions strictly', nullable: true })
   safety_guidelines: string;
 
-  @Column({ type: 'int', default: 10 })
+  @Column({ type: 'int', default: 10, nullable: true })
   min_age: number;
 
-  @Column({ type: 'int', default: 15 })
+  @Column({ type: 'int', default: 15, nullable: true })
   max_participants: number;
 
   @Column({ type: 'boolean', default: false })
