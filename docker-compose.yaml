@@ -283,7 +283,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.package-service.rule=Host(`ltmzir9qa389f53ho5hkzlq0.187.127.157.13.sslip.io`)"
       - traefik.http.services.package-service.loadbalancer.server.port=3012
-    image: ghcr.io/dan1sh70/niklo-package-service:sha-1bddd71
+    image: ghcr.io/dan1sh70/niklo-package-service:sha-d395dde
   adventure-service:
     environment:
       NODE_ENV: development
@@ -313,7 +313,7 @@ services:
       - traefik.enable=true
       - "traefik.http.routers.adventure-service.rule=Host(`ra0qdnh3xfolrfu1y82bva9g.187.127.157.13.sslip.io`)"
       - traefik.http.services.adventure-service.loadbalancer.server.port=3013
-    image: ghcr.io/dan1sh70/niklo-adventure-service:sha-1bddd71
+    image: ghcr.io/dan1sh70/niklo-adventure-service:sha-d395dde
   notification-service:
     environment:
       NODE_ENV: development
