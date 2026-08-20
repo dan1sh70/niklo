@@ -15,7 +15,7 @@ export class TravelPackage {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   category: string;
 
   @Column({ type: 'varchar', length: 100 })

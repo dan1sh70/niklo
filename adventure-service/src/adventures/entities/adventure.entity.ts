@@ -35,7 +35,7 @@ export class TravelAdventure {
   @Column({ type: 'varchar', length: 100, default: 'Goa' })
   city: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'Adventure' })
+  @Column({ type: 'varchar', length: 100, default: 'Adventure', nullable: true })
   category: string;
 
   @Column({ type: 'text', default: 'Activity Headquarters' })
