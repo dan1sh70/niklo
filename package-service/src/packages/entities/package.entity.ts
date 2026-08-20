@@ -9,7 +9,7 @@ import {
 
 @Entity('travel_packages')
 export class TravelPackage {
-  @PrimaryColumn({ type: 'varchar', length: 100 })
+  @PrimaryColumn({ type: 'varchar', length: 100, default: () => 'gen_random_uuid()' })
   id: string;
 
   @Column({ type: 'varchar', length: 255 })
