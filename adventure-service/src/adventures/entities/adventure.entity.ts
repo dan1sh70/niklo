@@ -32,13 +32,13 @@ export class TravelAdventure {
   @Column({ type: 'varchar', length: 255 })
   location: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'Goa' })
+  @Column({ type: 'varchar', length: 100, default: 'Goa', nullable: true })
   city: string;
 
   @Column({ type: 'varchar', length: 100, default: 'Adventure', nullable: true })
   category: string;
 
-  @Column({ type: 'text', default: 'Activity Headquarters' })
+  @Column({ type: 'text', default: 'Activity Headquarters', nullable: true })
   meeting_point: string;
 
   @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true })
@@ -53,31 +53,31 @@ export class TravelAdventure {
   @Column({ type: 'int', default: 120 })
   reviews_count: number;
 
-  @Column({ type: 'varchar', length: 50, default: 'Moderate' })
+  @Column({ type: 'varchar', length: 50, default: 'Moderate', nullable: true })
   difficulty: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'Up to 10 People' })
+  @Column({ type: 'varchar', length: 100, default: 'Up to 10 People', nullable: true })
   group_size: string;
 
   @Column({ type: 'text', nullable: true })
   image_url: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   gallery_images: string[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   highlights: string[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   whats_included: string[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   what_to_bring: string[];
 
-  @Column({ type: 'text', default: 'Free cancellation 24h prior' })
+  @Column({ type: 'text', default: 'Free cancellation 24h prior', nullable: true })
   cancellation_policy: string;
 
-  @Column({ type: 'text', default: 'Follow pilot/guide instructions strictly' })
+  @Column({ type: 'text', default: 'Follow pilot/guide instructions strictly', nullable: true })
   safety_guidelines: string;
 
   @Column({ type: 'int', default: 10 })

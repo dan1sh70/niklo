@@ -21,7 +21,7 @@ export class TravelPackage {
   @Column({ type: 'varchar', length: 100 })
   destination: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'Kolkata' })
+  @Column({ type: 'varchar', length: 100, default: 'Kolkata', nullable: true })
   start_city: string;
 
   @Column({ type: 'numeric', precision: 3, scale: 2, default: 4.8 })
@@ -48,7 +48,7 @@ export class TravelPackage {
   @Column({ type: 'int', default: 3 })
   duration_nights: number;
 
-  @Column({ type: 'varchar', length: 50, default: '2-6 Travelers' })
+  @Column({ type: 'varchar', length: 50, default: '2-6 Travelers', nullable: true })
   group_size: string;
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
@@ -63,16 +63,16 @@ export class TravelPackage {
   @Column({ type: 'text' })
   image_url: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   gallery_images: string[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   itinerary: any[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   inclusions: string[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   exclusions: string[];
 
   @Column({ type: 'boolean', default: false })
