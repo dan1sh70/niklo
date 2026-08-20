@@ -47,7 +47,7 @@ export class AdventureReview {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => TravelAdventure, (adventure) => adventure.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => TravelAdventure, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'adventure_id' })
   adventure: TravelAdventure;
 }
