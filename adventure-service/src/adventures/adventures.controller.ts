@@ -39,6 +39,15 @@ export class AdventuresController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Get(':id/reviews')
+  async getReviews(@Param('id') id: string) {
+    if (id === 'uuid-here') {
+      return { success: false, statusCode: 400, message: 'Please provide a valid UUID' };
+    }
+    const data = await this.adventuresService.getReviews(id);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     if (id === 'uuid-here') {
@@ -52,6 +61,13 @@ export class AdventuresController {
   @HttpCode(HttpStatus.OK)
   async checkAvailability(@Param('id') id: string, @Body() checkParams: any) {
     const data = await this.adventuresService.checkAvailability(id, checkParams);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post(':id/confirm-slots')
+  @HttpCode(HttpStatus.OK)
+  async confirmSlots(@Param('id') id: string, @Body() params: any) {
+    const data = await this.adventuresService.confirmSlots(id, params);
     return { success: true, statusCode: 200, data };
   }
 

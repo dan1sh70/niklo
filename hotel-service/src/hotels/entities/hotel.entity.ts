@@ -110,6 +110,12 @@ export class Hotel {
   @Column({ default: true })
   is_active: boolean;
 
+  @Column({ default: false })
+  is_trending: boolean;
+
+  @Column({ default: false })
+  is_hourly: boolean;
+
   @OneToMany(() => RoomType, (roomType) => roomType.hotel, { cascade: true })
   roomTypes: RoomType[];
 

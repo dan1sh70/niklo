@@ -134,6 +134,17 @@ export class PaymentsService {
           // Log error but don't fail webhook
           console.error(`Failed to sync wallet for user ${payment.user_id}:`, error.message);
         }
+      } else if (payment && payment.booking_id) {
+        // Confirm the booking in booking-service
+        try {
+          const bookingServiceUrl = process.env.BOOKING_SERVICE_URL || 'http://booking-service:3014';
+          await lastValueFrom(this.httpService.post(`${bookingServiceUrl}/api/v1/bookings/${payment.booking_id}/confirm-payment`, {
+            payment_id: paymentEntity.id,
+            payment_gateway_order_id: paymentEntity.order_id
+          }));
+        } catch (error) {
+          console.error(`Failed to confirm booking ${payment.booking_id} from webhook:`, error.message);
+        }
       }
     } else if (body.event === 'payment.failed') {
       const payment = body.payload.payment.entity;

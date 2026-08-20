@@ -74,6 +74,24 @@ export class TravelAdventure {
   @Column({ type: 'jsonb', default: [] })
   what_to_bring: string[];
 
+  @Column({ type: 'text', default: 'Free cancellation 24h prior' })
+  cancellation_policy: string;
+
+  @Column({ type: 'text', default: 'Follow pilot/guide instructions strictly' })
+  safety_guidelines: string;
+
+  @Column({ type: 'int', default: 10 })
+  min_age: number;
+
+  @Column({ type: 'int', default: 15 })
+  max_participants: number;
+
+  @Column({ type: 'boolean', default: false })
+  is_trending: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  is_featured: boolean;
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 

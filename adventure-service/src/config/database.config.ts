@@ -1,5 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { TravelAdventure } from '../adventures/entities/adventure.entity';
+import { AdventureReview } from '../adventures/entities/adventure-review.entity';
+import { AdventureSlot } from '../adventures/entities/adventure-slot.entity';
 
 export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -8,6 +10,6 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'adventure_db',
-  entities: [TravelAdventure],
+  entities: [TravelAdventure, AdventureReview, AdventureSlot],
   synchronize: process.env.DB_SYNCHRONIZE !== 'false', // Use migrations in production
 });

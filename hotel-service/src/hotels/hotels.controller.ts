@@ -56,6 +56,13 @@ export class HotelsController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Post(':hotelId/confirm-rooms')
+  @HttpCode(HttpStatus.OK)
+  async confirmRooms(@Param('hotelId') hotelId: string, @Body() params: any) {
+    const data = await this.hotelsService.confirmRooms(hotelId, params);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Get(':hotelId')
   async getHotelDetails(@Param('hotelId') hotelId: string) {
     const data = await this.hotelsService.getHotelDetails(hotelId);

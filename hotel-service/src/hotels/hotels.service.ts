@@ -209,6 +209,14 @@ export class HotelsService implements OnApplicationBootstrap {
     if (category === 'Luxury')    query.andWhere('hotel.price_per_night >= :min', { min: 7000 });
     if (category === 'Mid-Range') query.andWhere('hotel.price_per_night BETWEEN :a AND :b', { a: 3000, b: 7000 });
 
+    if (filters.isHourly === 'true' || filters.isHourly === true) {
+      query.andWhere('hotel.is_hourly = true');
+    }
+    
+    if (filters.isTrending === 'true' || filters.isTrending === true) {
+      query.andWhere('hotel.is_trending = true');
+    }
+
     const ratingF = filters.ratingFilter;
     if (ratingF === '5 Star')         query.andWhere('hotel.user_rating >= :r', { r: 4.7 });
     if (ratingF === '4 Star & above') query.andWhere('hotel.user_rating >= :r', { r: 4.0 });
@@ -247,9 +255,12 @@ export class HotelsService implements OnApplicationBootstrap {
       throw new NotFoundException(`Room type not found in hotel ${hotelId}.`);
     }
 
-    // Calculate nights
+    // Calculate nights or hours
     let nightsCount = 1;
-    if (checkParams.check_in && checkParams.check_out) {
+    let isHourly = checkParams.is_hourly === true || checkParams.is_hourly === 'true';
+    let hoursCount = checkParams.hours ? parseInt(checkParams.hours, 10) : 3;
+
+    if (!isHourly && checkParams.check_in && checkParams.check_out) {
       const start = new Date(checkParams.check_in);
       const end = new Date(checkParams.check_out);
       const diffTime = Math.abs(end.getTime() - start.getTime());
@@ -261,7 +272,7 @@ export class HotelsService implements OnApplicationBootstrap {
       .where('b.hotelId = :hotelId', { hotelId })
       .andWhere('b.roomTypeId = :rtId', { rtId: roomType.id })
       .andWhere('b.status NOT IN (:...statuses)', { statuses: ['cancelled', 'pending_payment'] })
-      .andWhere('b.checkInDate < :checkOut', { checkOut: checkParams.check_out })
+      .andWhere('b.checkInDate < :checkOut', { checkOut: checkParams.check_out || checkParams.check_in })
       .andWhere('b.checkOutDate > :checkIn',  { checkIn:  checkParams.check_in })
       .getCount();
 
@@ -269,7 +280,13 @@ export class HotelsService implements OnApplicationBootstrap {
     const requestedRooms = checkParams.rooms_count || 1;
     const available = availableCount >= requestedRooms;
 
-    const totalRoomPrice = Number(roomType.price_per_night) * nightsCount * requestedRooms;
+    let baseRate = Number(roomType.price_per_night);
+    // Rough estimate for hourly rates: 35% of nightly rate for short stays
+    if (isHourly) {
+        baseRate = Math.round(baseRate * 0.35);
+    }
+    
+    const totalRoomPrice = isHourly ? baseRate * requestedRooms : baseRate * nightsCount * requestedRooms;
     const taxesAndFees = Math.round(totalRoomPrice * 0.12); // 12% tax mock
     const grandTotal = totalRoomPrice + taxesAndFees;
 
@@ -279,12 +296,33 @@ export class HotelsService implements OnApplicationBootstrap {
       room_title: roomType.title,
       available,
       remaining_rooms: roomType.available_rooms_count,
-      nights_count: nightsCount,
-      price_per_night: Number(roomType.price_per_night),
+      nights_count: isHourly ? 0 : nightsCount,
+      hours_count: isHourly ? hoursCount : 0,
+      price_per_night: baseRate,
       total_room_price: totalRoomPrice,
       taxes_and_fees: taxesAndFees,
       grand_total: grandTotal,
     };
+  }
+
+  async confirmRooms(hotelId: string, params: { check_in: string, rooms_count: number, room_type_id?: string }) {
+    const hotel = await this.hotelRepository.findOne({
+      where: { id: hotelId },
+      relations: { roomTypes: true },
+    });
+    
+    if (!hotel) return { success: false, message: 'Hotel not found' };
+    
+    const roomType = params.room_type_id
+      ? hotel.roomTypes.find(rt => rt.id === params.room_type_id)
+      : hotel.roomTypes[0];
+      
+    if (roomType) {
+      // In a real system, we'd log the dates in `hotel_availability` or create a booking record in hotel-service
+      // For this implementation, the `booking-service` handles the record and checkAvailability counts bookings.
+      // So no hard decrement of total inventory is needed here unless it's a permanent reduction.
+    }
+    return { success: true };
   }
 
   async getHotelDetails(hotelId: string) {

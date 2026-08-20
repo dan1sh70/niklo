@@ -104,11 +104,162 @@ export class PackagesService implements OnApplicationBootstrap {
   }
 
   async getPopularDestinations() {
-    return [
-      { name: 'Goa', package_count: 14, image_url: 'https://cdn.niklo.com/dest/goa.jpg' },
-      { name: 'Manali', package_count: 10, image_url: 'https://cdn.niklo.com/dest/manali.jpg' },
-      { name: 'Kashmir', package_count: 8, image_url: 'https://cdn.niklo.com/dest/kashmir.jpg' }
-    ];
+    // Dynamic query based on active packages
+    const result = await this.packageRepo
+      .createQueryBuilder('pkg')
+      .select('pkg.destination', 'name')
+      .addSelect('COUNT(pkg.id)', 'packageCount')
+      .addSelect('MAX(pkg.image_url)', 'imageUrl')
+      .where('pkg.is_active = :isActive', { isActive: true })
+      .groupBy('pkg.destination')
+      .orderBy('"packageCount"', 'DESC')
+      .limit(6)
+      .getRawMany();
+
+    return result.map(item => ({
+      name: item.name,
+      packageCount: parseInt(item.packageCount, 10),
+      imageUrl: item.imageUrl,
+    }));
+  }
+
+  async getCategories() {
+    const result = await this.packageRepo
+      .createQueryBuilder('pkg')
+      .select('pkg.category', 'name')
+      .addSelect('COUNT(pkg.id)', 'packageCount')
+      .addSelect('MAX(pkg.image_url)', 'imageUrl')
+      .where('pkg.is_active = :isActive', { isActive: true })
+      .groupBy('pkg.category')
+      .orderBy('"packageCount"', 'DESC')
+      .getRawMany();
+
+    return result.map(item => ({
+      name: item.name,
+      packageCount: parseInt(item.packageCount, 10),
+      imageUrl: item.imageUrl,
+    }));
+  }
+
+  async getTrendingPackages(limit = 6) {
+    const packages = await this.packageRepo.find({
+      where: { is_active: true, is_trending: true },
+      order: { rating: 'DESC' },
+      take: limit,
+    });
+    return packages.map(p => this.mapPackageToDto(p));
+  }
+
+  async getOffers() {
+    const packages = await this.packageRepo.find({
+      where: { is_active: true },
+      order: { discount_percent: 'DESC' },
+      take: 5,
+    });
+    
+    return packages
+      .filter(p => p.discount_percent > 0)
+      .map(p => ({
+        id: p.id,
+        title: p.title,
+        destination: p.destination,
+        originalPrice: Number(p.original_price || p.price),
+        discountedPrice: Number(p.price),
+        discountPercent: p.discount_percent,
+        offerLabel: `Save ${p.discount_percent}%`,
+        imageUrl: p.image_url,
+      }));
+  }
+
+  async getCities() {
+    const startCities = await this.packageRepo
+      .createQueryBuilder('pkg')
+      .select('DISTINCT pkg.start_city', 'city')
+      .where('pkg.is_active = :isActive', { isActive: true })
+      .getRawMany();
+
+    const destCities = await this.packageRepo
+      .createQueryBuilder('pkg')
+      .select('DISTINCT pkg.destination', 'city')
+      .where('pkg.is_active = :isActive', { isActive: true })
+      .getRawMany();
+
+    return {
+      startingCities: startCities.map(c => c.city).filter(Boolean),
+      destinationCities: destCities.map(c => c.city).filter(Boolean),
+    };
+  }
+
+  async searchPackages(query: any) {
+    const { 
+      to, date, guests, rooms, category, 
+      min_price, max_price, duration_min, duration_max, sort_by 
+    } = query;
+
+    const qb = this.packageRepo.createQueryBuilder('pkg')
+      .where('pkg.is_active = :isActive', { isActive: true });
+
+    if (to) {
+      qb.andWhere(
+        '(pkg.destination ILIKE :to OR pkg.location_text ILIKE :to OR pkg.title ILIKE :to)',
+        { to: `%${to}%` }
+      );
+    }
+    
+    if (category && category !== 'All') {
+      qb.andWhere('pkg.category = :category', { category });
+    }
+
+    if (min_price) {
+      qb.andWhere('pkg.price >= :minPrice', { minPrice: min_price });
+    }
+
+    if (max_price) {
+      qb.andWhere('pkg.price <= :maxPrice', { maxPrice: max_price });
+    }
+
+    if (duration_min) {
+      qb.andWhere('pkg.duration_days >= :minDuration', { minDuration: duration_min });
+    }
+
+    if (duration_max) {
+      qb.andWhere('pkg.duration_days <= :maxDuration', { maxDuration: duration_max });
+    }
+
+    switch (sort_by) {
+      case 'price_asc':
+        qb.orderBy('pkg.price', 'ASC');
+        break;
+      case 'price_desc':
+        qb.orderBy('pkg.price', 'DESC');
+        break;
+      case 'newest':
+        qb.orderBy('pkg.created_at', 'DESC');
+        break;
+      case 'rating_desc':
+      default:
+        qb.orderBy('pkg.rating', 'DESC');
+        break;
+    }
+
+    const packages = await qb.getMany();
+    return packages.map(p => this.mapPackageToDto(p));
+  }
+
+  async getPackagesByDestination(name: string) {
+    const packages = await this.packageRepo.find({
+      where: { destination: name, is_active: true },
+      order: { rating: 'DESC' },
+    });
+    return packages.map(p => this.mapPackageToDto(p));
+  }
+
+  async getPackagesByCategory(category: string) {
+    const packages = await this.packageRepo.find({
+      where: { category, is_active: true },
+      order: { rating: 'DESC' },
+    });
+    return packages.map(p => this.mapPackageToDto(p));
   }
 
   async checkAvailability(id: string, checkParams: any) {

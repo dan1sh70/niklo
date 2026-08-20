@@ -1,6 +1,7 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -8,7 +9,7 @@ import {
 
 @Entity('travel_packages')
 export class TravelPackage {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({ type: 'varchar', length: 100 })
   id: string;
 
   @Column({ type: 'varchar', length: 255 })
@@ -41,7 +42,13 @@ export class TravelPackage {
   @Column({ type: 'varchar', length: 50 })
   duration: string;
 
-  @Column({ type: 'varchar', length: 50, default: '2-6 People' })
+  @Column({ type: 'int', default: 4 })
+  duration_days: number;
+
+  @Column({ type: 'int', default: 3 })
+  duration_nights: number;
+
+  @Column({ type: 'varchar', length: 50, default: '2-6 Travelers' })
   group_size: string;
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
@@ -70,6 +77,9 @@ export class TravelPackage {
 
   @Column({ type: 'boolean', default: false })
   is_trending: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  is_featured: boolean;
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;

@@ -2,12 +2,18 @@ import { Injectable, OnApplicationBootstrap, NotFoundException } from '@nestjs/c
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TravelAdventure } from './entities/adventure.entity';
+import { AdventureReview } from './entities/adventure-review.entity';
+import { AdventureSlot } from './entities/adventure-slot.entity';
 
 @Injectable()
 export class AdventuresService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(TravelAdventure)
     private readonly adventureRepository: Repository<TravelAdventure>,
+    @InjectRepository(AdventureReview)
+    private readonly reviewRepository: Repository<AdventureReview>,
+    @InjectRepository(AdventureSlot)
+    private readonly slotRepository: Repository<AdventureSlot>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -83,8 +89,9 @@ export class AdventuresService implements OnApplicationBootstrap {
   }
 
   async findAll(query: any) {
-    const { category, location, min_price, max_price, page = 1, limit = 20 } = query;
-    const qb = this.adventureRepository.createQueryBuilder('adv');
+    const { category, location, city, difficulty, is_trending, min_price, max_price, sort_by, page = 1, limit = 20 } = query;
+    const qb = this.adventureRepository.createQueryBuilder('adv')
+      .where('adv.is_active = :isActive', { isActive: true });
 
     if (category) {
       qb.andWhere('adv.category = :category', { category });
@@ -92,11 +99,28 @@ export class AdventuresService implements OnApplicationBootstrap {
     if (location) {
       qb.andWhere('adv.location ILIKE :loc', { loc: `%${location}%` });
     }
+    if (city) {
+      qb.andWhere('adv.city ILIKE :city', { city: `%${city}%` });
+    }
+    if (difficulty) {
+      qb.andWhere('adv.difficulty = :difficulty', { difficulty });
+    }
+    if (is_trending === 'true') {
+      qb.andWhere('adv.is_trending = :isTrending', { isTrending: true });
+    }
     if (min_price) {
       qb.andWhere('adv.price >= :minPrice', { minPrice: min_price });
     }
     if (max_price) {
       qb.andWhere('adv.price <= :maxPrice', { maxPrice: max_price });
+    }
+
+    if (sort_by === 'price_asc') {
+      qb.orderBy('adv.price', 'ASC');
+    } else if (sort_by === 'price_desc') {
+      qb.orderBy('adv.price', 'DESC');
+    } else {
+      qb.orderBy('adv.rating', 'DESC');
     }
 
     const adventures = await qb
@@ -108,12 +132,61 @@ export class AdventuresService implements OnApplicationBootstrap {
   }
 
   async getCategories() {
-    return [
-      { id: 'cat_water', title: 'Water Sports', icon: 'water', count: 12 },
-      { id: 'cat_air', title: 'Air Sports', icon: 'flight', count: 8 },
-      { id: 'cat_trek', title: 'Trekking', icon: 'hiking', count: 15 },
-      { id: 'cat_safari', title: 'Wildlife', icon: 'nature', count: 6 },
-    ];
+    const result = await this.adventureRepository
+      .createQueryBuilder('adv')
+      .select('adv.category', 'title')
+      .addSelect('COUNT(adv.id)', 'count')
+      .addSelect('MAX(adv.image_url)', 'imageUrl')
+      .where('adv.is_active = :isActive', { isActive: true })
+      .groupBy('adv.category')
+      .orderBy('"count"', 'DESC')
+      .getRawMany();
+
+    return result.map((item, index) => ({
+      id: `cat_${index}`,
+      title: item.title,
+      imageUrl: item.imageUrl,
+      count: parseInt(item.count, 10),
+    }));
+  }
+
+  async getReviews(id: string) {
+    const reviews = await this.reviewRepository.find({
+      where: { adventure_id: id },
+      order: { created_at: 'DESC' },
+    });
+    
+    let avgSafety = 5.0;
+    let avgExp = 5.0;
+    let avgValue = 5.0;
+    let avgOverall = 5.0;
+    
+    if (reviews.length > 0) {
+      avgSafety = reviews.reduce((sum, r) => sum + Number(r.safety_rating), 0) / reviews.length;
+      avgExp = reviews.reduce((sum, r) => sum + Number(r.experience_rating), 0) / reviews.length;
+      avgValue = reviews.reduce((sum, r) => sum + Number(r.value_rating), 0) / reviews.length;
+      avgOverall = reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length;
+    }
+
+    return {
+      overview: {
+        averageRating: Number(avgOverall.toFixed(1)),
+        totalReviews: reviews.length,
+        breakdown: {
+          safety: Number(avgSafety.toFixed(1)),
+          experience: Number(avgExp.toFixed(1)),
+          value: Number(avgValue.toFixed(1)),
+        }
+      },
+      reviews: reviews.map(r => ({
+        id: r.id,
+        userName: r.user_name,
+        userAvatar: r.user_avatar,
+        rating: Number(r.rating),
+        comment: r.comment,
+        date: r.created_at,
+      }))
+    };
   }
 
   async checkAvailability(id: string, checkParams: any) {
@@ -122,20 +195,56 @@ export class AdventuresService implements OnApplicationBootstrap {
       throw new NotFoundException(`Adventure with ID ${id} was not found.`);
     }
     
-    // Mock capacity/availability logic
     const requestedDate = new Date(checkParams.date);
-    const isValidDate = requestedDate > new Date();
     const participants = checkParams.participants || 1;
 
+    // In a real scenario we query adventure_slots for the specific date.
+    // If no slot is explicitly generated for the date, we return mock availability based on the rule.
+    let slots = await this.slotRepository.find({
+      where: { adventure_id: id, slot_date: requestedDate }
+    });
+    
+    if (slots.length === 0) {
+      // Mock generated slots for the day if not in DB
+      const isValidDate = requestedDate > new Date();
+      return {
+        adventure_id: id,
+        date: checkParams.date,
+        available: isValidDate,
+        remaining_slots: isValidDate ? 8 : 0,
+        price_per_person: Number(adventure.price),
+        total_price: Number(adventure.price) * participants,
+        time_slots: ["07:30 AM", "10:30 AM", "01:30 PM"]
+      };
+    }
+
+    const availableSlots = slots.filter(s => s.is_available && (s.total_capacity - s.booked_slots) >= participants);
+    
     return {
       adventure_id: id,
       date: checkParams.date,
-      available: isValidDate,
-      remaining_slots: isValidDate ? 8 : 0,
+      available: availableSlots.length > 0,
+      remaining_slots: availableSlots.length > 0 ? (availableSlots[0].total_capacity - availableSlots[0].booked_slots) : 0,
       price_per_person: Number(adventure.price),
       total_price: Number(adventure.price) * participants,
-      time_slots: ["07:30 AM", "10:30 AM", "01:30 PM"]
+      time_slots: availableSlots.map(s => s.time_slot)
     };
+  }
+
+  async confirmSlots(id: string, params: { slot_date: string, time_slot: string, participants: number }) {
+    const requestedDate = new Date(params.slot_date);
+    let slot = await this.slotRepository.findOne({
+      where: { adventure_id: id, slot_date: requestedDate, time_slot: params.time_slot }
+    });
+    
+    if (slot) {
+      slot.booked_slots += (params.participants || 1);
+      if (slot.booked_slots >= slot.total_capacity) {
+        slot.is_available = false;
+      }
+      await this.slotRepository.save(slot);
+    }
+    return { success: true };
   }
 
   async findOne(id: string) {

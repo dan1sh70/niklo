@@ -70,15 +70,15 @@ export class BookingsService implements OnApplicationBootstrap {
 
     const booking = this.bookingRepo.create({
       user_id: this.MOCK_USER_ID,
-      booking_type: dto.booking_type || BookingType.BUS,
-      reference_id: dto.schedule_id,
-      booking_reference: `NIK-${dto.booking_type || 'B'}-${Math.floor(Math.random() * 100000)}`,
-      title: 'Booking Title',
-      subtitle: 'Booking Subtitle',
-      from_location: dto.boarding_point || 'Unknown',
-      to_location: dto.dropping_point || 'Unknown',
-      travel_date: dto.travel_date || new Date(),
-      departure_time: '10:00',
+      booking_type: dto.booking_type ? dto.booking_type.toUpperCase() : BookingType.BUS,
+      reference_id: dto.schedule_id || dto.item_id || dto.reference_id,
+      booking_reference: `NIK-${dto.booking_type ? dto.booking_type.substring(0, 3).toUpperCase() : 'B'}-${Math.floor(Math.random() * 100000)}`,
+      title: dto.title || 'Booking Title',
+      subtitle: dto.subtitle || (dto.booking_type === 'PACKAGE' ? `${dto.travelers || 2} Travelers` : 'Booking Subtitle'),
+      from_location: dto.boarding_point || dto.location || 'Unknown',
+      to_location: dto.dropping_point || dto.destination || 'Unknown',
+      travel_date: dto.travel_date || dto.slot_date || dto.check_in_date || new Date(),
+      departure_time: dto.departure_time || dto.time_slot || '10:00',
       total_amount: dto.total_amount + insurance_premium,
       status: BookingStatus.PENDING,
       qr_code_token: 'dummy_token_to_be_replaced',
@@ -88,7 +88,7 @@ export class BookingsService implements OnApplicationBootstrap {
       primary_gov_id_type: dto.primary_gov_id_type,
       primary_gov_id_number: dto.primary_gov_id_number,
       id_verification_status: dto.has_gov_id_verification ? 'PENDING' : 'UNVERIFIED',
-      seat_numbers: dto.seat_numbers,
+      seat_numbers: dto.seat_numbers || [],
     });
 
     await this.bookingRepo.save(booking);
@@ -107,12 +107,13 @@ export class BookingsService implements OnApplicationBootstrap {
     }
 
     if (status) {
-      // Basic mock implementation for status, if UPCOMING we check date and status
       if (status === 'UPCOMING') {
         qb.andWhere('b.status = :bStatus', { bStatus: BookingStatus.CONFIRMED })
           .andWhere('b.travel_date >= CURRENT_DATE');
       } else if (status === 'PAST') {
         qb.andWhere('b.status IN (:...bStatus)', { bStatus: [BookingStatus.COMPLETED, BookingStatus.CANCELLED] });
+      } else if (status === 'PENDING') {
+        qb.andWhere('b.status = :bStatus', { bStatus: BookingStatus.PENDING });
       }
     }
 
@@ -121,6 +122,14 @@ export class BookingsService implements OnApplicationBootstrap {
       .take(limit)
       .getMany();
 
+    return bookings.map(b => this.mapBookingToDto(b));
+  }
+
+  async getMyBookings() {
+    const bookings = await this.bookingRepo.find({
+      where: { user_id: this.MOCK_USER_ID },
+      order: { created_at: 'DESC' },
+    });
     return bookings.map(b => this.mapBookingToDto(b));
   }
 
@@ -169,8 +178,38 @@ export class BookingsService implements OnApplicationBootstrap {
           )
         );
       } catch (e) {
-        // Log but don't fail — seats will auto-release after Redis TTL anyway
         console.error(`Failed to mark seats booked on bus-service: ${e.message}`);
+      }
+    } else if (booking.booking_type === BookingType.ADVENTURE && booking.reference_id) {
+      try {
+        const adventureServiceUrl = process.env.ADVENTURE_SERVICE_URL || 'http://adventure-service:3013';
+        await lastValueFrom(
+          this.httpService.post(
+            `${adventureServiceUrl}/api/v1/adventures/${booking.reference_id}/confirm-slots`,
+            { 
+              slot_date: booking.travel_date, 
+              time_slot: booking.departure_time,
+              participants: 1 // Ideally coming from booking metadata
+            },
+          )
+        );
+      } catch (e) {
+        console.error(`Failed to mark slots booked on adventure-service: ${e.message}`);
+      }
+    } else if (booking.booking_type === BookingType.HOTEL && booking.reference_id) {
+      try {
+        const hotelServiceUrl = process.env.HOTEL_SERVICE_URL || 'http://hotel-service:3008';
+        await lastValueFrom(
+          this.httpService.post(
+            `${hotelServiceUrl}/api/v1/hotels/${booking.reference_id}/confirm-rooms`,
+            { 
+              check_in: booking.travel_date,
+              rooms_count: 1 // Ideally coming from booking metadata
+            },
+          )
+        );
+      } catch (e) {
+        console.error(`Failed to mark rooms booked on hotel-service: ${e.message}`);
       }
     }
 

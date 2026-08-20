@@ -11,6 +11,12 @@ export class BookingsController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Get('my-bookings')
+  async getMyBookings() {
+    const data = await this.bookingsService.getMyBookings();
+    return { success: true, statusCode: 200, data };
+  }
+
   @Post(':id/cancellation-quote')
   @HttpCode(HttpStatus.OK)
   async getCancellationQuote(@Param('id') id: string) {

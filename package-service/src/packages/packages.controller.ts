@@ -30,9 +30,51 @@ export class PackagesController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Get('search')
+  async searchPackages(@Query() query: any) {
+    const data = await this.packagesService.searchPackages(query);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Get('destinations/popular')
   async getPopularDestinations() {
     const data = await this.packagesService.getPopularDestinations();
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('destination/:name')
+  async getPackagesByDestination(@Param('name') name: string) {
+    const data = await this.packagesService.getPackagesByDestination(name);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('category/:category')
+  async getPackagesByCategory(@Param('category') category: string) {
+    const data = await this.packagesService.getPackagesByCategory(category);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('categories')
+  async getCategories() {
+    const data = await this.packagesService.getCategories();
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('trending')
+  async getTrendingPackages(@Query('limit') limit: number) {
+    const data = await this.packagesService.getTrendingPackages(limit ? Number(limit) : 6);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('offers')
+  async getOffers() {
+    const data = await this.packagesService.getOffers();
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('meta/cities')
+  async getCities() {
+    const data = await this.packagesService.getCities();
     return { success: true, statusCode: 200, data };
   }
 
