@@ -12,7 +12,7 @@
 -- =====================================================================
 -- 1. ADVENTURE SERVICE UPDATES
 -- =====================================================================
-\c niklo_adventure;
+\c niklo_adventure
 
 -- 1. Paragliding in Bir Billing (Himachal Pradesh)
 UPDATE travel_adventures SET
@@ -89,7 +89,7 @@ WHERE id = '51898244-1d66-461c-9390-10c6e037b732' OR title ILIKE '%Kerala%';
 -- =====================================================================
 -- 2. PACKAGE SERVICE UPDATES
 -- =====================================================================
-\c niklo_package;
+\c niklo_package
 
 -- 1. Kerala Tour
 UPDATE travel_packages SET
@@ -134,7 +134,7 @@ WHERE id = '63bf88e1-1a9b-40d5-8992-14c8312ed01f' OR title ILIKE '%Himachal%';
 -- =====================================================================
 -- 3. HOTEL SERVICE UPDATES
 -- =====================================================================
-\c niklo_hotel;
+\c niklo_hotel
 
 -- 1. Clean up stale dummy test rows
 DELETE FROM room_types WHERE hotel_id IN ('b5bffce6-0d50-4653-b362-525e75927af4', 'a474f254-bb4e-466f-93dd-5657e29aa6eb', '4a9ed0c8-e945-4516-8fbe-c82b7e8b0df4');
