@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -23,6 +24,7 @@ import databaseConfig from './config/database.config';
       },
     }),
     UsersModule,
+    WishlistModule,
   ],
   controllers: [AppController],
   providers: [AppService],
