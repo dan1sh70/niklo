@@ -63,4 +63,8 @@ export class User {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.PASSENGER })
   role: UserRole;
+
+  @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
+  referral_code: string;
 }
+

@@ -22,6 +22,10 @@ import { Bus } from './buses/entities/bus.entity';
 import { SeatLayout, SeatType } from './buses/entities/seat-layout.entity';
 import { Route } from './routes/entities/route.entity';
 import { Schedule, ScheduleStatus } from './schedules/entities/schedule.entity';
+import { PopularBusRoute } from './routes/entities/popular-bus-route.entity';
+import { PopularRoutesController } from './routes/popular-routes.controller';
+import { PopularRoutesService } from './routes/popular-routes.service';
+import { Reflector } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -60,10 +64,12 @@ import { Schedule, ScheduleStatus } from './schedules/entities/schedule.entity';
     RoutesModule,
     SchedulesModule,
   ],
-  controllers: [AppController, LocationsController],
+  controllers: [AppController, LocationsController, PopularRoutesController],
   providers: [
     AppService,
     JwtStrategy,
+    PopularRoutesService,
+    Reflector,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
@@ -79,6 +85,20 @@ export class AppModule implements OnApplicationBootstrap {
     const routeRepo = this.dataSource.getRepository(Route);
     const scheduleRepo = this.dataSource.getRepository(Schedule);
     const seatRepo = this.dataSource.getRepository(SeatLayout);
+    const popularRouteRepo = this.dataSource.getRepository(PopularBusRoute);
+
+    // --- Seed Popular Routes ---
+    const popularCount = await popularRouteRepo.count();
+    if (popularCount === 0) {
+      await popularRouteRepo.save([
+        { source: 'Kolkata', destination: 'Siliguri', duration: '10h 30m', start_price: 650.00, tag: '🔥 Popular', priority: 100, is_active: true },
+        { source: 'Kolkata', destination: 'Digha', duration: '4h 15m', start_price: 180.00, tag: '⚡ Fast Connect', priority: 90, is_active: true },
+        { source: 'Kolkata', destination: 'Mandarmani', duration: '4h 45m', start_price: 220.00, tag: '🏖️ Weekend Special', priority: 80, is_active: true },
+        { source: 'Siliguri', destination: 'Gangtok', duration: '4h 00m', start_price: 350.00, tag: '🏔️ Scenic Route', priority: 70, is_active: true },
+        { source: 'Kolkata', destination: 'Darjeeling', duration: '12h 00m', start_price: 750.00, tag: '⭐ Top Rated', priority: 60, is_active: true },
+      ]);
+      console.log('Seeded popular bus routes successfully.');
+    }
 
     const count = await operatorRepo.count();
     if (count === 0) {
@@ -158,3 +178,4 @@ export class AppModule implements OnApplicationBootstrap {
     }
   }
 }
+

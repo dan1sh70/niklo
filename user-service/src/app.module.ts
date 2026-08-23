@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { ReferralsModule } from './referrals/referrals.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -25,6 +26,7 @@ import databaseConfig from './config/database.config';
     }),
     UsersModule,
     WishlistModule,
+    ReferralsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
