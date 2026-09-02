@@ -1,6 +1,6 @@
 {
     "info": {
-        "name": "Niklo Adventure Service",
+        "name": "Niklo Adventure Partner Service",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -17,10 +17,10 @@
     ],
     "item": [
         {
-            "name": "Adventures",
+            "name": "Setup & Profile",
             "item": [
                 {
-                    "name": "experience_booking_screen",
+                    "name": "Get Onboarding Status",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -36,24 +36,25 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/categories",
+                            "raw": "{{baseUrl}}/api/v1/adventure/setup/status",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventures",
-                                "categories"
+                                "adventure",
+                                "setup",
+                                "status"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "experience_details_screen",
+                    "name": "Update Business Info",
                     "request": {
-                        "method": "GET",
+                        "method": "PATCH",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -67,120 +68,21 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id/reviews",
+                            "raw": "{{baseUrl}}/api/v1/adventure/setup/business",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventures",
-                                ":id",
-                                "reviews"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Reviews submission form (post-trip)",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id/reviews",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventures",
-                                ":id",
-                                "reviews"
+                                "adventure",
+                                "setup",
+                                "business"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "package_traveler_details_screen",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id/availability",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventures",
-                                ":id",
-                                "availability"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Admin panel",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventures",
-                                ":id"
-                            ]
+                            "raw": "{\n    \"businessName\": \"Adventure Hub\",\n    \"operatingLocations\": [\n        \"Manali\"\n    ]\n}"
                         }
                     },
                     "response": []
@@ -188,10 +90,10 @@
             ]
         },
         {
-            "name": "Adventure",
+            "name": "Activities",
             "item": [
                 {
-                    "name": "Get Adventure Setup Meta",
+                    "name": "List Activities",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -207,7 +109,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/meta",
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -215,361 +117,14 @@
                                 "api",
                                 "v1",
                                 "adventure",
-                                "setup",
-                                "meta"
+                                "activities"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Setup Progress",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/progress",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "progress"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Setup Partner-Type",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/partner-type",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "partner-type"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Setup Business-Details",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/business-details",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "business-details"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Setup Categories",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/categories",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "categories"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Setup Location",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/location",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "location"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Setup Documents Upload",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/documents/upload",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "documents",
-                                "upload"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete Adventure Setup Documents",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/documents/:docType",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "documents",
-                                ":docType"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Setup Submit",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/submit",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "submit"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Adventure Setup Verification-Status",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/verification-status",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "setup",
-                                "verification-status"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Adventure Activities",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Activities",
+                    "name": "Create Activity",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -598,155 +153,13 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"title\": \"Rafting\",\n    \"category\": \"River Rafting\",\n    \"pricePerPerson\": 1500,\n    \"location\": \"Rishikesh\",\n    \"duration\": \"2 Hrs\",\n    \"description\": \"Fun rafting\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Activities",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update Adventure Activities Status",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id/status",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id",
-                                "status"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete Adventure Activities",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Adventure Activities Media Upload",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/media/upload",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                "media",
-                                "upload"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Adventure Bookings",
+                    "name": "Get Activity",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -762,7 +175,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id",
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/act_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -770,17 +183,17 @@
                                 "api",
                                 "v1",
                                 "adventure",
-                                "bookings",
-                                ":id"
+                                "activities",
+                                "act_123"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Bookings Check-In",
+                    "name": "Update Activity",
                     "request": {
-                        "method": "POST",
+                        "method": "PATCH",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -794,7 +207,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/check-in",
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/act_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -802,20 +215,156 @@
                                 "api",
                                 "v1",
                                 "adventure",
-                                "bookings",
-                                ":id",
-                                "check-in"
+                                "activities",
+                                "act_123"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"pricePerPerson\": 1600\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Bookings Reschedule",
+                    "name": "Toggle Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/act_123/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "activities",
+                                "act_123",
+                                "status"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"PAUSED\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Activity",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/act_123",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "activities",
+                                "act_123"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Bookings",
+            "item": [
+                {
+                    "name": "List Bookings",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Booking Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/bkg_123",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings",
+                                "bkg_123"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Check-in Guest",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -831,7 +380,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/reschedule",
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/bkg_123/check-in",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -840,19 +389,52 @@
                                 "v1",
                                 "adventure",
                                 "bookings",
-                                ":id",
+                                "bkg_123",
+                                "check-in"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reschedule Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/bkg_123/reschedule",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings",
+                                "bkg_123",
                                 "reschedule"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"newDate\": \"2026-10-25\",\n    \"newTimeSlot\": \"10:00 AM\",\n    \"reason\": \"Weather\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Bookings Confirm",
+                    "name": "Confirm Booking",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -868,7 +450,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/confirm",
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/bkg_123/confirm",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -877,19 +459,15 @@
                                 "v1",
                                 "adventure",
                                 "bookings",
-                                ":id",
+                                "bkg_123",
                                 "confirm"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Bookings Cancel",
+                    "name": "Cancel Booking",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -905,7 +483,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/cancel",
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/bkg_123/cancel",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -914,19 +492,24 @@
                                 "v1",
                                 "adventure",
                                 "bookings",
-                                ":id",
+                                "bkg_123",
                                 "cancel"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"reason\": \"Storm\"\n}"
                         }
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "Earnings",
+            "item": [
                 {
-                    "name": "Get Adventure Earnings Analytics",
+                    "name": "Get Analytics",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -958,40 +541,7 @@
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Earnings Settlements",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/settlements/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "earnings",
-                                "settlements",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Adventure Earnings Payout-Policy",
+                    "name": "Get Payout Policy",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1023,7 +573,7 @@
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Availability Slots",
+                    "name": "List Settlements",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1039,7 +589,77 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots",
+                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/settlements",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "earnings",
+                                "settlements"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Settlement Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/settlements/stl_123",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "earnings",
+                                "settlements",
+                                "stl_123"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Availability",
+            "item": [
+                {
+                    "name": "Get Slots for Date",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots?date=2026-08-28",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1048,14 +668,14 @@
                                 "v1",
                                 "adventure",
                                 "availability",
-                                "slots"
+                                "slots?date=2026-08-28"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Availability Calendar Month-Summary",
+                    "name": "Get Month Summary",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1071,7 +691,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/calendar/month-summary",
+                            "raw": "{{baseUrl}}/api/v1/adventure/availability/calendar/month-summary?year=2026&month=8",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1081,14 +701,14 @@
                                 "adventure",
                                 "availability",
                                 "calendar",
-                                "month-summary"
+                                "month-summary?year=2026&month=8"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Availability Slots",
+                    "name": "Create Slot",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1118,13 +738,13 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"activityId\": \"act_123\",\n    \"date\": \"2026-10-24\",\n    \"startTime\": \"09:00 AM\",\n    \"endTime\": \"12:30 PM\",\n    \"capacity\": 15,\n    \"price\": 1499.0\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Availability Slots",
+                    "name": "Update Slot",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1140,7 +760,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/:id",
+                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/slt_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1150,18 +770,18 @@
                                 "adventure",
                                 "availability",
                                 "slots",
-                                ":id"
+                                "slt_123"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"capacity\": 20,\n    \"price\": 1699.0\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Availability Slots Status",
+                    "name": "Toggle Slot Status",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1177,7 +797,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/:id/status",
+                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/slt_123/status",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1187,19 +807,19 @@
                                 "adventure",
                                 "availability",
                                 "slots",
-                                ":id",
+                                "slt_123",
                                 "status"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"isClosed\": true\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Delete Adventure Availability Slots",
+                    "name": "Delete Slot",
                     "request": {
                         "method": "DELETE",
                         "header": [
@@ -1215,7 +835,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/:id",
+                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/slt_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1225,14 +845,19 @@
                                 "adventure",
                                 "availability",
                                 "slots",
-                                ":id"
+                                "slt_123"
                             ]
                         }
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "Home Dashboard",
+            "item": [
                 {
-                    "name": "Get Adventure Home Dashboard",
+                    "name": "Get Dashboard",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1264,7 +889,7 @@
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Home Chart",
+                    "name": "Get Chart",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1280,7 +905,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/home/chart",
+                            "raw": "{{baseUrl}}/api/v1/adventure/home/chart?period=Week",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1289,14 +914,19 @@
                                 "v1",
                                 "adventure",
                                 "home",
-                                "chart"
+                                "chart?period=Week"
                             ]
                         }
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "Packages",
+            "item": [
                 {
-                    "name": "Get Adventure Activities Packages",
+                    "name": "List Packages",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1312,7 +942,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:activityId/packages",
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/act_123/packages",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1321,7 +951,7 @@
                                 "v1",
                                 "adventure",
                                 "activities",
-                                ":activityId",
+                                "act_123",
                                 "packages"
                             ]
                         }
@@ -1329,7 +959,7 @@
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Activities Packages",
+                    "name": "Create Package",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1345,7 +975,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:activityId/packages",
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/act_123/packages",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1354,19 +984,19 @@
                                 "v1",
                                 "adventure",
                                 "activities",
-                                ":activityId",
+                                "act_123",
                                 "packages"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"name\": \"Combo\",\n    \"price\": 4500,\n    \"duration\": \"1 Day\",\n    \"maxParticipants\": 12,\n    \"description\": \"Full day combo\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Packages",
+                    "name": "Update Package",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1382,7 +1012,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/packages/:id",
+                            "raw": "{{baseUrl}}/api/v1/adventure/packages/pkg_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1391,18 +1021,18 @@
                                 "v1",
                                 "adventure",
                                 "packages",
-                                ":id"
+                                "pkg_123"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"price\": 4600\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Packages Status",
+                    "name": "Toggle Package Status",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1418,7 +1048,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/packages/:id/status",
+                            "raw": "{{baseUrl}}/api/v1/adventure/packages/pkg_123/status",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1427,19 +1057,19 @@
                                 "v1",
                                 "adventure",
                                 "packages",
-                                ":id",
+                                "pkg_123",
                                 "status"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"status\": \"PAUSED\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Delete Adventure Packages",
+                    "name": "Delete Package",
                     "request": {
                         "method": "DELETE",
                         "header": [
@@ -1455,7 +1085,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/packages/:id",
+                            "raw": "{{baseUrl}}/api/v1/adventure/packages/pkg_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1464,14 +1094,19 @@
                                 "v1",
                                 "adventure",
                                 "packages",
-                                ":id"
+                                "pkg_123"
                             ]
                         }
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "Notifications",
+            "item": [
                 {
-                    "name": "Get Adventure Notifications",
+                    "name": "List Notifications",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1502,7 +1137,7 @@
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Notifications Read",
+                    "name": "Mark as Read",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1518,7 +1153,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/:id/read",
+                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/notif_123/read",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1527,19 +1162,15 @@
                                 "v1",
                                 "adventure",
                                 "notifications",
-                                ":id",
+                                "notif_123",
                                 "read"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Notifications Mark-All-Read",
+                    "name": "Mark All as Read",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1566,16 +1197,12 @@
                                 "notifications",
                                 "mark-all-read"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Delete Adventure Notifications",
+                    "name": "Delete Notification",
                     "request": {
                         "method": "DELETE",
                         "header": [
@@ -1591,7 +1218,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/:id",
+                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/notif_123",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1600,14 +1227,14 @@
                                 "v1",
                                 "adventure",
                                 "notifications",
-                                ":id"
+                                "notif_123"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Notifications Device-Token",
+                    "name": "Register Token",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1637,13 +1264,13 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"fcmToken\": \"abc\",\n    \"deviceOs\": \"android\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Notifications Preferences",
+                    "name": "Get Preferences",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1675,7 +1302,48 @@
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Profile",
+                    "name": "Update Preferences",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/preferences",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "notifications",
+                                "preferences"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pushNewBookings\": true\n}"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Profile",
+            "item": [
+                {
+                    "name": "Get Profile",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1706,7 +1374,7 @@
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Profile Business-Details",
+                    "name": "Update Profile",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1722,7 +1390,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/business-details",
+                            "raw": "{{baseUrl}}/api/v1/adventure/profile",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1730,19 +1398,18 @@
                                 "api",
                                 "v1",
                                 "adventure",
-                                "profile",
-                                "business-details"
+                                "profile"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"businessName\": \"New Name\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Adventure Profile Documents",
+                    "name": "List Documents",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1774,7 +1441,7 @@
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Profile Documents",
+                    "name": "Upload Document",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1804,50 +1471,13 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"title\": \"Safety Cert\",\n    \"docType\": \"safety_cert\",\n    \"docNumber\": \"12345\",\n    \"fileUrl\": \"https://...\",\n    \"fileName\": \"cert.pdf\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Update Adventure Profile Documents",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/documents/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "profile",
-                                "documents",
-                                ":id"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Adventure Profile Bank-Details",
+                    "name": "Get Bank Account",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1863,7 +1493,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/bank-details",
+                            "raw": "{{baseUrl}}/api/v1/adventure/profile/bank",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1872,16 +1502,16 @@
                                 "v1",
                                 "adventure",
                                 "profile",
-                                "bank-details"
+                                "bank"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Adventure Auth Logout",
+                    "name": "Update Bank Account",
                     "request": {
-                        "method": "POST",
+                        "method": "PATCH",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -1895,7 +1525,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/auth/logout",
+                            "raw": "{{baseUrl}}/api/v1/adventure/profile/bank",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -1903,13 +1533,13 @@
                                 "api",
                                 "v1",
                                 "adventure",
-                                "auth",
-                                "logout"
+                                "profile",
+                                "bank"
                             ]
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                            "raw": "{\n    \"accountHolderName\": \"Name\",\n    \"accountNumber\": \"1234567890\",\n    \"bankName\": \"HDFC\",\n    \"ifscCode\": \"HDFC0001\"\n}"
                         }
                     },
                     "response": []

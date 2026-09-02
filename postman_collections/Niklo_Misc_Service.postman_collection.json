@@ -1,6 +1,6 @@
 {
     "info": {
-        "name": "Niklo Bus Service",
+        "name": "Niklo Misc Service",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -17,10 +17,10 @@
     ],
     "item": [
         {
-            "name": "Bus",
+            "name": "Location",
             "item": [
                 {
-                    "name": "Get Bus Popular-Routes",
+                    "name": "Get Location Autocomplete",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -36,24 +36,24 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/popular-routes",
+                            "raw": "{{baseUrl}}/api/v1/location/autocomplete",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "bus",
-                                "popular-routes"
+                                "location",
+                                "autocomplete"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Bus Popular-Routes",
+                    "name": "Get Location Geocode",
                     "request": {
-                        "method": "POST",
+                        "method": "GET",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -67,20 +67,16 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/popular-routes",
+                            "raw": "{{baseUrl}}/api/v1/location/geocode",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "bus",
-                                "popular-routes"
+                                "location",
+                                "geocode"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
                         }
                     },
                     "response": []

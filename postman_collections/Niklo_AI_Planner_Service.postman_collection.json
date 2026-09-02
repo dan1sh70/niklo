@@ -1,0 +1,153 @@
+{
+  "info": {
+    "name": "Niklo_AI_Planner_Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Plan Journey",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/plan-journey",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "plan-journey"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Book Multimodal",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/book-multimodal",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "book-multimodal"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Saved Journeys",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/saved-journeys",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "saved-journeys"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Save Journey",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/save-journey",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "save-journey"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Saved Journey",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/saved-journeys/1",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "saved-journeys",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Alerts",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/alerts",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "alerts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Alerts",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/alerts",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "alerts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Optimize Schedule",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{host}}/api/v1/ai-planner/smart-schedule-optimizer",
+          "host": [
+            "{{host}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai-planner",
+            "smart-schedule-optimizer"
+          ]
+        }
+      }
+    }
+  ]
+}
