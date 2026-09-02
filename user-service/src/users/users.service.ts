@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, KycStatus } from './entities/user.entity';
+import { User, KycStatus, UserRole } from './entities/user.entity';
 import { EmergencyContact } from './entities/emergency-contact.entity';
 import { SavedAddress } from './entities/saved-address.entity';
 
@@ -32,9 +32,28 @@ export class UsersService {
     this.s3BucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME', 'niklo-avatars-bucket');
   }
 
-  async getProfile(userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+  private async getOrCreateUser(jwtUser: any) {
+    const userId = jwtUser.id || jwtUser.sub;
+    if (!userId) {
+      throw new NotFoundException('Invalid JWT payload: missing user ID');
+    }
+    let user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      // JIT Provisioning: auto-create the user if they were created in auth-service but not here
+      this.logger.log(`JIT Provisioning user ${userId}`);
+      user = this.userRepository.create({
+        id: userId,
+        phone: jwtUser.phone || `mock-${Date.now()}`,
+        name: jwtUser.name || 'New User',
+        role: jwtUser.role || UserRole.PASSENGER
+      });
+      await this.userRepository.save(user);
+    }
+    return user;
+  }
+
+  async getProfile(jwtUser: any) {
+    const user = await this.getOrCreateUser(jwtUser);
 
     return {
       id: user.id,
@@ -50,9 +69,8 @@ export class UsersService {
     };
   }
 
-  async updateProfile(userId: string, updateData: any) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+  async updateProfile(jwtUser: any, updateData: any) {
+    const user = await this.getOrCreateUser(jwtUser);
     
     // Whitelist allowed fields for update
     const allowedFields = ['name', 'email', 'avatar_url', 'preferred_language', 'dob', 'gender'];
@@ -70,9 +88,8 @@ export class UsersService {
     };
   }
 
-  async uploadKyc(userId: string, kycData: any) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+  async uploadKyc(jwtUser: any, kycData: any) {
+    const user = await this.getOrCreateUser(jwtUser);
     
     // Mock KYC upload
     user.kyc_status = KycStatus.VERIFIED;
@@ -84,9 +101,8 @@ export class UsersService {
     };
   }
 
-  async getWallet(userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+  async getWallet(jwtUser: any) {
+    const user = await this.getOrCreateUser(jwtUser);
 
     return {
       userId: user.id,
@@ -97,7 +113,7 @@ export class UsersService {
 
   async syncWalletBalance(userId: string, amount: number) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('User not found for wallet sync');
 
     const newBalance = Number(user.wallet_balance) + Number(amount);
     user.wallet_balance = newBalance;
@@ -110,23 +126,25 @@ export class UsersService {
     };
   }
 
-  async getSavedLocations(userId: string) {
+  async getSavedLocations(jwtUser: any) {
+    const user = await this.getOrCreateUser(jwtUser);
     return this.savedAddressRepository.find({
-      where: { user_id: userId },
+      where: { user_id: user.id },
       order: { is_default: 'DESC', created_at: 'ASC' },
     });
   }
 
-  async addSavedLocation(userId: string, dto: any) {
-    const isFirst = (await this.savedAddressRepository.count({ where: { user_id: userId } })) === 0;
+  async addSavedLocation(jwtUser: any, dto: any) {
+    const user = await this.getOrCreateUser(jwtUser);
+    const isFirst = (await this.savedAddressRepository.count({ where: { user_id: user.id } })) === 0;
     const isDefault = dto.is_default || isFirst;
 
     if (isDefault) {
-      await this.savedAddressRepository.update({ user_id: userId }, { is_default: false });
+      await this.savedAddressRepository.update({ user_id: user.id }, { is_default: false });
     }
 
     const address = this.savedAddressRepository.create({
-      user_id: userId,
+      user_id: user.id,
       type: dto.type || 'other',
       label: dto.label || 'Home',
       full_address: dto.full_address,
@@ -138,12 +156,13 @@ export class UsersService {
     return this.savedAddressRepository.save(address);
   }
 
-  async updateSavedLocation(userId: string, id: string, dto: any) {
-    const address = await this.savedAddressRepository.findOne({ where: { id, user_id: userId } });
+  async updateSavedLocation(jwtUser: any, id: string, dto: any) {
+    const user = await this.getOrCreateUser(jwtUser);
+    const address = await this.savedAddressRepository.findOne({ where: { id, user_id: user.id } });
     if (!address) throw new NotFoundException('Address not found');
 
     if (dto.is_default) {
-      await this.savedAddressRepository.update({ user_id: userId }, { is_default: false });
+      await this.savedAddressRepository.update({ user_id: user.id }, { is_default: false });
     }
 
     Object.assign(address, {
@@ -158,8 +177,9 @@ export class UsersService {
     return this.savedAddressRepository.save(address);
   }
 
-  async deleteSavedLocation(userId: string, id: string) {
-    const address = await this.savedAddressRepository.findOne({ where: { id, user_id: userId } });
+  async deleteSavedLocation(jwtUser: any, id: string) {
+    const user = await this.getOrCreateUser(jwtUser);
+    const address = await this.savedAddressRepository.findOne({ where: { id, user_id: user.id } });
     if (!address) throw new NotFoundException('Address not found');
 
     const wasDefault = address.is_default;
@@ -168,7 +188,7 @@ export class UsersService {
     // If the deleted address was default, promote the oldest remaining one
     if (wasDefault) {
       const next = await this.savedAddressRepository.findOne({
-        where: { user_id: userId },
+        where: { user_id: user.id },
         order: { created_at: 'ASC' },
       });
       if (next) {
@@ -180,22 +200,22 @@ export class UsersService {
     return { message: 'Address deleted' };
   }
 
-  async setDefaultLocation(userId: string, id: string) {
-    await this.savedAddressRepository.update({ user_id: userId }, { is_default: false });
-    await this.savedAddressRepository.update({ id, user_id: userId }, { is_default: true });
+  async setDefaultLocation(jwtUser: any, id: string) {
+    const user = await this.getOrCreateUser(jwtUser);
+    await this.savedAddressRepository.update({ user_id: user.id }, { is_default: false });
+    await this.savedAddressRepository.update({ id, user_id: user.id }, { is_default: true });
     return { message: 'Default address updated' };
   }
 
-  async uploadAvatar(userId: string, fileData: any) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+  async uploadAvatar(jwtUser: any, fileData: any) {
+    const user = await this.getOrCreateUser(jwtUser);
     
     if (!fileData || !fileData.buffer) {
       throw new Error('No file provided');
     }
 
     const fileExtension = fileData.originalname?.split('.').pop() || 'png';
-    const key = `avatars/${userId}-${Date.now()}.${fileExtension}`;
+    const key = `avatars/${user.id}-${Date.now()}.${fileExtension}`;
 
     const command = new PutObjectCommand({
       Bucket: this.s3BucketName,
@@ -217,15 +237,17 @@ export class UsersService {
     };
   }
 
-  async getEmergencyContacts(userId: string) {
+  async getEmergencyContacts(jwtUser: any) {
+    const user = await this.getOrCreateUser(jwtUser);
     return this.emergencyContactRepository.find({
-      where: { user_id: userId },
+      where: { user_id: user.id },
     });
   }
 
-  async addEmergencyContact(userId: string, contactData: any) {
+  async addEmergencyContact(jwtUser: any, contactData: any) {
+    const user = await this.getOrCreateUser(jwtUser);
     const contact = this.emergencyContactRepository.create({
-      user_id: userId,
+      user_id: user.id,
       contact_name: contactData.contact_name || contactData.name,
       phone_number: contactData.phone_number || contactData.phone,
       relationship: contactData.relationship,
@@ -234,9 +256,10 @@ export class UsersService {
     return this.emergencyContactRepository.save(contact);
   }
 
-  async deleteEmergencyContact(userId: string, contactId: string) {
+  async deleteEmergencyContact(jwtUser: any, contactId: string) {
+    const user = await this.getOrCreateUser(jwtUser);
     const contact = await this.emergencyContactRepository.findOne({
-      where: { id: contactId, user_id: userId },
+      where: { id: contactId, user_id: user.id },
     });
     if (!contact) {
       throw new NotFoundException('Emergency contact not found');
@@ -245,8 +268,9 @@ export class UsersService {
     return { message: 'Emergency contact deleted successfully' };
   }
 
-  async triggerEmergencySos(userId: string, sosData: any) {
-    const contacts = await this.emergencyContactRepository.find({ where: { user_id: userId } });
+  async triggerEmergencySos(jwtUser: any, sosData: any) {
+    const user = await this.getOrCreateUser(jwtUser);
+    const contacts = await this.emergencyContactRepository.find({ where: { user_id: user.id } });
 
     const mapsUrl = (sosData.latitude && sosData.longitude)
       ? `https://maps.google.com/?q=${sosData.latitude},${sosData.longitude}`
@@ -276,7 +300,7 @@ export class UsersService {
         }
       }
     } else {
-      this.logger.warn(`Twilio credentials missing. SOS triggered for user ${userId}. Contacts: ${contacts.length}. Location: ${mapsUrl}`);
+      this.logger.warn(`Twilio credentials missing. SOS triggered for user ${user.id}. Contacts: ${contacts.length}. Location: ${mapsUrl}`);
       alertsSent = contacts.length;
     }
 
