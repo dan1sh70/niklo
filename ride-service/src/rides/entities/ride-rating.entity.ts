@@ -31,7 +31,7 @@ export class RideRating {
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 
-  @ManyToOne(() => Ride)
+  @ManyToOne(() => Ride, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ride_id' })
   ride: Ride;
 }

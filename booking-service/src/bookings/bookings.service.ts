@@ -41,6 +41,19 @@ export class BookingsService implements OnApplicationBootstrap {
       await this.bookingRepo.save(mockBooking);
       console.log('Seeded bookings mock data successfully.');
     }
+
+    // Backfill any existing bookings that have NULL reference_id
+    const nullRefBookings = await this.bookingRepo
+      .createQueryBuilder('b')
+      .where('b.reference_id IS NULL')
+      .getMany();
+    if (nullRefBookings.length > 0) {
+      for (const b of nullRefBookings) {
+        b.reference_id = b.id; // Use the booking's own UUID as fallback
+      }
+      await this.bookingRepo.save(nullRefBookings);
+      console.log(`Backfilled reference_id for ${nullRefBookings.length} booking(s).`);
+    }
   }
 
   private mapBookingToDto(b: Booking) {

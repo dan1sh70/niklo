@@ -63,6 +63,7 @@ import { Reflector } from '@nestjs/core';
     BusesModule,
     RoutesModule,
     SchedulesModule,
+    TypeOrmModule.forFeature([PopularBusRoute]),
   ],
   controllers: [AppController, LocationsController, PopularRoutesController],
   providers: [

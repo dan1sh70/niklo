@@ -33,7 +33,7 @@ export class Booking {
   @Column({ type: 'enum', enum: BookingType })
   booking_type: BookingType;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   reference_id: string;
 
   @Column({ type: 'varchar', length: 50, unique: true })
