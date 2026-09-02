@@ -22,6 +22,11 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('version')
+  async getVersion() {
+    return { version: 'jit-enabled-v2', timestamp: Date.now() };
+  }
+
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req: any) {
