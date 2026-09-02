@@ -65,6 +65,7 @@ services:
       - "traefik.http.routers.auth-service.rule=Host(`szs601uiqefhc8jbpeq587f3.187.127.157.13.sslip.io`)"
       - traefik.http.services.auth-service.loadbalancer.server.port=3001
     image: ghcr.io/dan1sh70/niklo-auth-service:latest
+    pull_policy: always
   bus-service:
     environment:
       NODE_ENV: development
@@ -95,6 +96,7 @@ services:
       - "traefik.http.routers.bus-service.rule=Host(`w1n68oxs2na9q9tbveqsqa4s.187.127.157.13.sslip.io`)"
       - traefik.http.services.bus-service.loadbalancer.server.port=3003
     image: ghcr.io/dan1sh70/niklo-bus-service:latest
+    pull_policy: always
   payment-service:
     environment:
       NODE_ENV: development
@@ -128,6 +130,7 @@ services:
       - "traefik.http.routers.payment-service.rule=Host(`n13chiypv5vg517ffvioht20.187.127.157.13.sslip.io`)"
       - traefik.http.services.payment-service.loadbalancer.server.port=3007
     image: ghcr.io/dan1sh70/niklo-payment-service:latest
+    pull_policy: always
   hotel-service:
     environment:
       NODE_ENV: development
@@ -158,6 +161,7 @@ services:
       - "traefik.http.routers.hotel-service.rule=Host(`b5m0ntg98i0cpdaidmcvdqwd.187.127.157.13.sslip.io`)"
       - traefik.http.services.hotel-service.loadbalancer.server.port=3004
     image: ghcr.io/dan1sh70/niklo-hotel-service:latest
+    pull_policy: always
   user-service:
     environment:
       NODE_ENV: development
@@ -191,6 +195,7 @@ services:
       - "traefik.http.routers.user-service.rule=Host(`f11slpsqn3bkula8r1yr292u.187.127.157.13.sslip.io`)"
       - traefik.http.services.user-service.loadbalancer.server.port=3002
     image: ghcr.io/dan1sh70/niklo-user-service:latest
+    pull_policy: always
   ride-service:
     environment:
       NODE_ENV: development
@@ -224,6 +229,7 @@ services:
       - "traefik.http.routers.ride-service.rule=Host(`my41fssoetuy2w34a2yettfe.187.127.157.13.sslip.io`)"
       - traefik.http.services.ride-service.loadbalancer.server.port=3005
     image: ghcr.io/dan1sh70/niklo-ride-service:latest
+    pull_policy: always
   driver-service:
     environment:
       NODE_ENV: development
@@ -254,6 +260,7 @@ services:
       - "traefik.http.routers.driver-service.rule=Host(`ebzdp7jvp5z5bhrl05tkvxsa.187.127.157.13.sslip.io`)"
       - traefik.http.services.driver-service.loadbalancer.server.port=3011
     image: ghcr.io/dan1sh70/niklo-driver-service:latest
+    pull_policy: always
   package-service:
     environment:
       NODE_ENV: development
@@ -344,6 +351,7 @@ services:
       - "traefik.http.routers.notification-service.rule=Host(`l2pdf6ail6mlmurxhtjjf44i.187.127.157.13.sslip.io`)"
       - traefik.http.services.notification-service.loadbalancer.server.port=3009
     image: ghcr.io/dan1sh70/niklo-notification-service:latest
+    pull_policy: always
   #   admin-service:
   #     environment:
   #       NODE_ENV: development
@@ -405,6 +413,7 @@ services:
       - "traefik.http.routers.booking-service.rule=Host(`yjfbvszz8e2yv5sefwcpxye4.187.127.157.13.sslip.io`)"
       - traefik.http.services.booking-service.loadbalancer.server.port=3014
     image: ghcr.io/dan1sh70/niklo-booking-service:latest
+    pull_policy: always
   ai-planner-service:
     environment:
       NODE_ENV: development
@@ -435,6 +444,7 @@ services:
       - "traefik.http.routers.ai-planner-service.rule=Host(`aiplanner.187.127.157.13.sslip.io`)"
       - traefik.http.services.ai-planner-service.loadbalancer.server.port=3015
     image: ghcr.io/dan1sh70/niklo-ai-planner-service:latest
+    pull_policy: always
   postgres-db:
     environment:
       POSTGRES_DB: postgres
