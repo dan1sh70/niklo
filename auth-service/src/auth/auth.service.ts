@@ -174,6 +174,26 @@ export class AuthService {
     // Store session in Redis
     await this.redisService.setSession(user.id, accessToken);
 
+    // Fetch up-to-date profile from user-service
+    let finalName = user.name;
+    let finalEmail = user.email;
+    try {
+      const response = await fetch('http://user-service:3002/api/v1/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      if (response.ok) {
+        const profileResponse = await response.json();
+        if (profileResponse?.data) {
+          finalName = profileResponse.data.name;
+          finalEmail = profileResponse.data.email;
+        }
+      }
+    } catch (err) {
+      console.error('[AuthService] Failed to fetch profile from user-service:', err.message);
+    }
+
     return {
       success: true,
       data: {
@@ -182,8 +202,8 @@ export class AuthService {
         user: {
           id: user.id,
           phone: user.phone,
-          name: user.name,
-          email: user.email,
+          name: finalName,
+          email: finalEmail,
         },
       },
     };
