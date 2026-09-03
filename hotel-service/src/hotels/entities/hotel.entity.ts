@@ -25,7 +25,7 @@ export class Hotel {
   @Column({ type: 'uuid', nullable: true })
   partnerId: string;
 
-  @Column()
+  @Column({ nullable: true })
   title: string;
 
   @Column({
@@ -38,7 +38,7 @@ export class Hotel {
   @Column({ length: 100, default: 'City' })
   city: string;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   address: string;
 
   @Column('numeric', { precision: 10, scale: 6, nullable: true })
@@ -59,7 +59,7 @@ export class Hotel {
   @Column('int', { default: 0 })
   reviews_count: number;
 
-  @Column('numeric', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2, nullable: true })
   price_per_night: number;
 
   @Column('numeric', { precision: 10, scale: 2, nullable: true })
@@ -83,7 +83,7 @@ export class Hotel {
   @Column({ default: true })
   free_cancellation: boolean;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   image_url: string;
 
   @Column({ type: 'jsonb', default: [] })
@@ -104,7 +104,7 @@ export class Hotel {
   @Column({ type: 'jsonb', nullable: true })
   rating_breakdown: any;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   description: string;
 
   @Column({ default: true })

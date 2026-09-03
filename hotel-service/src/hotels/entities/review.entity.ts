@@ -18,16 +18,16 @@ export class Review {
   @Column('uuid')
   user_id: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, nullable: true })
   user_name: string;
 
   @Column('text', { nullable: true })
   user_avatar: string;
 
-  @Column('numeric', { precision: 3, scale: 2 })
+  @Column('numeric', { precision: 3, scale: 2, nullable: true })
   rating: number;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   comment: string;
 
   @CreateDateColumn()
