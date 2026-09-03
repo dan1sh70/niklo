@@ -33,22 +33,17 @@ import { Client } from 'pg';
         });
         try {
           await client.connect();
-          // Check if both tables exist before attempting cleanup
-          const tableCheck = await client.query(
-            `SELECT COUNT(*) as cnt FROM information_schema.tables 
-             WHERE table_name IN ('ride_ratings', 'rides') AND table_schema = 'public'`,
+          // Unconditionally attempt cleanup; if tables don't exist yet, this throws and is caught safely
+          const result = await client.query(
+            `DELETE FROM ride_ratings 
+             WHERE NOT EXISTS (SELECT 1 FROM rides WHERE rides.id = ride_ratings.ride_id)`
           );
-          if (parseInt(tableCheck.rows[0].cnt) === 2) {
-            const result = await client.query(
-              `DELETE FROM ride_ratings rr
-               WHERE NOT EXISTS (SELECT 1 FROM rides r WHERE r.id = rr.ride_id)`,
-            );
-            if (result.rowCount > 0) {
-              console.log(`[ride-service] Cleaned up ${result.rowCount} orphaned ride_ratings.`);
-            }
+          if (result && result.rowCount > 0) {
+            console.log(`[ride-service] Cleaned up ${result.rowCount} orphaned ride_ratings.`);
           }
         } catch (err) {
-          console.warn('[ride-service] Pre-sync cleanup warning:', err.message);
+          // It's perfectly normal for this to fail on a completely fresh database
+          console.log('[ride-service] Pre-sync cleanup skipped (tables likely do not exist yet).');
         } finally {
           try { await client.end(); } catch (_) {}
         }
