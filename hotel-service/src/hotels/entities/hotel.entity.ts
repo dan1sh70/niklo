@@ -86,19 +86,19 @@ export class Hotel {
   @Column('text', { nullable: true })
   image_url: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   gallery_images: string[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   amenities: any[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   nearby_places: any[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   features: any[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   house_rules: any[];
 
   @Column({ type: 'jsonb', nullable: true })
