@@ -32,18 +32,27 @@ import { Client } from 'pg';
           database: dbConfig.database,
         });
         try {
-          await client.connect();
-          // Unconditionally attempt cleanup; if tables don't exist yet, this throws and is caught safely
-          const result = await client.query(
-            `DELETE FROM ride_ratings 
-             WHERE NOT EXISTS (SELECT 1 FROM rides WHERE rides.id = ride_ratings.ride_id)`
-          );
-          if (result && result.rowCount > 0) {
-            console.log(`[ride-service] Cleaned up ${result.rowCount} orphaned ride_ratings.`);
+          let connected = false;
+          for (let i = 0; i < 5; i++) {
+            try {
+              await client.connect();
+              connected = true;
+              break;
+            } catch (e) {
+              await new Promise(res => setTimeout(res, 2000));
+            }
+          }
+          if (connected) {
+            const result = await client.query(
+              `DELETE FROM ride_ratings 
+               WHERE NOT EXISTS (SELECT 1 FROM rides WHERE rides.id = ride_ratings.ride_id)`
+            );
+            if (result && result.rowCount > 0) {
+              console.log(`[ride-service] Cleaned up ${result.rowCount} orphaned ride_ratings.`);
+            }
           }
         } catch (err) {
-          // It's perfectly normal for this to fail on a completely fresh database
-          console.log('[ride-service] Pre-sync cleanup skipped (tables likely do not exist yet).');
+          console.log('[ride-service] Pre-sync cleanup skipped:', err.message);
         } finally {
           try { await client.end(); } catch (_) {}
         }
