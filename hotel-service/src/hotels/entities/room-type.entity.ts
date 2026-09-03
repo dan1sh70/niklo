@@ -12,7 +12,7 @@ export class RoomType {
   @Column()
   title: string;
 
-  @Column('numeric', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2, default: 0 })
   price_per_night: number;
 
   @Column('int', { default: 2 })
