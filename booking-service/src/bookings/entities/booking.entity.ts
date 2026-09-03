@@ -36,34 +36,34 @@ export class Booking {
   @Column({ type: 'uuid', nullable: true })
   reference_id: string;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
   booking_reference: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   title: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   subtitle: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   from_location: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   to_location: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   travel_date: Date;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   departure_time: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   total_amount: number;
 
   @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.CONFIRMED })
   status: BookingStatus;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   qr_code_token: string;
 
   @Column({ type: 'boolean', default: false })
