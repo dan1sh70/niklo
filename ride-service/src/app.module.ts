@@ -43,12 +43,21 @@ import { Client } from 'pg';
             }
           }
           if (connected) {
-            const result = await client.query(
-              `DELETE FROM ride_ratings 
-               WHERE NOT EXISTS (SELECT 1 FROM rides WHERE rides.id = ride_ratings.ride_id)`
-            );
-            if (result && result.rowCount > 0) {
-              console.log(`[ride-service] Cleaned up ${result.rowCount} orphaned ride_ratings.`);
+            try {
+              const result = await client.query(
+                `DELETE FROM ride_ratings 
+                 WHERE NOT EXISTS (SELECT 1 FROM rides WHERE rides.id = ride_ratings.ride_id)`
+              );
+              if (result && result.rowCount > 0) {
+                console.log(`[ride-service] Cleaned up ${result.rowCount} orphaned ride_ratings.`);
+              }
+            } catch (queryErr: any) {
+              if (queryErr.message?.includes('relation "rides" does not exist')) {
+                // If rides table is completely missing but ride_ratings has old data,
+                // we must wipe ride_ratings otherwise TypeORM will crash adding the FK
+                await client.query(`DELETE FROM ride_ratings`);
+                console.log('[ride-service] Wiped ride_ratings because rides table is missing.');
+              }
             }
           }
         } catch (err) {
