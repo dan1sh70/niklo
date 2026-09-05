@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PackagesService } from './packages.service';
 import { PackagesController } from './packages.controller';
-import { TravelPackage } from './entities/package.entity';
+import { PackagesService } from './packages.service';
+import { HolidayPackage } from './entities/holiday-package.entity';
+import { PackageGalleryMedia } from './entities/package-gallery-media.entity';
+import { PackageItineraryDay } from './entities/package-itinerary-day.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TravelPackage])],
+  imports: [TypeOrmModule.forFeature([HolidayPackage, PackageGalleryMedia, PackageItineraryDay])],
   controllers: [PackagesController],
   providers: [PackagesService],
+  exports: [PackagesService],
 })
 export class PackagesModule {}

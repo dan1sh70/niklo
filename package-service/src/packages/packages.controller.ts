@@ -1,28 +1,14 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
   Query,
-  HttpCode,
-  HttpStatus,
+  Param,
 } from '@nestjs/common';
 import { PackagesService } from './packages.service';
-import { CreatePackageDto } from './dto/create-package.dto';
-import { UpdatePackageDto } from './dto/update-package.dto';
 
 @Controller('api/v1/packages')
 export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
-
-  @Post()
-  async create(@Body() createPackageDto: CreatePackageDto) {
-    const data = await this.packagesService.create(createPackageDto);
-    return { success: true, statusCode: 201, data };
-  }
 
   @Get()
   async findAll(@Query() query: any) {
@@ -36,21 +22,9 @@ export class PackagesController {
     return { success: true, statusCode: 200, data };
   }
 
-  @Get('destinations/popular')
+  @Get('popular')
   async getPopularDestinations() {
     const data = await this.packagesService.getPopularDestinations();
-    return { success: true, statusCode: 200, data };
-  }
-
-  @Get('destination/:name')
-  async getPackagesByDestination(@Param('name') name: string) {
-    const data = await this.packagesService.getPackagesByDestination(name);
-    return { success: true, statusCode: 200, data };
-  }
-
-  @Get('category/:category')
-  async getPackagesByCategory(@Param('category') category: string) {
-    const data = await this.packagesService.getPackagesByCategory(category);
     return { success: true, statusCode: 200, data };
   }
 
@@ -61,8 +35,8 @@ export class PackagesController {
   }
 
   @Get('trending')
-  async getTrendingPackages(@Query('limit') limit: number) {
-    const data = await this.packagesService.getTrendingPackages(limit ? Number(limit) : 6);
+  async getTrendingPackages() {
+    const data = await this.packagesService.getTrendingPackages();
     return { success: true, statusCode: 200, data };
   }
 
@@ -72,15 +46,29 @@ export class PackagesController {
     return { success: true, statusCode: 200, data };
   }
 
-  @Get('meta/cities')
+  @Get('cities')
   async getCities() {
     const data = await this.packagesService.getCities();
     return { success: true, statusCode: 200, data };
   }
 
-  @Post(':id/availability')
-  @HttpCode(HttpStatus.OK)
-  async checkAvailability(@Param('id') id: string, @Body() checkParams: any) {
+  @Get('destination/:name')
+  async getPackagesByDestination(@Param('name') name: string) {
+    const data = await this.packagesService.getPackagesByDestination(name);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('category/:name')
+  async getPackagesByCategory(@Param('name') name: string) {
+    const data = await this.packagesService.getPackagesByCategory(name);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get(':id/availability')
+  async checkAvailability(
+    @Param('id') id: string,
+    @Query() checkParams: any,
+  ) {
     const data = await this.packagesService.checkAvailability(id, checkParams);
     return { success: true, statusCode: 200, data };
   }
@@ -88,21 +76,6 @@ export class PackagesController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.packagesService.findOne(id);
-    return { success: true, statusCode: 200, data };
-  }
-
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updatePackageDto: UpdatePackageDto,
-  ) {
-    const data = await this.packagesService.update(id, updatePackageDto);
-    return { success: true, statusCode: 200, data };
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const data = await this.packagesService.remove(id);
     return { success: true, statusCode: 200, data };
   }
 }

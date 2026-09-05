@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { PackagesModule } from './packages/packages.module';
 import { databaseConfig } from './config/database.config';
 
+import { PartnerModule } from './partner/partner.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,6 +26,7 @@ import { databaseConfig } from './config/database.config';
       inject: [ConfigService],
     }),
     PackagesModule,
+    PartnerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
