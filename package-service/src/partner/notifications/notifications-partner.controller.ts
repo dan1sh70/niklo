@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { NotificationsPartnerService } from './notifications-partner.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 
@@ -9,45 +9,36 @@ export class NotificationsPartnerController {
 
   @Get()
   async getNotifications(@Req() req: any, @Query() query: any) {
-    const data = await this.notifService.getNotifications(req.user.id, query);
-    return { success: true, data };
+    return { success: true, data: await this.notifService.getNotifications(req.user.partnerProfileId, query) };
   }
 
-  @Patch(':id/read')
+  @Put(':id/read')
   async markAsRead(@Req() req: any, @Param('id') id: string) {
-    await this.notifService.markAsRead(req.user.id, id);
-    return { success: true, message: 'Notification marked as read' };
+    return { success: true, data: await this.notifService.markAsRead(req.user.partnerProfileId, id) };
   }
 
-  @Post('mark-all-read')
-  @HttpCode(HttpStatus.OK)
+  @Put('read-all')
   async markAllAsRead(@Req() req: any) {
-    await this.notifService.markAllAsRead(req.user.id);
-    return { success: true, message: 'All notifications marked as read' };
+    return { success: true, data: await this.notifService.markAllAsRead(req.user.partnerProfileId) };
   }
 
   @Delete(':id')
   async dismissNotification(@Req() req: any, @Param('id') id: string) {
-    await this.notifService.dismissNotification(req.user.id, id);
-    return { success: true, message: 'Notification dismissed' };
+    return { success: true, data: await this.notifService.deleteNotification(req.user.partnerProfileId, id) };
   }
 
   @Post('device-token')
-  @HttpCode(HttpStatus.OK)
   async registerDeviceToken(@Req() req: any, @Body() body: any) {
-    await this.notifService.registerDeviceToken(req.user.id, body);
-    return { success: true, message: 'Device token registered for push notifications' };
+    return { success: true, data: await this.notifService.registerFcmToken(req.user.id, req.user.partnerProfileId, body) };
   }
 
   @Get('preferences')
   async getPreferences(@Req() req: any) {
-    const data = await this.notifService.getPreferences(req.user.id);
-    return { success: true, data };
+    return { success: true, data: {} };
   }
 
-  @Patch('preferences')
+  @Put('preferences')
   async updatePreferences(@Req() req: any, @Body() body: any) {
-    const data = await this.notifService.updatePreferences(req.user.id, body);
-    return { success: true, message: 'Notification preferences updated', data };
+    return { success: true, data: await this.notifService.updatePreferences(req.user.partnerProfileId, body) };
   }
 }

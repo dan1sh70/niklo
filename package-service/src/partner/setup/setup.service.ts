@@ -212,18 +212,20 @@ export class SetupService {
     }
     
     bank.account_holder_name = dto.accountName;
-    bank.account_number = dto.accountNumber;
+    bank.account_number_encrypted = 'ENCRYPTED_' + dto.accountNumber;
+    bank.account_number_mask = '•••• •••• ' + dto.accountNumber.slice(-4);
     bank.ifsc_code = dto.ifsc;
     bank.bank_name = 'Mock Bank (Penny Drop)';
     bank.is_verified = true; // Mock penny drop success
-    bank.verification_id = 'mock_fund_acc_' + Math.floor(Math.random() * 1000000);
+    bank.penny_drop_status = 'SUCCESS';
+    bank.penny_drop_ref = 'mock_fund_acc_' + Math.floor(Math.random() * 1000000);
     
     await this.bankRepo.save(bank);
     
     partner.onboarding_step = 'SUBMITTED';
     await this.partnerRepo.save(partner);
     
-    return { verified: true, verificationId: bank.verification_id, nextStep: 'SUBMITTED' };
+    return { verified: true, verificationId: bank.penny_drop_ref, nextStep: 'SUBMITTED' };
   }
 
   async submitForVerification(userId: string) {

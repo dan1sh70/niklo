@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Param, Req, UseGuards, Post, Body } from '@nestjs/common';
 import { EarningsService } from './earnings.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 
@@ -9,7 +9,7 @@ export class EarningsController {
 
   @Get('analytics')
   async getAnalytics(@Req() req: any, @Query() query: any) {
-    const data = await this.earningsService.getAnalytics(req.user.id, query);
+    const data = await this.earningsService.getAnalytics(req.user.partnerProfileId, query);
     return { success: true, data };
   }
 
@@ -20,13 +20,19 @@ export class EarningsController {
 
   @Get('settlements')
   async listSettlements(@Req() req: any, @Query() query: any) {
-    const data = await this.earningsService.listSettlements(req.user.id, query);
+    const data = await this.earningsService.listSettlements(req.user.partnerProfileId, query);
     return { success: true, data };
   }
 
   @Get('settlements/:id')
   async getSettlement(@Req() req: any, @Param('id') id: string) {
-    const data = await this.earningsService.getSettlement(req.user.id, id);
+    const data = await this.earningsService.getSettlement(req.user.partnerProfileId, id);
     return { success: true, data };
+  }
+
+  @Post('withdraw')
+  async withdraw(@Req() req: any, @Body() body: any) {
+    const data = await this.earningsService.requestWithdrawal(req.user.partnerProfileId, body.amount);
+    return { success: true, message: 'Withdrawal requested successfully', data };
   }
 }

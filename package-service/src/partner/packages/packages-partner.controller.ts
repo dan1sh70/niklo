@@ -10,80 +10,72 @@ export class PackagesPartnerController {
 
   @Get()
   async getPackages(@Req() req: any, @Query() query: any) {
-    const data = await this.packageService.getPackages(req.user.id, query);
+    const data = await this.packageService.getPackages(req.user.partnerProfileId, query);
     return { success: true, ...data };
   }
 
   @Get(':id')
   async getPackage(@Req() req: any, @Param('id') id: string) {
-    const data = await this.packageService.getPackage(req.user.id, id);
+    const data = await this.packageService.getPackage(req.user.partnerProfileId, id);
     return { success: true, data };
   }
 
-  // WIZARD STEP 1: Basic Details
-  @Post('wizard/step-1')
-  async saveStep1(@Req() req: any, @Body() body: any) {
-    const data = await this.packageService.saveStep1(req.user.id, body);
-    return { success: true, message: 'Step 1 saved', data };
+  @Post('draft')
+  async createDraft(@Req() req: any) {
+    const data = await this.packageService.initializeDraft(req.user.partnerProfileId);
+    return { success: true, message: 'Draft created', data };
   }
 
-  // WIZARD STEP 2: Itinerary Setup
-  @Post('wizard/:id/step-2')
-  async saveStep2(@Req() req: any, @Param('id') id: string, @Body() body: { days: any[] }) {
-    const data = await this.packageService.saveStep2(req.user.id, id, body.days);
-    return { success: true, message: 'Step 2 saved', data };
+  @Put(':id/basic-info')
+  async saveBasicInfo(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const data = await this.packageService.saveBasicInfo(req.user.partnerProfileId, id, body);
+    return { success: true, message: 'Basic info saved', data };
   }
 
-  // WIZARD STEP 3: Inclusions & Exclusions
-  @Post('wizard/:id/step-3')
-  async saveStep3(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    const data = await this.packageService.saveStep3(req.user.id, id, body);
-    return { success: true, message: 'Step 3 saved', data };
-  }
-
-  // WIZARD STEP 4: Group Size & Price
-  @Post('wizard/:id/step-4')
-  async saveStep4(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    const data = await this.packageService.saveStep4(req.user.id, id, body);
-    return { success: true, message: 'Step 4 saved', data };
-  }
-
-  // WIZARD STEP 5: Discounts & Offers
-  @Post('wizard/:id/step-5')
-  async saveStep5(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    const data = await this.packageService.saveStep5(req.user.id, id, body);
-    return { success: true, message: 'Step 5 saved', data };
-  }
-
-  // WIZARD STEP 6: Media Gallery
-  @Post('wizard/:id/step-6/upload')
+  @Post(':id/photos')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadMedia(
+  async uploadPhoto(
     @Req() req: any,
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() body: { isCover?: string }
   ) {
-    const data = await this.packageService.uploadMedia(req.user.id, id, file, body.isCover === 'true');
+    const data = await this.packageService.uploadMedia(req.user.partnerProfileId, id, file, body.isCover === 'true');
     return { success: true, message: 'Media uploaded', data };
   }
 
-  @Delete('wizard/:id/step-6/:mediaId')
-  async deleteMedia(@Req() req: any, @Param('id') id: string, @Param('mediaId') mediaId: string) {
-    await this.packageService.deleteMedia(req.user.id, id, mediaId);
-    return { success: true, message: 'Media deleted' };
+  @Put(':id/itinerary')
+  async saveItinerary(@Req() req: any, @Param('id') id: string, @Body() body: { days: any[] }) {
+    const data = await this.packageService.saveItinerary(req.user.partnerProfileId, id, body.days);
+    return { success: true, message: 'Itinerary saved', data };
   }
 
-  // WIZARD STEP 7: Review & Publish
-  @Post('wizard/:id/step-7/publish')
+  @Put(':id/inclusions')
+  async saveInclusions(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const data = await this.packageService.saveInclusions(req.user.partnerProfileId, id, body);
+    return { success: true, message: 'Inclusions saved', data };
+  }
+
+  @Put(':id/pricing')
+  async savePricing(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const data = await this.packageService.savePricing(req.user.partnerProfileId, id, body);
+    return { success: true, message: 'Pricing saved', data };
+  }
+
+  @Put(':id/availability')
+  async saveAvailability(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const data = await this.packageService.saveAvailability(req.user.partnerProfileId, id, body);
+    return { success: true, message: 'Availability saved', data };
+  }
+
+  @Post(':id/publish')
   async publishPackage(@Req() req: any, @Param('id') id: string) {
-    const data = await this.packageService.publishPackage(req.user.id, id);
+    const data = await this.packageService.publishPackage(req.user.partnerProfileId, id);
     return { success: true, message: 'Package published successfully', data };
   }
 
-  @Delete(':id')
   async deletePackage(@Req() req: any, @Param('id') id: string) {
-    await this.packageService.deletePackage(req.user.id, id);
+    await this.packageService.deletePackage(req.user.partnerProfileId, id);
     return { success: true, message: 'Package deleted' };
   }
 }

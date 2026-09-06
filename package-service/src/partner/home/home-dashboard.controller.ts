@@ -9,13 +9,13 @@ export class HomeDashboardController {
 
   @Get('dashboard')
   async getDashboard(@Req() req: any) {
-    const data = await this.homeService.getDashboard(req.user.id);
+    const data = await this.homeService.getDashboard(req.user.partnerProfileId);
     return { success: true, data };
   }
 
   @Get('chart')
   async getChartData(@Req() req: any, @Query('period') period: string) {
-    const data = await this.homeService.getChartData(req.user.id, period || 'Week');
+    const data = await this.homeService.getChartData(req.user.partnerProfileId, period || 'Week');
     return { success: true, data };
   }
 }

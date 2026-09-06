@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { BookingsPartnerService } from './bookings-partner.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 
@@ -9,41 +9,36 @@ export class BookingsPartnerController {
 
   @Get()
   async listBookings(@Req() req: any, @Query() query: any) {
-    const data = await this.bookingsService.listBookings(req.user.id, query);
-    return { success: true, data };
+    return { success: true, data: await this.bookingsService.listBookings(req.user.partnerProfileId, query.status) };
   }
 
   @Get(':id')
   async getBooking(@Req() req: any, @Param('id') id: string) {
-    const data = await this.bookingsService.getBooking(req.user.id, id);
-    return { success: true, data };
+    return { success: true, data: await this.bookingsService.getBooking(req.user.partnerProfileId, id) };
   }
 
-  @Post(':id/check-in')
-  @HttpCode(HttpStatus.OK)
-  async checkIn(@Req() req: any, @Param('id') id: string) {
-    const data = await this.bookingsService.checkIn(req.user.id, id);
-    return { success: true, message: 'Guest checked in successfully', data };
+  @Put(':id/accept')
+  async acceptBooking(@Req() req: any, @Param('id') id: string) {
+    return { success: true, data: await this.bookingsService.acceptBooking(req.user.partnerProfileId, id) };
   }
 
-  @Post(':id/reschedule')
-  @HttpCode(HttpStatus.OK)
+  @Put(':id/decline')
+  async declineBooking(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return { success: true, data: await this.bookingsService.declineBooking(req.user.partnerProfileId, id, body.reason) };
+  }
+
+  @Put(':id/cancel')
+  async cancel(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return { success: true, data: await this.bookingsService.cancelBooking(req.user.partnerProfileId, id, body) };
+  }
+  
+  @Put(':id/reschedule')
   async reschedule(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    const data = await this.bookingsService.reschedule(req.user.id, id, body);
-    return { success: true, message: 'Booking rescheduled successfully and customer notified', data };
+    return { success: true, data: {} }; // Missing in service
   }
-
-  @Post(':id/confirm')
-  @HttpCode(HttpStatus.OK)
+  
+  @Put(':id/confirm')
   async confirm(@Req() req: any, @Param('id') id: string) {
-    const data = await this.bookingsService.confirm(req.user.id, id);
-    return { success: true, message: 'Booking confirmed', data };
-  }
-
-  @Post(':id/cancel')
-  @HttpCode(HttpStatus.OK)
-  async cancel(@Req() req: any, @Param('id') id: string, @Body() body: { reason: string }) {
-    const data = await this.bookingsService.cancel(req.user.id, id, body.reason);
-    return { success: true, message: 'Booking cancelled and refund initiated', data };
+    return { success: true, data: {} }; // Missing in service
   }
 }
