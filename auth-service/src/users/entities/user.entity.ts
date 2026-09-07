@@ -17,6 +17,7 @@ export enum UserRole {
   DRIVER = 'Car Driver',
   BUS_OPERATOR = 'Bus Operator',
   HOTEL_PARTNER = 'Hotel Partner',
+  PACKAGE_PARTNER = 'Package Partner',
   ADMIN = 'Admin',
 }
 

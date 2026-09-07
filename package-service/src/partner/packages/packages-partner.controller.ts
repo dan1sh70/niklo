@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Patch, Body, Param, Req, UseGuards, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { PackagesPartnerService } from './packages-partner.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -74,8 +74,15 @@ export class PackagesPartnerController {
     return { success: true, message: 'Package published successfully', data };
   }
 
+  @Delete(':id')
   async deletePackage(@Req() req: any, @Param('id') id: string) {
     await this.packageService.deletePackage(req.user.partnerProfileId, id);
     return { success: true, message: 'Package deleted' };
+  }
+
+  @Patch(':id/status')
+  async toggleStatus(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const data = await this.packageService.toggleStatus(req.user.partnerProfileId, id, body);
+    return { success: true, message: 'Package status updated', data };
   }
 }

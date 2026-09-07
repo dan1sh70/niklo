@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { NotificationsPartnerService } from './notifications-partner.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 
@@ -12,12 +12,12 @@ export class NotificationsPartnerController {
     return { success: true, data: await this.notifService.getNotifications(req.user.partnerProfileId, query) };
   }
 
-  @Put(':id/read')
+  @Patch(':id/read')
   async markAsRead(@Req() req: any, @Param('id') id: string) {
     return { success: true, data: await this.notifService.markAsRead(req.user.partnerProfileId, id) };
   }
 
-  @Put('read-all')
+  @Patch('mark-all-read')
   async markAllAsRead(@Req() req: any) {
     return { success: true, data: await this.notifService.markAllAsRead(req.user.partnerProfileId) };
   }
@@ -27,7 +27,7 @@ export class NotificationsPartnerController {
     return { success: true, data: await this.notifService.deleteNotification(req.user.partnerProfileId, id) };
   }
 
-  @Post('device-token')
+  @Post('fcm-token')
   async registerDeviceToken(@Req() req: any, @Body() body: any) {
     return { success: true, data: await this.notifService.registerFcmToken(req.user.id, req.user.partnerProfileId, body) };
   }

@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 import { RedisService } from '../redis/redis.service';
 import { Twilio } from 'twilio';
 
@@ -194,6 +194,27 @@ export class AuthService {
       console.error('[AuthService] Failed to fetch profile from user-service:', err.message);
     }
 
+    let partnerProfileId = null;
+    let onboardingStatus = null;
+    if (user.role === UserRole.PACKAGE_PARTNER || (user.role as string) === 'PACKAGE_PARTNER' || (user.role as string) === 'TOUR_OPERATOR') {
+      try {
+        const response = await fetch('http://package-service:3012/api/v1/package-partner/setup/verification-status', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        if (response.ok) {
+          const partnerResponse = await response.json();
+          if (partnerResponse?.data) {
+            partnerProfileId = partnerResponse.data.partnerId || null;
+            onboardingStatus = partnerResponse.data.verificationStatus || null;
+          }
+        }
+      } catch (err) {
+        console.error('[AuthService] Failed to fetch partner profile from package-service:', err.message);
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -204,6 +225,9 @@ export class AuthService {
           phone: user.phone,
           name: finalName,
           email: finalEmail,
+          role: user.role,
+          partnerProfileId,
+          onboardingStatus,
         },
       },
     };

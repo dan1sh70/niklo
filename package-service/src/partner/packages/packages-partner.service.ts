@@ -25,9 +25,28 @@ export class PackagesPartnerService {
     private readonly dayRepository: Repository<PackageItineraryDay>,
   ) {}
 
-  async listPackages(partnerId: string, status?: string) { return []; }
-  async getPackages(partnerId: string, query?: any) { return []; }
-  async getPackage(partnerId: string, packageId: string) { return {}; }
+  async listPackages(partnerId: string, status?: string) {
+    const query = { partner_id: partnerId };
+    if (status) query['status'] = status;
+    return await this.packageRepository.find({ where: query, order: { created_at: 'DESC' } });
+  }
+
+  async getPackages(partnerId: string, query?: any) {
+    const where: any = { partner_id: partnerId };
+    if (query?.status) where.status = query.status;
+    const packages = await this.packageRepository.find({ where, order: { created_at: 'DESC' } });
+    return { data: packages, total: packages.length };
+  }
+
+  async getPackage(partnerId: string, packageId: string) {
+    return await this.packageRepository.findOne({
+      where: { id: packageId, partner_id: partnerId },
+      relations: {
+        gallery_media: true,
+        itinerary_days: true
+      }
+    });
+  }
   async initializeDraft(partnerId: string) {
     const pkg = this.packageRepository.create({
       partner_id: partnerId,
@@ -169,5 +188,14 @@ export class PackagesPartnerService {
   async deletePackage(partnerId: string, packageId: string) {
     await this.packageRepository.delete({ id: packageId, partner_id: partnerId });
     return { success: true };
+  }
+
+  async toggleStatus(partnerId: string, packageId: string, body: any) {
+    const status = body.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE';
+    await this.packageRepository.update(
+      { id: packageId, partner_id: partnerId },
+      { status: status }
+    );
+    return this.packageRepository.findOne({ where: { id: packageId } });
   }
 }

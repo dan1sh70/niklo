@@ -22,14 +22,27 @@ export class EarningsService {
     private readonly bookingRepository: Repository<PackageBooking>,
   ) {}
 
-  async getOverview(partnerId: string) { return {}; }
-  async getChartData(partnerId: string, query: any) { return []; }
-  async getAnalytics(partnerId: string, query: any) {
+  async getOverview(partnerId: string, query: any) {
     return {
       totalEarnings: 150000,
       upcomingPayout: 40000,
-      completedBookings: 12
+      pendingClearance: 12000,
+      availableBalance: 68000,
+      stats: {
+        totalBookings: 45,
+        completedBookings: 40,
+        cancelledBookings: 5
+      }
     };
+  }
+
+  async getChartData(partnerId: string, period: string) {
+    return [
+      { label: 'Week 1', revenue: 15000, bookings: 3 },
+      { label: 'Week 2', revenue: 22000, bookings: 4 },
+      { label: 'Week 3', revenue: 18000, bookings: 3 },
+      { label: 'Week 4', revenue: 32500, bookings: 5 }
+    ];
   }
 
   async getPayoutPolicy() {

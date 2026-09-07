@@ -25,8 +25,39 @@ export class ProfileService {
     private readonly fcmTokenRepository: Repository<PartnerDeviceFcmToken>,
   ) {}
 
-  async getProfile(partnerId: string) { return {}; }
-  async updateBusinessDetails(partnerId: string, body: any) { return {}; }
+  async getProfile(partnerId: string) {
+    const partner = await this.partnerRepository.findOne({ where: { id: partnerId } });
+    if (!partner) throw new NotFoundException('Profile not found');
+    return {
+      partnerId: partner.id,
+      businessName: partner.business_name,
+      businessType: partner.business_type,
+      email: partner.email,
+      phone: partner.phone,
+      address: partner.address_line1,
+      city: partner.city,
+      state: partner.state,
+      pincode: partner.pincode,
+      verificationStatus: partner.verification_status,
+      createdAt: partner.created_at
+    };
+  }
+
+  async updateBusinessDetails(partnerId: string, body: any) {
+    await this.partnerRepository.update(
+      { id: partnerId },
+      {
+        business_name: body.businessName,
+        email: body.email,
+        phone: body.phone,
+        address_line1: body.address,
+        city: body.city,
+        state: body.state,
+        pincode: body.pincode,
+      }
+    );
+    return this.getProfile(partnerId);
+  }
   async getDocuments(partnerId: string) {
     const docs = await this.documentRepository.find({ where: { partner_id: partnerId } });
     return docs.map(doc => ({

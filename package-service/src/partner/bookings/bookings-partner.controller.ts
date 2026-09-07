@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { BookingsPartnerService } from './bookings-partner.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 
@@ -17,28 +17,28 @@ export class BookingsPartnerController {
     return { success: true, data: await this.bookingsService.getBooking(req.user.partnerProfileId, id) };
   }
 
-  @Put(':id/accept')
+  @Post(':id/accept')
   async acceptBooking(@Req() req: any, @Param('id') id: string) {
     return { success: true, data: await this.bookingsService.acceptBooking(req.user.partnerProfileId, id) };
   }
 
-  @Put(':id/decline')
+  @Post(':id/decline')
   async declineBooking(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return { success: true, data: await this.bookingsService.declineBooking(req.user.partnerProfileId, id, body.reason) };
   }
 
-  @Put(':id/cancel')
+  @Post(':id/cancel')
   async cancel(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return { success: true, data: await this.bookingsService.cancelBooking(req.user.partnerProfileId, id, body) };
   }
-  
-  @Put(':id/reschedule')
-  async reschedule(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    return { success: true, data: {} }; // Missing in service
+
+  @Patch(':id/complete')
+  async complete(@Req() req: any, @Param('id') id: string) {
+    return { success: true, data: await this.bookingsService.completeBooking(req.user.partnerProfileId, id) };
   }
-  
-  @Put(':id/confirm')
-  async confirm(@Req() req: any, @Param('id') id: string) {
-    return { success: true, data: {} }; // Missing in service
+
+  @Get(':id/voucher')
+  async getVoucher(@Req() req: any, @Param('id') id: string) {
+    return { success: true, data: await this.bookingsService.downloadVoucher(req.user.partnerProfileId, id) };
   }
 }

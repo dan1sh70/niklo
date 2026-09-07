@@ -7,9 +7,15 @@ import { JwtAuthGuard } from '../common/jwt-auth.guard';
 export class EarningsController {
   constructor(private readonly earningsService: EarningsService) {}
 
-  @Get('analytics')
-  async getAnalytics(@Req() req: any, @Query() query: any) {
-    const data = await this.earningsService.getAnalytics(req.user.partnerProfileId, query);
+  @Get('overview')
+  async getOverview(@Req() req: any, @Query() query: any) {
+    const data = await this.earningsService.getOverview(req.user.partnerProfileId, query);
+    return { success: true, data };
+  }
+
+  @Get('chart')
+  async getChartData(@Req() req: any, @Query() query: any) {
+    const data = await this.earningsService.getChartData(req.user.partnerProfileId, query.period || 'month');
     return { success: true, data };
   }
 
@@ -18,16 +24,21 @@ export class EarningsController {
     return { success: true, data: this.earningsService.getPayoutPolicy() };
   }
 
-  @Get('settlements')
+  @Get('transactions')
   async listSettlements(@Req() req: any, @Query() query: any) {
     const data = await this.earningsService.listSettlements(req.user.partnerProfileId, query);
     return { success: true, data };
   }
 
-  @Get('settlements/:id')
+  @Get('transactions/:id')
   async getSettlement(@Req() req: any, @Param('id') id: string) {
     const data = await this.earningsService.getSettlement(req.user.partnerProfileId, id);
     return { success: true, data };
+  }
+
+  @Get('transactions/:id/invoice')
+  async getInvoice(@Req() req: any, @Param('id') id: string) {
+    return { success: true, data: { downloadUrl: `https://storage.niklo.com/invoices/tax_invoice_${id}.pdf` } };
   }
 
   @Post('withdraw')

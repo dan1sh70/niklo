@@ -7,8 +7,8 @@ import { PackagePartnerLocation } from './entities/package_partner-location.enti
 import { PackagePartnerDocument } from './entities/package_partner-document.entity';
 import { PackagePartnerBank } from './entities/package_partner-bank.entity';
 
-const VALID_PARTNER_TYPES = ['activity_provider', 'tour_operator', 'adventure_resort', 'camping_provider', 'water_sports', 'equipment_provider'];
-const REQUIRED_DOC_TYPES = ['business_reg', 'govt_id', 'adventure_license', 'safety_cert'];
+const VALID_PARTNER_TYPES = ['Sole Proprietorship', 'Partnership', 'Private Limited', 'LLP'];
+const REQUIRED_DOC_TYPES = ['BUSINESS_REGISTRATION', 'PAN_CARD', 'GST_CERTIFICATE', 'CANCELLED_CHEQUE', 'SIGNATORY_ID'];
 
 @Injectable()
 export class SetupService {
@@ -37,26 +37,23 @@ export class SetupService {
   getSetupMeta() {
     return {
       partnerTypes: [
-        { id: 'activity_provider', title: 'Adventure Activity Provider', subtitle: 'For direct single/multi-activity hosts', icon: 'explore' },
-        { id: 'tour_operator', title: 'Tour Operator', subtitle: 'For customized package tours & guides', icon: 'near_me' },
-        { id: 'adventure_resort', title: 'Adventure Resort', subtitle: 'For properties offering stay + sports', icon: 'holiday_village' },
-        { id: 'camping_provider', title: 'Camping Provider', subtitle: 'For outdoor tent/glamping sites', icon: 'cabin' },
-        { id: 'water_sports', title: 'Water Sports Provider', subtitle: 'For river, sea, and lake operations', icon: 'sailing' },
-        { id: 'equipment_provider', title: 'Equipment Provider', subtitle: 'For rental gear & apparel businesses', icon: 'backpack' },
+        { id: 'Sole Proprietorship', title: 'Sole Proprietorship', subtitle: 'Single owner business', icon: 'person' },
+        { id: 'Partnership', title: 'Partnership', subtitle: 'Two or more partners', icon: 'group' },
+        { id: 'Private Limited', title: 'Private Limited', subtitle: 'Registered Private Company', icon: 'business' },
+        { id: 'LLP', title: 'LLP', subtitle: 'Limited Liability Partnership', icon: 'business_center' },
       ],
       categories: [
-        { id: 'river_rafting', title: 'River Rafting', imageUrl: 'https://images.unsplash.com/photo-1530866495561-507c9faab2ed?auto=format&fit=crop&w=600&q=80' },
-        { id: 'paragliding', title: 'Paragliding', imageUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=600&q=80' },
-        { id: 'trekking', title: 'Trekking', imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80' },
-        { id: 'camping', title: 'Camping', imageUrl: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=600&q=80' },
-        { id: 'scuba_diving', title: 'Scuba Diving', imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80' },
-        { id: 'kayaking', title: 'Kayaking', imageUrl: 'https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?auto=format&fit=crop&w=600&q=80' },
+        { id: 'heritage', title: 'Heritage & Culture', imageUrl: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=600&q=80' },
+        { id: 'wildlife', title: 'Wildlife Safari', imageUrl: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=600&q=80' },
+        { id: 'honeymoon', title: 'Honeymoon Special', imageUrl: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=80' },
+        { id: 'adventure', title: 'Adventure Trips', imageUrl: 'https://images.unsplash.com/photo-1533088493863-71a7d667fb5a?auto=format&fit=crop&w=600&q=80' },
+        { id: 'pilgrimage', title: 'Pilgrimage', imageUrl: 'https://images.unsplash.com/photo-1558455799-a681c2017c67?auto=format&fit=crop&w=600&q=80' },
       ],
       documentRules: {
         maxFileSizeBytes: 10485760,
         allowedMimeTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'],
         requiredDocumentTypes: REQUIRED_DOC_TYPES,
-        optionalDocumentTypes: ['insurance'],
+        optionalDocumentTypes: ['TOURISM_LICENSE'],
       },
     };
   }
@@ -67,13 +64,14 @@ export class SetupService {
     const location = await this.locationRepo.findOne({ where: { partner_id: partner.id } });
     const uploadedDocs = await this.documentRepo.find({ where: { partner_id: partner.id } });
 
-    const docTypes = ['business_reg', 'govt_id', 'adventure_license', 'safety_cert', 'insurance'];
+    const docTypes = ['BUSINESS_REGISTRATION', 'PAN_CARD', 'GST_CERTIFICATE', 'TOURISM_LICENSE', 'CANCELLED_CHEQUE', 'SIGNATORY_ID'];
     const docTitles: Record<string, { title: string; required: boolean }> = {
-      business_reg: { title: 'Business Registration', required: true },
-      govt_id: { title: 'Government Authorized ID', required: true },
-      adventure_license: { title: 'Adventure Operator License', required: true },
-      safety_cert: { title: 'Equipment Safety Certificate', required: true },
-      insurance: { title: 'Insurance Coverage Proof', required: false },
+      BUSINESS_REGISTRATION: { title: 'Business Registration Document', required: true },
+      PAN_CARD: { title: 'Business PAN Card', required: true },
+      GST_CERTIFICATE: { title: 'GST Certificate', required: true },
+      TOURISM_LICENSE: { title: 'Tourism License', required: false },
+      CANCELLED_CHEQUE: { title: 'Cancelled Cheque', required: true },
+      SIGNATORY_ID: { title: 'Authorized Signatory ID', required: true },
     };
 
     const documents = docTypes.map((dt, idx) => {
@@ -175,7 +173,7 @@ export class SetupService {
 
   async uploadDocument(userId: string, docType: string, title: string, file: Express.Multer.File) {
     const partner = await this.getOrCreatePartner(userId);
-    const REQUIRED_TYPES = ['business_reg', 'govt_id', 'adventure_license', 'safety_cert'];
+    const REQUIRED_TYPES = ['BUSINESS_REGISTRATION', 'PAN_CARD', 'GST_CERTIFICATE', 'CANCELLED_CHEQUE', 'SIGNATORY_ID'];
     let doc = await this.documentRepo.findOne({ where: { partner_id: partner.id, doc_type: docType } });
 
     const fileUrl = `https://storage.niklo.com/package-partner/docs/${file.originalname}`;
