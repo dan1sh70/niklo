@@ -18,4 +18,18 @@ export class HomeDashboardController {
     const data = await this.homeService.getChartData(req.user.partnerProfileId, period || 'Week');
     return { success: true, data };
   }
+
+  @Get('verification-banner')
+  async getVerificationBanner(@Req() req: any) {
+    return {
+      success: true,
+      data: {
+        showBanner: false,
+        bannerType: 'INFO',
+        title: 'Profile Approved',
+        subtitle: 'Your tour operator account is verified.',
+        actionRoute: null
+      }
+    };
+  }
 }

@@ -26,7 +26,9 @@ export class ProfileService {
   ) {}
 
   async getProfile(partnerId: string) {
-    const partner = await this.partnerRepository.findOne({ where: { id: partnerId } });
+    const partner = await this.partnerRepository.findOne({ 
+      where: [{ id: partnerId }, { user_id: partnerId }] 
+    });
     if (!partner) throw new NotFoundException('Profile not found');
     return {
       partnerId: partner.id,
@@ -44,8 +46,13 @@ export class ProfileService {
   }
 
   async updateBusinessDetails(partnerId: string, body: any) {
+    const partner = await this.partnerRepository.findOne({ 
+      where: [{ id: partnerId }, { user_id: partnerId }] 
+    });
+    if (!partner) throw new NotFoundException('Profile not found');
+    
     await this.partnerRepository.update(
-      { id: partnerId },
+      { id: partner.id },
       {
         business_name: body.businessName,
         email: body.email,
@@ -56,7 +63,7 @@ export class ProfileService {
         pincode: body.pincode,
       }
     );
-    return this.getProfile(partnerId);
+    return this.getProfile(partner.id);
   }
   async getDocuments(partnerId: string) {
     const docs = await this.documentRepository.find({ where: { partner_id: partnerId } });
