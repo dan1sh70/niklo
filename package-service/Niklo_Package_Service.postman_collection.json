@@ -1,6 +1,6 @@
 {
     "info": {
-        "name": "Niklo Adventure Service",
+        "name": "Niklo Package Service",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -17,38 +17,8 @@
     ],
     "item": [
         {
-            "name": "adventures",
+            "name": "packages",
             "item": [
-                {
-                    "name": "create",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventures"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
                 {
                     "name": "findAll",
                     "request": {
@@ -66,14 +36,76 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures",
+                            "raw": "{{baseUrl}}/api/v1/packages",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventures"
+                                "packages"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "searchPackages",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/search",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
+                                "search"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getPopularDestinations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/popular",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
+                                "popular"
                             ]
                         }
                     },
@@ -96,14 +128,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/categories",
+                            "raw": "{{baseUrl}}/api/v1/packages/categories",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventures",
+                                "packages",
                                 "categories"
                             ]
                         }
@@ -111,7 +143,7 @@
                     "response": []
                 },
                 {
-                    "name": "getReviews",
+                    "name": "getTrendingPackages",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -127,16 +159,173 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id/reviews",
+                            "raw": "{{baseUrl}}/api/v1/packages/trending",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventures",
+                                "packages",
+                                "trending"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getOffers",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/offers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
+                                "offers"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getCities",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/cities",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
+                                "cities"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getPackagesByDestination",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/destination/:name",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
+                                "destination",
+                                ":name"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getPackagesByCategory",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/category/:name",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
+                                "category",
+                                ":name"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "checkAvailability",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/packages/:id/availability",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "packages",
                                 ":id",
-                                "reviews"
+                                "availability"
                             ]
                         }
                     },
@@ -159,474 +348,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id",
+                            "raw": "{{baseUrl}}/api/v1/packages/:id",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventures",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventures",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "remove",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventures/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventures",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "activities partner",
-            "item": [
-                {
-                    "name": "listActivities",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "getActivity",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "createActivity",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "updateActivity",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "toggleStatus",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id/status",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id",
-                                "status"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "archiveActivity",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "activities",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "availability",
-            "item": [
-                {
-                    "name": "getSlotsForDate",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "availability",
-                                "slots"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "getMonthSummary",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/calendar/month-summary",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "availability",
-                                "calendar",
-                                "month-summary"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "createSlot",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "availability",
-                                "slots"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "updateSlot",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "availability",
-                                "slots",
-                                ":id"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "toggleSlotStatus",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/:id/status",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "availability",
-                                "slots",
-                                ":id",
-                                "status"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "deleteSlot",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/availability/slots/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "availability",
-                                "slots",
+                                "packages",
                                 ":id"
                             ]
                         }
@@ -655,14 +384,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "bookings"
                             ]
                         }
@@ -686,28 +415,155 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings/:id",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "bookings",
                                 ":id"
                             ]
                         }
                     },
                     "response": []
-                }
-            ]
-        },
-        {
-            "name": "earnings",
-            "item": [
+                },
                 {
-                    "name": "getAnalytics",
+                    "name": "acceptBooking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings/:id/accept",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "bookings",
+                                ":id",
+                                "accept"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "declineBooking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings/:id/decline",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "bookings",
+                                ":id",
+                                "decline"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "cancel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings/:id/cancel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "bookings",
+                                ":id",
+                                "cancel"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "complete",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings/:id/complete",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "bookings",
+                                ":id",
+                                "complete"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getVoucher",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -723,16 +579,86 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/analytics",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/bookings/:id/voucher",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
+                                "bookings",
+                                ":id",
+                                "voucher"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "earnings",
+            "item": [
+                {
+                    "name": "getOverview",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/overview",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
                                 "earnings",
-                                "analytics"
+                                "overview"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getChartData",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/chart",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "earnings",
+                                "chart"
                             ]
                         }
                     },
@@ -755,14 +681,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/payout-policy",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/payout-policy",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "earnings",
                                 "payout-policy"
                             ]
@@ -787,16 +713,16 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/settlements",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/transactions",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "earnings",
-                                "settlements"
+                                "transactions"
                             ]
                         }
                     },
@@ -819,17 +745,83 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/earnings/settlements/:id",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/transactions/:id",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "earnings",
-                                "settlements",
+                                "transactions",
                                 ":id"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getInvoice",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/transactions/:id/invoice",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "earnings",
+                                "transactions",
+                                ":id",
+                                "invoice"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "withdraw",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/earnings/withdraw",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "earnings",
+                                "withdraw"
                             ]
                         }
                     },
@@ -857,14 +849,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/home/dashboard",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/home/dashboard",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "home",
                                 "dashboard"
                             ]
@@ -889,16 +881,48 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/home/chart",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/home/chart",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "home",
                                 "chart"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getVerificationBanner",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/home/verification-banner",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "home",
+                                "verification-banner"
                             ]
                         }
                     },
@@ -926,14 +950,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "notifications"
                             ]
                         }
@@ -957,17 +981,49 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/:id/read",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications/:id/read",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "notifications",
                                 ":id",
                                 "read"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "markAllAsRead",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications/mark-all-read",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "notifications",
+                                "mark-all-read"
                             ]
                         }
                     },
@@ -990,16 +1046,48 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/:id",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications/:id",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "notifications",
                                 ":id"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "registerDeviceToken",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications/fcm-token",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "notifications",
+                                "fcm-token"
                             ]
                         }
                     },
@@ -1022,14 +1110,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/preferences",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications/preferences",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "notifications",
                                 "preferences"
                             ]
@@ -1040,7 +1128,7 @@
                 {
                     "name": "updatePreferences",
                     "request": {
-                        "method": "PATCH",
+                        "method": "PUT",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -1054,14 +1142,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/preferences",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/notifications/preferences",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "notifications",
                                 "preferences"
                             ]
@@ -1075,7 +1163,7 @@
             "name": "packages partner",
             "item": [
                 {
-                    "name": "listPackages",
+                    "name": "getPackages",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1091,16 +1179,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:activityId/packages",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
-                                "activities",
-                                ":activityId",
+                                "package-partner",
                                 "packages"
                             ]
                         }
@@ -1108,7 +1194,39 @@
                     "response": []
                 },
                 {
-                    "name": "createPackage",
+                    "name": "getPackage",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "createDraft",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1124,26 +1242,25 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/activities/:activityId/packages",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/draft",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
-                                "activities",
-                                ":activityId",
-                                "packages"
+                                "package-partner",
+                                "packages",
+                                "draft"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "updatePackage",
+                    "name": "saveBasicInfo",
                     "request": {
-                        "method": "PATCH",
+                        "method": "PUT",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -1157,14 +1274,279 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/packages/:id",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/basic-info",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "basic-info"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "saveItinerary",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/itinerary",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "itinerary"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "saveInclusions",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/inclusions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "inclusions"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "savePricing",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/pricing",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "pricing"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "saveAvailability",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/availability",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "availability"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getAvailabilityCalendar",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/availability-calendar",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "availability-calendar"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "updateAvailabilitySlots",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/availability/slots",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "availability",
+                                "slots"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "publishPackage",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/publish",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "publish"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "deletePackage",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
                                 "packages",
                                 ":id"
                             ]
@@ -1189,49 +1571,17 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/packages/:id/status",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/status",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "packages",
                                 ":id",
                                 "status"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "archivePackage",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/packages/:id",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "packages",
-                                ":id"
                             ]
                         }
                     },
@@ -1259,14 +1609,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "profile"
                             ]
                         }
@@ -1275,6 +1625,38 @@
                 },
                 {
                     "name": "updateBusinessDetails",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/business",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "business"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "toggleNotifications",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -1290,48 +1672,16 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/business-details",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/notifications-toggle",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "profile",
-                                "business-details"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "getDocuments",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/documents",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "adventure",
-                                "profile",
-                                "documents"
+                                "notifications-toggle"
                             ]
                         }
                     },
@@ -1354,23 +1704,23 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/bank-details",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/bank",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "profile",
-                                "bank-details"
+                                "bank"
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "addBankDetails",
+                    "name": "sendBankOtp",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -1386,16 +1736,214 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/profile/bank-details",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/bank/otp/send",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "profile",
-                                "bank-details"
+                                "bank",
+                                "otp",
+                                "send"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "addBankDetails",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/bank",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "bank"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getSupportCategories",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/support/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "support",
+                                "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getSupportTickets",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/support/tickets",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "support",
+                                "tickets"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "raiseSupportTicket",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/support/tickets",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "support",
+                                "tickets"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getLegalDocument",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/legal/:documentType",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "legal",
+                                ":documentType"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/profile/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "profile",
+                                "logout"
                             ]
                         }
                     },
@@ -1423,14 +1971,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/meta",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/meta",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
                                 "meta"
                             ]
@@ -1455,14 +2003,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/progress",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/progress",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
                                 "progress"
                             ]
@@ -1487,14 +2035,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/partner-type",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/partner-type",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
                                 "partner-type"
                             ]
@@ -1519,16 +2067,16 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/business-details",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/business",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
-                                "business-details"
+                                "business"
                             ]
                         }
                     },
@@ -1551,14 +2099,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/categories",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/categories",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
                                 "categories"
                             ]
@@ -1567,9 +2115,9 @@
                     "response": []
                 },
                 {
-                    "name": "saveLocation",
+                    "name": "getDocuments",
                     "request": {
-                        "method": "POST",
+                        "method": "GET",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -1583,16 +2131,16 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/location",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/documents",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
-                                "location"
+                                "documents"
                             ]
                         }
                     },
@@ -1615,14 +2163,14 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/documents/:docType",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/documents/:docType",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
                                 "documents",
                                 ":docType"
@@ -1632,7 +2180,7 @@
                     "response": []
                 },
                 {
-                    "name": "getVerificationStatus",
+                    "name": "ifscLookup",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -1648,16 +2196,81 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/adventure/setup/verification-status",
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/bank/ifsc-lookup",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "adventure",
+                                "package-partner",
                                 "setup",
-                                "verification-status"
+                                "bank",
+                                "ifsc-lookup"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "verifyBankDetails",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/bank",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "setup",
+                                "bank"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getStatus",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "setup",
+                                "status"
                             ]
                         }
                     },

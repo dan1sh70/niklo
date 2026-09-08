@@ -17,12 +17,12 @@
     ],
     "item": [
         {
-            "name": "Bookings",
+            "name": "bookings",
             "item": [
                 {
-                    "name": "package_traveler_details_screen",
+                    "name": "getHistory",
                     "request": {
-                        "method": "POST",
+                        "method": "GET",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -36,41 +36,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "bookings"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Razorpay checkout success handler",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings/:id/confirm-payment",
+                            "raw": "{{baseUrl}}/api/v1/bookings/history",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -78,19 +44,14 @@
                                 "api",
                                 "v1",
                                 "bookings",
-                                ":id",
-                                "confirm-payment"
+                                "history"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "bookings_screen",
+                    "name": "getMyBookings",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -121,43 +82,7 @@
                     "response": []
                 },
                 {
-                    "name": "Update Bookings Status",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings/:id/status",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "bookings",
-                                ":id",
-                                "status"
-                            ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Bookings Cancel",
+                    "name": "createBooking",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -173,27 +98,21 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings/:id/cancel",
+                            "raw": "{{baseUrl}}/api/v1/bookings",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "bookings",
-                                ":id",
-                                "cancel"
+                                "bookings"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Booking details screen",
+                    "name": "getIdVerificationStatus",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -209,7 +128,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings/:id",
+                            "raw": "{{baseUrl}}/api/v1/bookings/:id/id-verification",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -217,16 +136,22 @@
                                 "api",
                                 "v1",
                                 "bookings",
-                                ":id"
+                                ":id",
+                                "id-verification"
                             ]
                         }
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "home",
+            "item": [
                 {
-                    "name": "Create Bookings B8F3A2C1-Uuid Confirm-Payment",
+                    "name": "getActiveTrip",
                     "request": {
-                        "method": "POST",
+                        "method": "GET",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -240,21 +165,113 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings/b8f3a2c1-uuid/confirm-payment",
+                            "raw": "{{baseUrl}}/api/v1/user/active-trip",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "bookings",
-                                "b8f3a2c1-uuid",
-                                "confirm-payment"
+                                "user",
+                                "active-trip"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"example\": \"data\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getSmartSuggestions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/recommendations/smart-suggestions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "recommendations",
+                                "smart-suggestions"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "getBanners",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/promotions/banners",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "promotions",
+                                "banners"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "offers",
+            "item": [
+                {
+                    "name": "getOffers",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/offers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "offers"
+                            ]
                         }
                     },
                     "response": []
