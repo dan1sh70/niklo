@@ -82,7 +82,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"source_location\": {\n        \"name\": \"string_value\",\n        \"latitude\": 0,\n        \"longitude\": 0\n    },\n    \"destination_location\": {\n        \"name\": \"string_value\",\n        \"latitude\": 0,\n        \"longitude\": 0\n    },\n    \"travel_date\": \"string_value\",\n    \"passengers_count\": 0,\n    \"preferences\": {\n        \"max_transfers\": 0,\n        \"preferred_modes\": [\n            \"string_value\"\n        ],\n        \"sort_by\": \"string_value\"\n    }\n}"
+                            "raw": "{\n    \"source_location\": {\n        \"name\": \"John Doe\",\n        \"latitude\": 19.076,\n        \"longitude\": 72.8777\n    },\n    \"destination_location\": {\n        \"name\": \"John Doe\",\n        \"latitude\": 19.076,\n        \"longitude\": 72.8777\n    },\n    \"travel_date\": \"2026-10-15T10:00:00Z\",\n    \"passengers_count\": 10,\n    \"preferences\": {\n        \"max_transfers\": 10,\n        \"preferred_modes\": [\n            \"sample_string_value\"\n        ],\n        \"sort_by\": \"sample_string_value\"\n    }\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -117,7 +122,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"search_id\": \"string_value\",\n    \"journey_id\": \"string_value\",\n    \"passengers\": [\n        null\n    ],\n    \"selected_bus_seats\": [\n        \"string_value\"\n    ],\n    \"contact_email\": \"string_value\",\n    \"contact_phone\": \"string_value\"\n}"
+                            "raw": "{\n    \"search_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"journey_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"passengers\": [\n        null\n    ],\n    \"selected_bus_seats\": [\n        \"sample_string_value\"\n    ],\n    \"contact_email\": \"partner@example.com\",\n    \"contact_phone\": \"+919876543210\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -183,7 +193,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"search_id\": \"string_value\",\n    \"journey_id\": \"string_value\"\n}"
+                            "raw": "{\n    \"search_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"journey_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -281,7 +296,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"departure_reminder\": false,\n    \"price_drop_alert\": false,\n    \"delay_notification\": false,\n    \"boarding_gate_update\": false\n}"
+                            "raw": "{\n    \"departure_reminder\": true,\n    \"price_drop_alert\": true,\n    \"delay_notification\": true,\n    \"boarding_gate_update\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -316,7 +336,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"origin\": \"string_value\",\n    \"destination\": \"string_value\",\n    \"scheduled_departure\": \"string_value\"\n}"
+                            "raw": "{\n    \"origin\": \"sample_string_value\",\n    \"destination\": \"Mumbai\",\n    \"scheduled_departure\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

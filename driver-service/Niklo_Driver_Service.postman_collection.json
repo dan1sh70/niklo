@@ -82,7 +82,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"user_id\": \"string_value\",\n    \"vehicle_type\": \"string_value\",\n    \"vehicle_number\": \"string_value\",\n    \"aadhaar_number\": \"string_value\",\n    \"pan_number\": \"string_value\",\n    \"rc_number\": \"string_value\",\n    \"is_owner\": false,\n    \"date_of_birth\": \"string_value\",\n    \"availability\": [\n        \"string_value\"\n    ]\n}"
+                            "raw": "{\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"vehicle_type\": \"AC_SLEEPER\",\n    \"vehicle_number\": \"sample_string_value\",\n    \"aadhaar_number\": \"sample_string_value\",\n    \"pan_number\": \"sample_string_value\",\n    \"rc_number\": \"sample_string_value\",\n    \"is_owner\": true,\n    \"date_of_birth\": \"2026-10-15T10:00:00Z\",\n    \"availability\": [\n        \"sample_string_value\"\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -117,7 +122,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"driver_id\": \"string_value\",\n    \"document_type\": \"string_value\",\n    \"document_url\": \"string_value\"\n}"
+                            "raw": "{\n    \"driver_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"document_type\": \"AC_SLEEPER\",\n    \"document_url\": \"https://example.com/image.jpg\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -246,7 +256,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"driverId\": \"string_value\",\n    \"accountHolderName\": \"string_value\",\n    \"bankName\": \"string_value\",\n    \"accountNumber\": \"string_value\",\n    \"ifscCode\": \"string_value\",\n    \"accountType\": \"string_value\"\n}"
+                            "raw": "{\n    \"driverId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"accountHolderName\": \"John Doe\",\n    \"bankName\": \"John Doe\",\n    \"accountNumber\": \"sample_string_value\",\n    \"ifscCode\": \"sample_string_value\",\n    \"accountType\": \"AC_SLEEPER\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -282,7 +297,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"driverId\": \"string_value\"\n}"
+                            "raw": "{\n    \"driverId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -318,7 +338,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"driverId\": \"string_value\"\n}"
+                            "raw": "{\n    \"driverId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -353,7 +378,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"driverId\": \"string_value\",\n    \"amount\": 0\n}"
+                            "raw": "{\n    \"driverId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"amount\": 1500\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

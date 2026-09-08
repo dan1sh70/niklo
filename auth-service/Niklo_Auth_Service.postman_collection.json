@@ -83,7 +83,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"string_value\",\n    \"role\": \"string_value\",\n    \"name\": \"string_value\",\n    \"email\": \"string_value\"\n}"
+                            "raw": "{\n    \"phone\": \"+919876543210\",\n    \"role\": \"AC_SLEEPER\",\n    \"name\": \"John Doe\",\n    \"email\": \"partner@example.com\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -119,7 +124,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"string_value\",\n    \"otp\": \"string_value\",\n    \"role\": \"string_value\"\n}"
+                            "raw": "{\n    \"phone\": \"+919876543210\",\n    \"otp\": \"sample_string_value\",\n    \"role\": \"AC_SLEEPER\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -155,7 +165,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"refreshToken\": \"string_value\"\n}"
+                            "raw": "{\n    \"refreshToken\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -190,7 +205,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"provider\": null,\n    \"idToken\": \"string_value\",\n    \"role\": \"string_value\"\n}"
+                            "raw": "{\n    \"provider\": null,\n    \"idToken\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"role\": \"AC_SLEEPER\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

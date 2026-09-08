@@ -82,7 +82,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"amount\": 0,\n    \"currency\": \"string_value\",\n    \"booking_id\": \"string_value\"\n}"
+                            "raw": "{\n    \"amount\": 1500,\n    \"currency\": \"sample_string_value\",\n    \"booking_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -219,7 +224,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"amount\": 0,\n    \"description\": \"string_value\"\n}"
+                            "raw": "{\n    \"amount\": 1500,\n    \"description\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -255,7 +265,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"razorpay_order_id\": \"string_value\",\n    \"razorpay_payment_id\": \"string_value\",\n    \"razorpay_signature\": \"string_value\"\n}"
+                            "raw": "{\n    \"razorpay_order_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"razorpay_payment_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"razorpay_signature\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -291,7 +306,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"amount\": 0,\n    \"booking_id\": \"string_value\",\n    \"booking_type\": \"string_value\",\n    \"description\": \"string_value\"\n}"
+                            "raw": "{\n    \"amount\": 1500,\n    \"booking_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"booking_type\": \"AC_SLEEPER\",\n    \"description\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

@@ -111,7 +111,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"userId\": \"string_value\",\n    \"title\": \"string_value\",\n    \"message\": \"string_value\",\n    \"category\": \"string_value\",\n    \"deepLink\": \"string_value\"\n}"
+                            "raw": "{\n    \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"title\": \"sample_string_value\",\n    \"message\": \"sample_string_value\",\n    \"category\": \"sample_string_value\",\n    \"deepLink\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -146,7 +151,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"fcmToken\": \"string_value\",\n    \"platform\": \"string_value\"\n}"
+                            "raw": "{\n    \"fcmToken\": \"sample_string_value\",\n    \"platform\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

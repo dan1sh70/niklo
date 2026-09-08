@@ -312,7 +312,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"hotelName\": \"string_value\",\n    \"badgeText\": \"string_value\",\n    \"imagePath\": \"string_value\",\n    \"galleryImages\": [\n        \"string_value\"\n    ],\n    \"distanceText\": \"string_value\",\n    \"ratingValue\": 0,\n    \"ratingText\": \"string_value\",\n    \"reviewsCount\": 0,\n    \"freeBreakfast\": false,\n    \"freeWifi\": false,\n    \"freeCancellation\": false,\n    \"priceText\": \"string_value\",\n    \"priceInt\": 0,\n    \"description\": \"string_value\",\n    \"address\": \"string_value\",\n    \"latitude\": 0,\n    \"longitude\": 0,\n    \"popularAmenities\": [\n        null\n    ],\n    \"nearbyPlaces\": [\n        null\n    ],\n    \"features\": [\n        null\n    ],\n    \"rules\": null,\n    \"hourlyOptions\": null,\n    \"roomTypes\": [\n        null\n    ]\n}"
+                            "raw": "{\n    \"hotelName\": \"John Doe\",\n    \"badgeText\": \"sample_string_value\",\n    \"imagePath\": \"https://example.com/image.jpg\",\n    \"galleryImages\": [\n        \"https://example.com/image.jpg\"\n    ],\n    \"distanceText\": \"sample_string_value\",\n    \"ratingValue\": 10,\n    \"ratingText\": \"sample_string_value\",\n    \"reviewsCount\": 10,\n    \"freeBreakfast\": true,\n    \"freeWifi\": true,\n    \"freeCancellation\": true,\n    \"priceText\": \"sample_string_value\",\n    \"priceInt\": 1500,\n    \"description\": \"sample_string_value\",\n    \"address\": \"123 Main Street, Layout\",\n    \"latitude\": 19.076,\n    \"longitude\": 72.8777,\n    \"popularAmenities\": [\n        null\n    ],\n    \"nearbyPlaces\": [\n        null\n    ],\n    \"features\": [\n        null\n    ],\n    \"rules\": null,\n    \"hourlyOptions\": null,\n    \"roomTypes\": [\n        null\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

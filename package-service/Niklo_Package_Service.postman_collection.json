@@ -1388,7 +1388,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"itinerary\": [\n        null\n    ]\n}"
+                            "raw": "{\n    \"itinerary\": [\n        null\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1491,7 +1496,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"seatsPerDeparture\": 0,\n    \"departureDates\": [\n        null\n    ]\n}"
+                            "raw": "{\n    \"seatsPerDeparture\": 40,\n    \"departureDates\": [\n        null\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -2123,7 +2133,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"partnerType\": \"string_value\"\n}"
+                            "raw": "{\n    \"partnerType\": \"AC_SLEEPER\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -2256,7 +2271,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"documentType\": \"string_value\",\n    \"documentNumber\": \"string_value\"\n}"
+                            "raw": "{\n    \"documentType\": \"AC_SLEEPER\",\n    \"documentNumber\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -2358,7 +2378,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"accountHolderName\": \"string_value\",\n    \"accountNumber\": \"string_value\",\n    \"confirmAccountNumber\": \"string_value\",\n    \"ifscCode\": \"string_value\",\n    \"accountType\": \"string_value\"\n}"
+                            "raw": "{\n    \"accountHolderName\": \"John Doe\",\n    \"accountNumber\": \"sample_string_value\",\n    \"confirmAccountNumber\": \"sample_string_value\",\n    \"ifscCode\": \"sample_string_value\",\n    \"accountType\": \"AC_SLEEPER\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

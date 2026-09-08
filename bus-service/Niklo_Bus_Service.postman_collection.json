@@ -115,7 +115,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"operator_id\": \"string_value\",\n    \"registration_number\": \"string_value\",\n    \"bus_type\": null,\n    \"total_seats\": 0,\n    \"amenities\": {}\n}"
+                            "raw": "{\n    \"operator_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"registration_number\": \"MH12AB1234\",\n    \"bus_type\": null,\n    \"total_seats\": 40,\n    \"amenities\": {}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -214,7 +219,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"is_active\": false,\n    \"operator_id\": \"string_value\",\n    \"registration_number\": \"string_value\",\n    \"bus_type\": null,\n    \"total_seats\": 0,\n    \"amenities\": {}\n}"
+                            "raw": "{\n    \"is_active\": true,\n    \"operator_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"registration_number\": \"MH12AB1234\",\n    \"bus_type\": null,\n    \"total_seats\": 40,\n    \"amenities\": {}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -251,7 +261,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"seats\": [\n        {\n            \"seat_number\": \"string_value\",\n            \"is_upper_deck\": false,\n            \"row_num\": 0,\n            \"col_num\": 0,\n            \"seat_type\": null,\n            \"price_offset\": 0,\n            \"is_available\": false,\n            \"is_ladies_seat\": false,\n            \"booked_gender\": \"string_value\"\n        }\n    ]\n}"
+                            "raw": "{\n    \"seats\": [\n        {\n            \"seat_number\": \"sample_string_value\",\n            \"is_upper_deck\": true,\n            \"row_num\": 1,\n            \"col_num\": 1,\n            \"seat_type\": null,\n            \"price_offset\": 1500,\n            \"is_available\": true,\n            \"is_ladies_seat\": true,\n            \"booked_gender\": \"AC_SLEEPER\"\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -361,7 +376,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"name\": \"string_value\",\n    \"logo_url\": \"string_value\",\n    \"contact_phone\": \"string_value\",\n    \"contact_email\": \"string_value\",\n    \"gst_number\": \"string_value\"\n}"
+                            "raw": "{\n    \"name\": \"John Doe\",\n    \"logo_url\": \"https://example.com/image.jpg\",\n    \"contact_phone\": \"+919876543210\",\n    \"contact_email\": \"partner@example.com\",\n    \"gst_number\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -493,7 +513,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"is_active\": false,\n    \"name\": \"string_value\",\n    \"logo_url\": \"string_value\",\n    \"contact_phone\": \"string_value\",\n    \"contact_email\": \"string_value\",\n    \"gst_number\": \"string_value\"\n}"
+                            "raw": "{\n    \"is_active\": true,\n    \"name\": \"John Doe\",\n    \"logo_url\": \"https://example.com/image.jpg\",\n    \"contact_phone\": \"+919876543210\",\n    \"contact_email\": \"partner@example.com\",\n    \"gst_number\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -596,7 +621,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"source\": \"string_value\",\n    \"destination\": \"string_value\",\n    \"duration\": \"string_value\",\n    \"start_price\": 0,\n    \"tag\": \"string_value\",\n    \"priority\": 0\n}"
+                            "raw": "{\n    \"source\": \"Mumbai\",\n    \"destination\": \"Mumbai\",\n    \"duration\": \"sample_string_value\",\n    \"start_price\": 1500,\n    \"tag\": \"sample_string_value\",\n    \"priority\": 10\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -668,7 +698,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"source_city\": \"string_value\",\n    \"destination_city\": \"string_value\",\n    \"distance_km\": 0,\n    \"estimated_duration_minutes\": 0,\n    \"boarding_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ],\n    \"dropping_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ]\n}"
+                            "raw": "{\n    \"source_city\": \"Mumbai\",\n    \"destination_city\": \"Mumbai\",\n    \"distance_km\": 350,\n    \"estimated_duration_minutes\": 480,\n    \"boarding_points\": [\n        {\n            \"name\": \"John Doe\",\n            \"address\": \"123 Main Street, Layout\",\n            \"landmark\": \"sample_string_value\",\n            \"latitude\": 19.076,\n            \"longitude\": 72.8777,\n            \"contact_phone\": \"+919876543210\",\n            \"order_index\": 1\n        }\n    ],\n    \"dropping_points\": [\n        {\n            \"name\": \"John Doe\",\n            \"address\": \"123 Main Street, Layout\",\n            \"landmark\": \"sample_string_value\",\n            \"latitude\": 19.076,\n            \"longitude\": 72.8777,\n            \"contact_phone\": \"+919876543210\",\n            \"order_index\": 1\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -767,7 +802,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"is_active\": false,\n    \"source_city\": \"string_value\",\n    \"destination_city\": \"string_value\",\n    \"distance_km\": 0,\n    \"estimated_duration_minutes\": 0,\n    \"boarding_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ],\n    \"dropping_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ]\n}"
+                            "raw": "{\n    \"is_active\": true,\n    \"source_city\": \"Mumbai\",\n    \"destination_city\": \"Mumbai\",\n    \"distance_km\": 350,\n    \"estimated_duration_minutes\": 480,\n    \"boarding_points\": [\n        {\n            \"name\": \"John Doe\",\n            \"address\": \"123 Main Street, Layout\",\n            \"landmark\": \"sample_string_value\",\n            \"latitude\": 19.076,\n            \"longitude\": 72.8777,\n            \"contact_phone\": \"+919876543210\",\n            \"order_index\": 1\n        }\n    ],\n    \"dropping_points\": [\n        {\n            \"name\": \"John Doe\",\n            \"address\": \"123 Main Street, Layout\",\n            \"landmark\": \"sample_string_value\",\n            \"latitude\": 19.076,\n            \"longitude\": 72.8777,\n            \"contact_phone\": \"+919876543210\",\n            \"order_index\": 1\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -871,7 +911,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"route_id\": \"string_value\",\n    \"bus_id\": \"string_value\",\n    \"operator_id\": \"string_value\",\n    \"departure_time\": \"string_value\",\n    \"arrival_time\": \"string_value\",\n    \"departure_date\": \"string_value\",\n    \"base_fare\": 0,\n    \"available_seats\": 0\n}"
+                            "raw": "{\n    \"route_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"bus_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"operator_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"departure_time\": \"2026-10-15T10:00:00Z\",\n    \"arrival_time\": \"2026-10-15T10:00:00Z\",\n    \"departure_date\": \"2026-10-15T10:00:00Z\",\n    \"base_fare\": 1500,\n    \"available_seats\": 40\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1004,7 +1049,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"seat_numbers\": [\n        \"string_value\"\n    ],\n    \"user_id\": \"string_value\"\n}"
+                            "raw": "{\n    \"seat_numbers\": [\n        \"sample_string_value\"\n    ],\n    \"user_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1041,7 +1091,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"seat_numbers\": [\n        \"string_value\"\n    ]\n}"
+                            "raw": "{\n    \"seat_numbers\": [\n        \"sample_string_value\"\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1110,7 +1165,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"departure_time\": \"string_value\",\n    \"arrival_time\": \"string_value\",\n    \"departure_date\": \"string_value\",\n    \"base_fare\": 0,\n    \"available_seats\": 0,\n    \"status\": null\n}"
+                            "raw": "{\n    \"departure_time\": \"2026-10-15T10:00:00Z\",\n    \"arrival_time\": \"2026-10-15T10:00:00Z\",\n    \"departure_date\": \"2026-10-15T10:00:00Z\",\n    \"base_fare\": 1500,\n    \"available_seats\": 40,\n    \"status\": null\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

@@ -114,7 +114,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "\"string_value\""
+                            "raw": "\"sample_string_value\"",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -626,7 +631,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"amount\": 0\n}"
+                            "raw": "{\n    \"amount\": 1500\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -696,7 +706,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"item_type\": \"string_value\",\n    \"item_id\": \"string_value\",\n    \"raw_data\": null\n}"
+                            "raw": "{\n    \"item_type\": \"AC_SLEEPER\",\n    \"item_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"raw_data\": null\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -731,7 +746,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"items\": [\n        null\n    ]\n}"
+                            "raw": "{\n    \"items\": [\n        null\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

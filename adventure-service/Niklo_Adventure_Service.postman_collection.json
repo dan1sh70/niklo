@@ -400,7 +400,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"isCover\": \"string_value\"\n}"
+                            "raw": "{\n    \"isCover\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -532,7 +537,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"status\": \"string_value\"\n}"
+                            "raw": "{\n    \"status\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -737,7 +747,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"isClosed\": false\n}"
+                            "raw": "{\n    \"isClosed\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -974,7 +989,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"reason\": \"string_value\"\n}"
+                            "raw": "{\n    \"reason\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1546,7 +1566,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"status\": \"string_value\"\n}"
+                            "raw": "{\n    \"status\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1843,7 +1868,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"fcmToken\": \"string_value\"\n}"
+                            "raw": "{\n    \"fcmToken\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -1948,7 +1978,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"partnerType\": \"string_value\"\n}"
+                            "raw": "{\n    \"partnerType\": \"AC_SLEEPER\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -2016,7 +2051,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"categoryIds\": [\n        \"string_value\"\n    ]\n}"
+                            "raw": "{\n    \"categoryIds\": [\n        \"123e4567-e89b-12d3-a456-426614174000\"\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -2085,7 +2125,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"docType\": \"string_value\",\n    \"title\": \"string_value\"\n}"
+                            "raw": "{\n    \"docType\": \"AC_SLEEPER\",\n    \"title\": \"sample_string_value\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []

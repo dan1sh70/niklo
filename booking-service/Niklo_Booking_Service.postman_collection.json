@@ -207,7 +207,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"payment_id\": \"string_value\",\n    \"payment_gateway_order_id\": \"string_value\"\n}"
+                            "raw": "{\n    \"payment_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"payment_gateway_order_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -243,7 +248,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"coupon_code\": \"string_value\",\n    \"discount_amount\": 0\n}"
+                            "raw": "{\n    \"coupon_code\": \"sample_string_value\",\n    \"discount_amount\": 1500\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -278,7 +288,12 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "\"string_value\""
+                            "raw": "\"sample_string_value\"",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
