@@ -53,7 +53,7 @@
                     "response": []
                 },
                 {
-                    "name": "findAll",
+                    "name": "create",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -69,7 +69,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/buses/)\r\n  async create(@Body() dto: CreateBusDto) {\r\n    return this.busesService.create(dto);\r\n  }\r\n\r\n  @Get(",
+                            "raw": "{{baseUrl}}/api/v1/bus/buses",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -77,8 +77,38 @@
                                 "api",
                                 "v1",
                                 "bus",
-                                "buses",
-                                ")\r\n  async create(@Body() dto: CreateBusDto) {\r\n    return this.busesService.create(dto);\r\n  }\r\n\r\n  @Get("
+                                "buses"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "findAll",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/buses",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "buses"
                             ]
                         }
                     },
@@ -257,7 +287,7 @@
             "name": "operators",
             "item": [
                 {
-                    "name": "findAll",
+                    "name": "create",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -273,7 +303,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/operators/)\r\n  async create(@Body() dto: CreateOperatorDto) {\r\n    return this.operatorsService.create(dto);\r\n  }\r\n\r\n  @Get(",
+                            "raw": "{{baseUrl}}/api/v1/bus/operators",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -281,8 +311,38 @@
                                 "api",
                                 "v1",
                                 "bus",
-                                "operators",
-                                ")\r\n  async create(@Body() dto: CreateOperatorDto) {\r\n    return this.operatorsService.create(dto);\r\n  }\r\n\r\n  @Get("
+                                "operators"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "findAll",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/operators",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "operators"
                             ]
                         }
                     },
@@ -388,43 +448,6 @@
             ]
         },
         {
-            "name": "popular routes",
-            "item": [
-                {
-                    "name": "getPopularRoutes",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/popular-routes/)\n  @HttpCode(HttpStatus.OK",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "bus",
-                                "popular-routes",
-                                ")\n  @HttpCode(HttpStatus.OK"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
             "name": "routes",
             "item": [
                 {
@@ -460,7 +483,7 @@
                     "response": []
                 },
                 {
-                    "name": "findAll",
+                    "name": "create",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -476,7 +499,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/routes/)\r\n  async create(@Body() dto: CreateRouteDto) {\r\n    return this.routesService.create(dto);\r\n  }\r\n\r\n  @Get(",
+                            "raw": "{{baseUrl}}/api/v1/bus/routes",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -484,8 +507,38 @@
                                 "api",
                                 "v1",
                                 "bus",
-                                "routes",
-                                ")\r\n  async create(@Body() dto: CreateRouteDto) {\r\n    return this.routesService.create(dto);\r\n  }\r\n\r\n  @Get("
+                                "routes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "findAll",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/routes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "routes"
                             ]
                         }
                     },
@@ -593,7 +646,7 @@
                     "response": []
                 },
                 {
-                    "name": "findAll",
+                    "name": "create",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -609,7 +662,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/bus/schedules/)\n  async create(@Body() dto: CreateScheduleDto) {\n    const data = await this.schedulesService.create(dto);\n    return { success: true, statusCode: 200, data };\n  }\n\n  @Get(",
+                            "raw": "{{baseUrl}}/api/v1/bus/schedules",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -617,8 +670,38 @@
                                 "api",
                                 "v1",
                                 "bus",
-                                "schedules",
-                                ")\n  async create(@Body() dto: CreateScheduleDto) {\n    const data = await this.schedulesService.create(dto);\n    return { success: true, statusCode: 200, data };\n  }\n\n  @Get("
+                                "schedules"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "findAll",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/schedules",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "schedules"
                             ]
                         }
                     },
