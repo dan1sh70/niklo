@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "buses",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Buses",
             "item": [
                 {
                     "name": "autocomplete",
@@ -79,6 +112,10 @@
                                 "bus",
                                 "buses"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"operator_id\": \"string_value\",\n    \"registration_number\": \"string_value\",\n    \"bus_type\": null,\n    \"total_seats\": 0,\n    \"amenities\": {}\n}"
                         }
                     },
                     "response": []
@@ -174,6 +211,10 @@
                                 "buses",
                                 ":id"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"is_active\": false,\n    \"operator_id\": \"string_value\",\n    \"registration_number\": \"string_value\",\n    \"bus_type\": null,\n    \"total_seats\": 0,\n    \"amenities\": {}\n}"
                         }
                     },
                     "response": []
@@ -207,6 +248,10 @@
                                 ":id",
                                 "seats"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"seats\": [\n        {\n            \"seat_number\": \"string_value\",\n            \"is_upper_deck\": false,\n            \"row_num\": 0,\n            \"col_num\": 0,\n            \"seat_type\": null,\n            \"price_offset\": 0,\n            \"is_available\": false,\n            \"is_ladies_seat\": false,\n            \"booked_gender\": \"string_value\"\n        }\n    ]\n}"
                         }
                     },
                     "response": []
@@ -247,7 +292,7 @@
             ]
         },
         {
-            "name": "locations",
+            "name": "Locations",
             "item": [
                 {
                     "name": "autocomplete",
@@ -284,7 +329,7 @@
             ]
         },
         {
-            "name": "operators",
+            "name": "Operators",
             "item": [
                 {
                     "name": "create",
@@ -313,6 +358,10 @@
                                 "bus",
                                 "operators"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"string_value\",\n    \"logo_url\": \"string_value\",\n    \"contact_phone\": \"string_value\",\n    \"contact_email\": \"string_value\",\n    \"gst_number\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -441,6 +490,42 @@
                                 "operators",
                                 ":id"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"is_active\": false,\n    \"name\": \"string_value\",\n    \"logo_url\": \"string_value\",\n    \"contact_phone\": \"string_value\",\n    \"contact_email\": \"string_value\",\n    \"gst_number\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "remove",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/operators/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "operators",
+                                ":id"
+                            ]
                         }
                     },
                     "response": []
@@ -448,7 +533,78 @@
             ]
         },
         {
-            "name": "routes",
+            "name": "PopularRoutes",
+            "item": [
+                {
+                    "name": "getPopularRoutes",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/popular-routes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "popular-routes"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "createPopularRoute",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/popular-routes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "popular-routes"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"source\": \"string_value\",\n    \"destination\": \"string_value\",\n    \"duration\": \"string_value\",\n    \"start_price\": 0,\n    \"tag\": \"string_value\",\n    \"priority\": 0\n}"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Routes",
             "item": [
                 {
                     "name": "search",
@@ -509,6 +665,10 @@
                                 "bus",
                                 "routes"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"source_city\": \"string_value\",\n    \"destination_city\": \"string_value\",\n    \"distance_km\": 0,\n    \"estimated_duration_minutes\": 0,\n    \"boarding_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ],\n    \"dropping_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ]\n}"
                         }
                     },
                     "response": []
@@ -604,6 +764,42 @@
                                 "routes",
                                 ":id"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"is_active\": false,\n    \"source_city\": \"string_value\",\n    \"destination_city\": \"string_value\",\n    \"distance_km\": 0,\n    \"estimated_duration_minutes\": 0,\n    \"boarding_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ],\n    \"dropping_points\": [\n        {\n            \"name\": \"string_value\",\n            \"address\": \"string_value\",\n            \"landmark\": \"string_value\",\n            \"latitude\": 0,\n            \"longitude\": 0,\n            \"contact_phone\": \"string_value\",\n            \"order_index\": 0\n        }\n    ]\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "remove",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/routes/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "routes",
+                                ":id"
+                            ]
                         }
                     },
                     "response": []
@@ -611,7 +807,7 @@
             ]
         },
         {
-            "name": "schedules",
+            "name": "Schedules",
             "item": [
                 {
                     "name": "search",
@@ -672,6 +868,10 @@
                                 "bus",
                                 "schedules"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"route_id\": \"string_value\",\n    \"bus_id\": \"string_value\",\n    \"operator_id\": \"string_value\",\n    \"departure_time\": \"string_value\",\n    \"arrival_time\": \"string_value\",\n    \"departure_date\": \"string_value\",\n    \"base_fare\": 0,\n    \"available_seats\": 0\n}"
                         }
                     },
                     "response": []
@@ -773,6 +973,80 @@
                     "response": []
                 },
                 {
+                    "name": "lockSeat",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/schedules/:id/lock-seat",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "schedules",
+                                ":id",
+                                "lock-seat"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"seat_numbers\": [\n        \"string_value\"\n    ],\n    \"user_id\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "confirmSeats",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/schedules/:id/confirm-seats",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "schedules",
+                                ":id",
+                                "confirm-seats"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"seat_numbers\": [\n        \"string_value\"\n    ]\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "getBoardingPoints",
                     "request": {
                         "method": "GET",
@@ -809,6 +1083,42 @@
                     "name": "update",
                     "request": {
                         "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bus/schedules/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bus",
+                                "schedules",
+                                ":id"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"departure_time\": \"string_value\",\n    \"arrival_time\": \"string_value\",\n    \"departure_date\": \"string_value\",\n    \"base_fare\": 0,\n    \"available_seats\": 0,\n    \"status\": null\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "cancel",
+                    "request": {
+                        "method": "DELETE",
                         "header": [
                             {
                                 "key": "Authorization",

@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "drivers",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Drivers",
             "item": [
                 {
                     "name": "onboard",
@@ -46,6 +79,10 @@
                                 "driver",
                                 "onboard"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user_id\": \"string_value\",\n    \"vehicle_type\": \"string_value\",\n    \"vehicle_number\": \"string_value\",\n    \"aadhaar_number\": \"string_value\",\n    \"pan_number\": \"string_value\",\n    \"rc_number\": \"string_value\",\n    \"is_owner\": false,\n    \"date_of_birth\": \"string_value\",\n    \"availability\": [\n        \"string_value\"\n    ]\n}"
                         }
                     },
                     "response": []
@@ -77,6 +114,10 @@
                                 "driver",
                                 "kyc"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"driver_id\": \"string_value\",\n    \"document_type\": \"string_value\",\n    \"document_url\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -202,6 +243,10 @@
                                 "driver",
                                 "bank-details"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"driverId\": \"string_value\",\n    \"accountHolderName\": \"string_value\",\n    \"bankName\": \"string_value\",\n    \"accountNumber\": \"string_value\",\n    \"ifscCode\": \"string_value\",\n    \"accountType\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -234,6 +279,10 @@
                                 "session",
                                 "start"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"driverId\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -266,6 +315,10 @@
                                 "session",
                                 "end"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"driverId\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -297,6 +350,10 @@
                                 "driver",
                                 "withdraw"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"driverId\": \"string_value\",\n    \"amount\": 0\n}"
                         }
                     },
                     "response": []

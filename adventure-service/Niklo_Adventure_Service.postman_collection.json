@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "adventures",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Adventures",
             "item": [
                 {
                     "name": "create",
@@ -174,6 +207,70 @@
                     "response": []
                 },
                 {
+                    "name": "checkAvailability",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventures/:id/availability",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventures",
+                                ":id",
+                                "availability"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "confirmSlots",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventures/:id/confirm-slots",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventures",
+                                ":id",
+                                "confirm-slots"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "update",
                     "request": {
                         "method": "PUT",
@@ -238,7 +335,7 @@
             ]
         },
         {
-            "name": "activities partner",
+            "name": "ActivitiesPartner",
             "item": [
                 {
                     "name": "listActivities",
@@ -267,6 +364,43 @@
                                 "adventure",
                                 "activities"
                             ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "uploadMedia",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/activities/media/upload",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "activities",
+                                "media",
+                                "upload"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"isCover\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -395,6 +529,10 @@
                                 ":id",
                                 "status"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -434,7 +572,7 @@
             ]
         },
         {
-            "name": "availability",
+            "name": "Availability",
             "item": [
                 {
                     "name": "getSlotsForDate",
@@ -596,6 +734,10 @@
                                 ":id",
                                 "status"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"isClosed\": false\n}"
                         }
                     },
                     "response": []
@@ -636,7 +778,7 @@
             ]
         },
         {
-            "name": "bookings partner",
+            "name": "BookingsPartner",
             "item": [
                 {
                     "name": "listBookings",
@@ -700,11 +842,147 @@
                         }
                     },
                     "response": []
+                },
+                {
+                    "name": "checkIn",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/check-in",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings",
+                                ":id",
+                                "check-in"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "reschedule",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/reschedule",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings",
+                                ":id",
+                                "reschedule"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "confirm",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/confirm",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings",
+                                ":id",
+                                "confirm"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "cancel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/bookings/:id/cancel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "bookings",
+                                ":id",
+                                "cancel"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reason\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
                 }
             ]
         },
         {
-            "name": "earnings",
+            "name": "Earnings",
             "item": [
                 {
                     "name": "getAnalytics",
@@ -838,7 +1116,7 @@
             ]
         },
         {
-            "name": "home dashboard",
+            "name": "HomeDashboard",
             "item": [
                 {
                     "name": "getDashboard",
@@ -907,7 +1185,7 @@
             ]
         },
         {
-            "name": "notifications partner",
+            "name": "NotificationsPartner",
             "item": [
                 {
                     "name": "getNotifications",
@@ -974,6 +1252,38 @@
                     "response": []
                 },
                 {
+                    "name": "markAllAsRead",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/mark-all-read",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "notifications",
+                                "mark-all-read"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "dismissNotification",
                     "request": {
                         "method": "DELETE",
@@ -1000,6 +1310,38 @@
                                 "adventure",
                                 "notifications",
                                 ":id"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "registerDeviceToken",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/notifications/device-token",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "notifications",
+                                "device-token"
                             ]
                         }
                     },
@@ -1072,7 +1414,7 @@
             ]
         },
         {
-            "name": "packages partner",
+            "name": "PackagesPartner",
             "item": [
                 {
                     "name": "listPackages",
@@ -1201,6 +1543,10 @@
                                 ":id",
                                 "status"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -1240,7 +1586,7 @@
             ]
         },
         {
-            "name": "profile",
+            "name": "Profile",
             "item": [
                 {
                     "name": "getProfile",
@@ -1338,6 +1684,71 @@
                     "response": []
                 },
                 {
+                    "name": "uploadDocument",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/profile/documents",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "profile",
+                                "documents"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "renewDocument",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/profile/documents/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "profile",
+                                "documents",
+                                ":id"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "getBankDetails",
                     "request": {
                         "method": "GET",
@@ -1400,11 +1811,47 @@
                         }
                     },
                     "response": []
+                },
+                {
+                    "name": "logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fcmToken\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
                 }
             ]
         },
         {
-            "name": "setup",
+            "name": "Setup",
             "item": [
                 {
                     "name": "getSetupMeta",
@@ -1498,6 +1945,10 @@
                                 "setup",
                                 "partner-type"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"partnerType\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -1562,6 +2013,10 @@
                                 "setup",
                                 "categories"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"categoryIds\": [\n        \"string_value\"\n    ]\n}"
                         }
                     },
                     "response": []
@@ -1599,6 +2054,43 @@
                     "response": []
                 },
                 {
+                    "name": "uploadDocument",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/setup/documents/upload",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "setup",
+                                "documents",
+                                "upload"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"docType\": \"string_value\",\n    \"title\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "deleteDocument",
                     "request": {
                         "method": "DELETE",
@@ -1626,6 +2118,38 @@
                                 "setup",
                                 "documents",
                                 ":docType"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "submitForVerification",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/adventure/setup/submit",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "adventure",
+                                "setup",
+                                "submit"
                             ]
                         }
                     },

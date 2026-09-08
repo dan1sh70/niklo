@@ -17,7 +17,7 @@
     ],
     "item": [
         {
-            "name": "app",
+            "name": "Health",
             "item": [
                 {
                     "name": "health",
@@ -36,15 +36,88 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/ai-planner",
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "App",
+            "item": [
+                {
+                    "name": "planJourney",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/ai-planner/plan-journey",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "ai-planner"
+                                "ai-planner",
+                                "plan-journey"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"source_location\": {\n        \"name\": \"string_value\",\n        \"latitude\": 0,\n        \"longitude\": 0\n    },\n    \"destination_location\": {\n        \"name\": \"string_value\",\n        \"latitude\": 0,\n        \"longitude\": 0\n    },\n    \"travel_date\": \"string_value\",\n    \"passengers_count\": 0,\n    \"preferences\": {\n        \"max_transfers\": 0,\n        \"preferred_modes\": [\n            \"string_value\"\n        ],\n        \"sort_by\": \"string_value\"\n    }\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "bookMultiModal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/ai-planner/book-multimodal",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "ai-planner",
+                                "book-multimodal"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"search_id\": \"string_value\",\n    \"journey_id\": \"string_value\",\n    \"passengers\": [\n        null\n    ],\n    \"selected_bus_seats\": [\n        \"string_value\"\n    ],\n    \"contact_email\": \"string_value\",\n    \"contact_phone\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -76,6 +149,41 @@
                                 "ai-planner",
                                 "saved-journeys"
                             ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "saveJourney",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/ai-planner/save-journey",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "ai-planner",
+                                "save-journey"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"search_id\": \"string_value\",\n    \"journey_id\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -170,6 +278,45 @@
                                 "ai-planner",
                                 "alerts"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"departure_reminder\": false,\n    \"price_drop_alert\": false,\n    \"delay_notification\": false,\n    \"boarding_gate_update\": false\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "optimizeSchedule",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/ai-planner/smart-schedule-optimizer",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "ai-planner",
+                                "smart-schedule-optimizer"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"origin\": \"string_value\",\n    \"destination\": \"string_value\",\n    \"scheduled_departure\": \"string_value\"\n}"
                         }
                     },
                     "response": []

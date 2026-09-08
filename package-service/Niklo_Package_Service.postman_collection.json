@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "packages",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Packages",
             "item": [
                 {
                     "name": "findAll",
@@ -365,7 +398,7 @@
             ]
         },
         {
-            "name": "bookings partner",
+            "name": "BookingsPartner",
             "item": [
                 {
                     "name": "listBookings",
@@ -598,7 +631,7 @@
             ]
         },
         {
-            "name": "earnings",
+            "name": "Earnings",
             "item": [
                 {
                     "name": "getOverview",
@@ -830,7 +863,7 @@
             ]
         },
         {
-            "name": "home dashboard",
+            "name": "HomeDashboard",
             "item": [
                 {
                     "name": "getDashboard",
@@ -931,7 +964,7 @@
             ]
         },
         {
-            "name": "notifications partner",
+            "name": "NotificationsPartner",
             "item": [
                 {
                     "name": "getNotifications",
@@ -1160,7 +1193,7 @@
             ]
         },
         {
-            "name": "packages partner",
+            "name": "PackagesPartner",
             "item": [
                 {
                     "name": "getPackages",
@@ -1291,6 +1324,39 @@
                     "response": []
                 },
                 {
+                    "name": "uploadPhoto",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/packages/:id/photos",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "packages",
+                                ":id",
+                                "photos"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "saveItinerary",
                     "request": {
                         "method": "PUT",
@@ -1319,6 +1385,10 @@
                                 ":id",
                                 "itinerary"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"itinerary\": [\n        null\n    ]\n}"
                         }
                     },
                     "response": []
@@ -1418,6 +1488,10 @@
                                 ":id",
                                 "availability"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"seatsPerDeparture\": 0,\n    \"departureDates\": [\n        null\n    ]\n}"
                         }
                     },
                     "response": []
@@ -1590,7 +1664,7 @@
             ]
         },
         {
-            "name": "profile",
+            "name": "Profile",
             "item": [
                 {
                     "name": "getProfile",
@@ -1952,7 +2026,7 @@
             ]
         },
         {
-            "name": "setup",
+            "name": "Setup",
             "item": [
                 {
                     "name": "getSetupMeta",
@@ -2046,6 +2120,10 @@
                                 "setup",
                                 "partner-type"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"partnerType\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -2147,6 +2225,43 @@
                     "response": []
                 },
                 {
+                    "name": "uploadDocument",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/documents/upload",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "setup",
+                                "documents",
+                                "upload"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"documentType\": \"string_value\",\n    \"documentNumber\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "deleteDocument",
                     "request": {
                         "method": "DELETE",
@@ -2239,6 +2354,42 @@
                                 "package-partner",
                                 "setup",
                                 "bank"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"accountHolderName\": \"string_value\",\n    \"accountNumber\": \"string_value\",\n    \"confirmAccountNumber\": \"string_value\",\n    \"ifscCode\": \"string_value\",\n    \"accountType\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "submitForVerification",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/package-partner/setup/submit",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "package-partner",
+                                "setup",
+                                "submit"
                             ]
                         }
                     },

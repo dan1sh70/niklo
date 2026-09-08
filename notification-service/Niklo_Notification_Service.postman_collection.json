@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "notifications",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Notifications",
             "item": [
                 {
                     "name": "getUserNotifications",
@@ -75,6 +108,45 @@
                                 "v1",
                                 "notifications"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"userId\": \"string_value\",\n    \"title\": \"string_value\",\n    \"message\": \"string_value\",\n    \"category\": \"string_value\",\n    \"deepLink\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "registerDeviceToken",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/notifications/device-token",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "notifications",
+                                "device-token"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fcmToken\": \"string_value\",\n    \"platform\": \"string_value\"\n}"
                         }
                     },
                     "response": []

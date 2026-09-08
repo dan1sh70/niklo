@@ -17,8 +17,104 @@
     ],
     "item": [
         {
-            "name": "bookings",
+            "name": "App",
             "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Bookings",
+            "item": [
+                {
+                    "name": "quoteHotel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/hotel/quote",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "hotel",
+                                "quote"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "createHotelBooking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/hotel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "hotel"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
                 {
                     "name": "getMyBookings",
                     "request": {
@@ -82,11 +178,110 @@
                         }
                     },
                     "response": []
+                },
+                {
+                    "name": "confirmPayment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/hotel/:bookingId/confirm-payment",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "hotel",
+                                ":bookingId",
+                                "confirm-payment"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "payAtProperty",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/hotel/:bookingId/pay-at-property",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "hotel",
+                                ":bookingId",
+                                "pay-at-property"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "cancelBooking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/hotel/:bookingId/cancel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "hotel",
+                                ":bookingId",
+                                "cancel"
+                            ]
+                        }
+                    },
+                    "response": []
                 }
             ]
         },
         {
-            "name": "hotels",
+            "name": "Hotels",
             "item": [
                 {
                     "name": "createHotel",
@@ -114,6 +309,10 @@
                                 "v1",
                                 "hotels"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"hotelName\": \"string_value\",\n    \"badgeText\": \"string_value\",\n    \"imagePath\": \"string_value\",\n    \"galleryImages\": [\n        \"string_value\"\n    ],\n    \"distanceText\": \"string_value\",\n    \"ratingValue\": 0,\n    \"ratingText\": \"string_value\",\n    \"reviewsCount\": 0,\n    \"freeBreakfast\": false,\n    \"freeWifi\": false,\n    \"freeCancellation\": false,\n    \"priceText\": \"string_value\",\n    \"priceInt\": 0,\n    \"description\": \"string_value\",\n    \"address\": \"string_value\",\n    \"latitude\": 0,\n    \"longitude\": 0,\n    \"popularAmenities\": [\n        null\n    ],\n    \"nearbyPlaces\": [\n        null\n    ],\n    \"features\": [\n        null\n    ],\n    \"rules\": null,\n    \"hourlyOptions\": null,\n    \"roomTypes\": [\n        null\n    ]\n}"
                         }
                     },
                     "response": []
@@ -275,6 +474,101 @@
                     "response": []
                 },
                 {
+                    "name": "searchHotels",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/hotels/search",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "hotels",
+                                "search"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "checkAvailability",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/check-availability",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "hotels",
+                                ":hotelId",
+                                "check-availability"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "confirmRooms",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/confirm-rooms",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "hotels",
+                                ":hotelId",
+                                "confirm-rooms"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "getHotelDetails",
                     "request": {
                         "method": "GET",
@@ -309,6 +603,38 @@
                     "name": "getHotelReviews",
                     "request": {
                         "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/hotels/:hotelId/reviews",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "hotels",
+                                ":hotelId",
+                                "reviews"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "submitReview",
+                    "request": {
+                        "method": "POST",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -698,7 +1024,7 @@
             ]
         },
         {
-            "name": "location",
+            "name": "Location",
             "item": [
                 {
                     "name": "autocomplete",

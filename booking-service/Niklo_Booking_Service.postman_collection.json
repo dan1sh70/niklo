@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "bookings",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Bookings",
             "item": [
                 {
                     "name": "getHistory",
@@ -82,6 +115,38 @@
                     "response": []
                 },
                 {
+                    "name": "getCancellationQuote",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/:id/cancellation-quote",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                ":id",
+                                "cancellation-quote"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "createBooking",
                     "request": {
                         "method": "POST",
@@ -106,6 +171,144 @@
                                 "api",
                                 "v1",
                                 "bookings"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "confirmPayment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/:id/confirm-payment",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                ":id",
+                                "confirm-payment"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"payment_id\": \"string_value\",\n    \"payment_gateway_order_id\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "applyCoupon",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/:id/apply-coupon",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                ":id",
+                                "apply-coupon"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"coupon_code\": \"string_value\",\n    \"discount_amount\": 0\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "verifyTicket",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/verify-ticket",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "verify-ticket"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "\"string_value\""
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "verifyId",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/verify-id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                "verify-id"
                             ]
                         }
                     },
@@ -146,7 +349,7 @@
             ]
         },
         {
-            "name": "home",
+            "name": "Home",
             "item": [
                 {
                     "name": "getActiveTrip",
@@ -244,7 +447,7 @@
             ]
         },
         {
-            "name": "offers",
+            "name": "Offers",
             "item": [
                 {
                     "name": "getOffers",
@@ -271,6 +474,37 @@
                                 "api",
                                 "v1",
                                 "offers"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "validateOffer",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/offers/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "offers",
+                                "validate"
                             ]
                         }
                     },

@@ -17,7 +17,40 @@
     ],
     "item": [
         {
-            "name": "payments",
+            "name": "App",
+            "item": [
+                {
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Payments",
             "item": [
                 {
                     "name": "createOrder",
@@ -46,6 +79,10 @@
                                 "payment",
                                 "orders"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 0,\n    \"currency\": \"string_value\",\n    \"booking_id\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -117,7 +154,7 @@
             ]
         },
         {
-            "name": "wallet",
+            "name": "Wallet",
             "item": [
                 {
                     "name": "getBalance",
@@ -179,6 +216,10 @@
                                 "wallet",
                                 "topup"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 0,\n    \"description\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -211,6 +252,10 @@
                                 "wallet",
                                 "confirm"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"razorpay_order_id\": \"string_value\",\n    \"razorpay_payment_id\": \"string_value\",\n    \"razorpay_signature\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -243,6 +288,10 @@
                                 "wallet",
                                 "pay"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 0,\n    \"booking_id\": \"string_value\",\n    \"booking_type\": \"string_value\",\n    \"description\": \"string_value\"\n}"
                         }
                     },
                     "response": []
@@ -282,7 +331,7 @@
             ]
         },
         {
-            "name": "webhooks",
+            "name": "Webhooks",
             "item": [
                 {
                     "name": "handleRazorpayWebhook",

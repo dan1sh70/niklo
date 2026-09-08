@@ -17,10 +17,43 @@
     ],
     "item": [
         {
-            "name": "Authentication",
+            "name": "App",
             "item": [
                 {
-                    "name": "Send OTP",
+                    "name": "getHello",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "sendOtp",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -50,13 +83,13 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"9876543210\",\n    \"role\": \"PARTNER\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\"\n}"
+                            "raw": "{\n    \"phone\": \"string_value\",\n    \"role\": \"string_value\",\n    \"name\": \"string_value\",\n    \"email\": \"string_value\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Verify OTP",
+                    "name": "verifyOtp",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -86,13 +119,13 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"9876543210\",\n    \"otp\": \"123456\",\n    \"role\": \"PARTNER\",\n    \"fcmToken\": \"device_fcm_string\"\n}"
+                            "raw": "{\n    \"phone\": \"string_value\",\n    \"otp\": \"string_value\",\n    \"role\": \"string_value\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Refresh Token",
+                    "name": "refresh",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -122,13 +155,48 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"refreshToken\": \"refresh_token_string\"\n}"
+                            "raw": "{\n    \"refreshToken\": \"string_value\"\n}"
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Logout",
+                    "name": "socialLogin",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/auth/social",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "social"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"provider\": null,\n    \"idToken\": \"string_value\",\n    \"role\": \"string_value\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "logout",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -154,10 +222,6 @@
                                 "auth",
                                 "logout"
                             ]
-                        },
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"fcmToken\": \"device_fcm_string\"\n}"
                         }
                     },
                     "response": []
