@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, UseGuards, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Body, Param, UseGuards, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileService } from './profile.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
@@ -18,21 +18,9 @@ export class ProfileController {
     return { success: true, data: await this.profileService.updateBusinessDetails(req.user.id, body) };
   }
 
-  @Get('documents')
-  async getDocuments(@Req() req: any) {
-    return { success: true, data: await this.profileService.getDocuments(req.user.partnerProfileId) };
-  }
-
-  @Post('documents')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadDocument(@Req() req: any, @UploadedFile() file: any, @Body() body: any) {
-    return { success: true, data: await this.profileService.uploadDocument(req.user.partnerProfileId, file, body) };
-  }
-
-  @Put('documents/:id/renew')
-  @UseInterceptors(FileInterceptor('file'))
-  async renewDocument(@Req() req: any, @Param('id') id: string, @UploadedFile() file: any, @Body() body: any) {
-    return { success: true, data: await this.profileService.renewDocument(req.user.partnerProfileId, id, file, body) };
+  @Patch('notifications-toggle')
+  async toggleNotifications(@Req() req: any, @Body() body: any) {
+    return { success: true, message: 'Notification preferences updated' }; // Mock for now
   }
 
   @Get('bank')

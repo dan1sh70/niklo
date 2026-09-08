@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Patch, Body, Param, Req, UseGuards, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Patch, Body, Param, Req, UseGuards, Query, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { PackagesPartnerService } from './packages-partner.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('api/v1/package-partner/packages')
 @UseGuards(JwtAuthGuard)
@@ -33,20 +33,20 @@ export class PackagesPartnerController {
   }
 
   @Post(':id/photos')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files', 11)) // up to 10 gallery + 1 cover
   async uploadPhoto(
     @Req() req: any,
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: { isCover?: string }
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() body: any
   ) {
-    const data = await this.packageService.uploadMedia(req.user.partnerProfileId, id, file, body.isCover === 'true');
+    const data = await this.packageService.uploadMediaBatch(req.user.partnerProfileId, id, files, body);
     return { success: true, message: 'Media uploaded', data };
   }
 
   @Put(':id/itinerary')
-  async saveItinerary(@Req() req: any, @Param('id') id: string, @Body() body: { days: any[] }) {
-    const data = await this.packageService.saveItinerary(req.user.partnerProfileId, id, body.days);
+  async saveItinerary(@Req() req: any, @Param('id') id: string, @Body() body: { itinerary: any[] }) {
+    const data = await this.packageService.saveItinerary(req.user.partnerProfileId, id, body.itinerary);
     return { success: true, message: 'Itinerary saved', data };
   }
 
@@ -63,9 +63,21 @@ export class PackagesPartnerController {
   }
 
   @Put(':id/availability')
-  async saveAvailability(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+  async saveAvailability(@Req() req: any, @Param('id') id: string, @Body() body: { seatsPerDeparture: number; departureDates: any[] }) {
     const data = await this.packageService.saveAvailability(req.user.partnerProfileId, id, body);
     return { success: true, message: 'Availability saved', data };
+  }
+
+  @Get(':id/availability-calendar')
+  async getAvailabilityCalendar(@Req() req: any, @Param('id') id: string, @Query('month') month: string, @Query('year') year: string) {
+    const data = await this.packageService.getAvailabilityCalendar(req.user.partnerProfileId, id, month, year);
+    return { success: true, data };
+  }
+
+  @Put(':id/availability/slots')
+  async updateAvailabilitySlots(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    const data = await this.packageService.updateAvailabilitySlots(req.user.partnerProfileId, id, body);
+    return { success: true, message: 'Availability slots updated', data };
   }
 
   @Post(':id/publish')

@@ -80,26 +80,33 @@ export class PackagesPartnerService {
         starting_location: body.startingLocation,
         min_travelers: body.minTravelers || 1,
         max_travelers: body.maxTravelers || 30,
+        tagline: body.tagline,
         current_creation_step: 2
       }
     );
     return this.packageRepository.findOne({ where: { id: packageId } });
   }
 
-  async uploadMedia(partnerId: string, packageId: string, file: any, isCover: boolean) {
-    const fileUrl = file ? 'https://mock.url/' + file.originalname : 'https://mock.url/image.jpg';
-    if (isCover) {
-      await this.packageRepository.update({ id: packageId, partner_id: partnerId }, { cover_image_url: fileUrl, current_creation_step: 3 });
-    } else {
-      await this.mediaRepository.save(this.mediaRepository.create({
-        package_id: packageId,
-        media_url: fileUrl,
-        media_type: 'IMAGE',
-        sort_order: 0
-      }));
+  async uploadMediaBatch(partnerId: string, packageId: string, files: Express.Multer.File[], body: any) {
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const fileUrl = 'https://mock.url/' + file.originalname;
+        const isCover = file.originalname === body.coverImageName;
+        
+        if (isCover) {
+          await this.packageRepository.update({ id: packageId, partner_id: partnerId }, { cover_image_url: fileUrl, current_creation_step: 3 });
+        } else {
+          await this.mediaRepository.save(this.mediaRepository.create({
+            package_id: packageId,
+            media_url: fileUrl,
+            media_type: 'IMAGE',
+            sort_order: 0
+          }));
+        }
+      }
       await this.packageRepository.update({ id: packageId, partner_id: partnerId }, { current_creation_step: 3 });
     }
-    return { fileUrl };
+    return { success: true };
   }
 
   async saveItinerary(partnerId: string, packageId: string, days: any[]) {
@@ -130,13 +137,22 @@ export class PackagesPartnerService {
     return this.packageRepository.findOne({ where: { id: packageId } });
   }
 
-  async saveInclusions(partnerId: string, packageId: string, body: any) {
-    if (body.inclusions) {
-      for (const item of body.inclusions) {
+  async saveInclusions(partnerId: string, packageId: string, body: { included: string[]; excluded: string[] }) {
+    if (body.included) {
+      for (const item of body.included) {
         await this.inclusionRepository.save(this.inclusionRepository.create({
           package_id: packageId,
           item_title: item,
           is_included: true
+        }));
+      }
+    }
+    if (body.excluded) {
+      for (const item of body.excluded) {
+        await this.inclusionRepository.save(this.inclusionRepository.create({
+          package_id: packageId,
+          item_title: item,
+          is_included: false
         }));
       }
     }
@@ -161,19 +177,29 @@ export class PackagesPartnerService {
     return this.packageRepository.findOne({ where: { id: packageId } });
   }
 
-  async saveAvailability(partnerId: string, packageId: string, body: any) {
-    if (body.departures) {
-      for (const dep of body.departures) {
+  async saveAvailability(partnerId: string, packageId: string, body: { seatsPerDeparture: number; departureDates: any[] }) {
+    if (body.departureDates) {
+      for (const depDate of body.departureDates) {
         await this.departureRepository.save(this.departureRepository.create({
           package_id: packageId,
-          departure_date: dep.departureDate,
-          return_date: dep.returnDate,
-          total_seats: dep.totalSeats,
-          price_override: dep.priceOverride
+          departure_date: depDate,
+          return_date: depDate, // Mocking
+          total_seats: body.seatsPerDeparture,
+          price_override: 0
         }));
       }
     }
     await this.packageRepository.update({ id: packageId, partner_id: partnerId }, { current_creation_step: 7 });
+    return { success: true };
+  }
+
+  async getAvailabilityCalendar(partnerId: string, packageId: string, month: string, year: string) {
+    const departures = await this.departureRepository.find({ where: { package_id: packageId } });
+    return { calendar: departures };
+  }
+
+  async updateAvailabilitySlots(partnerId: string, packageId: string, body: any) {
+    // Mock slot update
     return { success: true };
   }
 

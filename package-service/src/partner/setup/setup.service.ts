@@ -195,24 +195,58 @@ export class SetupService {
     return doc;
   }
 
+  async getDocuments(userId: string) {
+    const partner = await this.getOrCreatePartner(userId);
+    const uploadedDocs = await this.documentRepo.find({ where: { partner_id: partner.id } });
+
+    const docTypes = ['BUSINESS_REGISTRATION', 'PAN_CARD', 'GST_CERTIFICATE', 'TOURISM_LICENSE', 'CANCELLED_CHEQUE', 'SIGNATORY_ID'];
+    const docTitles: Record<string, { title: string; required: boolean }> = {
+      BUSINESS_REGISTRATION: { title: 'Business Registration Document', required: true },
+      PAN_CARD: { title: 'Business PAN Card', required: true },
+      GST_CERTIFICATE: { title: 'GST Certificate', required: true },
+      TOURISM_LICENSE: { title: 'Tourism License', required: false },
+      CANCELLED_CHEQUE: { title: 'Cancelled Cheque', required: true },
+      SIGNATORY_ID: { title: 'Authorized Signatory ID', required: true },
+    };
+
+    const documents = docTypes.map((dt, idx) => {
+      const doc = uploadedDocs.find((d) => d.doc_type === dt);
+      return {
+        id: doc?.id || `doc_placeholder_${idx + 1}`,
+        documentType: dt,
+        title: docTitles[dt].title,
+        isRequired: docTitles[dt].required,
+        status: doc ? doc.status : 'NOT_UPLOADED',
+        fileName: doc?.file_name || null,
+        fileUrl: doc?.file_url || null,
+      };
+    });
+
+    return documents;
+  }
+
   async deleteDocument(userId: string, docType: string) {
     const partner = await this.getOrCreatePartner(userId);
     await this.documentRepo.delete({ partner_id: partner.id, doc_type: docType });
   }
 
-  async verifyBankDetails(userId: string, dto: { accountName: string; accountNumber: string; ifsc: string }) {
+  async verifyBankDetails(userId: string, dto: { accountHolderName: string; accountNumber: string; confirmAccountNumber: string; ifscCode: string; accountType: string }) {
     const partner = await this.getOrCreatePartner(userId);
     
+    if (dto.accountNumber !== dto.confirmAccountNumber) {
+       throw new BadRequestException('Account numbers do not match');
+    }
+
     // Check if bank details already exist
     let bank = await this.bankRepo.findOne({ where: { partner_id: partner.id } });
     if (!bank) {
       bank = this.bankRepo.create({ partner_id: partner.id });
     }
     
-    bank.account_holder_name = dto.accountName;
+    bank.account_holder_name = dto.accountHolderName;
     bank.account_number_encrypted = 'ENCRYPTED_' + dto.accountNumber;
     bank.account_number_mask = '•••• •••• ' + dto.accountNumber.slice(-4);
-    bank.ifsc_code = dto.ifsc;
+    bank.ifsc_code = dto.ifscCode;
     bank.bank_name = 'Mock Bank (Penny Drop)';
     bank.is_verified = true; // Mock penny drop success
     bank.penny_drop_status = 'SUCCESS';

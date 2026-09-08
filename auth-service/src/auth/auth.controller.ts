@@ -30,7 +30,7 @@ export class AuthController {
     return this.authService.verifyOtp(verifyOtpDto.phone, verifyOtpDto.otp, verifyOtpDto.role);
   }
 
-  @Post('refresh')
+  @Post('token/refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() refreshDto: RefreshDto) {
     return this.authService.refreshTokens(refreshDto.refreshToken);
@@ -49,7 +49,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Request() req) {
+  async logout(@Request() req, @Body() body: any) {
+    if (body.fcmToken) {
+      // Mock unregistering fcmToken if needed
+    }
     return this.authService.logout(req.user.userId);
   }
 }
