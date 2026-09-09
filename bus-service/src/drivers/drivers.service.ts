@@ -11,7 +11,8 @@ export class DriversService {
   ) {}
 
   async create(dto: any): Promise<BusDriver> {
-    const driver = this.driverRepo.create(dto);
+    const driver = new BusDriver();
+    Object.assign(driver, dto);
     return this.driverRepo.save(driver);
   }
 

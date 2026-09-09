@@ -57,7 +57,7 @@ export class OperatorsService {
     
     const schedulesToday = await this.scheduleRepo.find({
       where: { operator_id: id, departure_date: today },
-      relations: ['bus'],
+      relations: { bus: true },
     });
 
     const activeSchedulesToday = schedulesToday.filter(s => s.status === ScheduleStatus.SCHEDULED || s.status === ScheduleStatus.IN_TRANSIT).length;

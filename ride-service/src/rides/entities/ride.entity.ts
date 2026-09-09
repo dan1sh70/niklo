@@ -105,7 +105,7 @@ export class Ride {
   vehicle_image_url: string;
 
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  fare_final: number;
+  fare_final: number | null;
 
   @Column({ type: 'timestamptz', nullable: true })
   started_at: Date;
