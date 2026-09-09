@@ -53,9 +53,19 @@ export class RidesController {
   @Post(':id/accept')
   @HttpCode(HttpStatus.OK)
   async acceptRide(@Param('id') id: string, @Body() body: any) {
-    const driverId = body?.driverId || 'd1111111-1111-1111-1111-111111111111';
+    const driverId = body?.driverId;
+    if (!driverId) {
+      return { success: false, statusCode: 400, message: 'driverId is required' };
+    }
     await this.ridesService.acceptRide(id, driverId);
     return { success: true, statusCode: 200, data: { message: 'Ride accepted successfully' } };
+  }
+
+  @Post(':id/arrived')
+  @HttpCode(HttpStatus.OK)
+  async markArrived(@Param('id') id: string) {
+    await this.ridesService.updateRideStatus(id, 'ARRIVED');
+    return { success: true, statusCode: 200, data: { status: 'ARRIVED' } };
   }
 
   @Post(':id/complete')
@@ -103,6 +113,16 @@ export class RidesController {
     @Query('offset') offset = '0',
   ) {
     const data = await this.ridesService.getMyRides(req.user.id, +limit, +offset);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('driver/my-trips')
+  async getDriverTrips(
+    @Req() req: any,
+    @Query('limit') limit = '20',
+    @Query('offset') offset = '0',
+  ) {
+    const data = await this.ridesService.getDriverTrips(req.user.id, +limit, +offset);
     return { success: true, statusCode: 200, data };
   }
 

@@ -81,6 +81,20 @@ export class BookingsService implements OnApplicationBootstrap {
       insurance_premium = dto.passenger_details.length * 49;
     }
 
+    if (dto.booking_type === BookingType.BUS && dto.schedule_id && dto.seat_numbers?.length) {
+      try {
+        const busServiceUrl = process.env.BUS_SERVICE_URL || 'http://bus-service:3003';
+        await lastValueFrom(
+          this.httpService.post(
+            `${busServiceUrl}/api/v1/bus/schedules/${dto.schedule_id}/lock-seat`,
+            { seat_numbers: dto.seat_numbers, user_id: this.MOCK_USER_ID },
+          )
+        );
+      } catch (e) {
+        throw new Error(`Failed to lock seats: ${e.response?.data?.message || e.message}`);
+      }
+    }
+
     const booking = this.bookingRepo.create({
       user_id: this.MOCK_USER_ID,
       booking_type: dto.booking_type ? dto.booking_type.toUpperCase() : BookingType.BUS,
@@ -102,6 +116,7 @@ export class BookingsService implements OnApplicationBootstrap {
       primary_gov_id_number: dto.primary_gov_id_number,
       id_verification_status: dto.has_gov_id_verification ? 'PENDING' : 'UNVERIFIED',
       seat_numbers: dto.seat_numbers || [],
+      passenger_details: dto.passenger_details || [],
     });
 
     await this.bookingRepo.save(booking);

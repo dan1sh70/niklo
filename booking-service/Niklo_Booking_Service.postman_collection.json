@@ -6,7 +6,7 @@
     "variable": [
         {
             "key": "baseUrl",
-            "value": "http://localhost:3000",
+            "value": "http://localhost:3005",
             "type": "string"
         },
         {
@@ -16,39 +16,6 @@
         }
     ],
     "item": [
-        {
-            "name": "App",
-            "item": [
-                {
-                    "name": "getHello",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                ""
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
         {
             "name": "Bookings",
             "item": [
@@ -115,6 +82,38 @@
                     "response": []
                 },
                 {
+                    "name": "getIdVerificationStatus",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/bookings/:id/id-verification",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "bookings",
+                                ":id",
+                                "id-verification"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "getCancellationQuote",
                     "request": {
                         "method": "POST",
@@ -172,6 +171,15 @@
                                 "v1",
                                 "bookings"
                             ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"booking_type\": \"BUS\",\n    \"schedule_id\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"title\": \"Greenline Travels (AC Sleeper)\",\n    \"subtitle\": \"Kolkata to Siliguri\",\n    \"boarding_point\": \"Esplanade, Kolkata\",\n    \"dropping_point\": \"Junction, Siliguri\",\n    \"travel_date\": \"2026-08-28\",\n    \"departure_time\": \"20:00\",\n    \"total_amount\": 1200,\n    \"has_insurance\": true,\n    \"has_gov_id_verification\": true,\n    \"primary_gov_id_type\": \"AADHAAR\",\n    \"primary_gov_id_number\": \"123456789012\",\n    \"seat_numbers\": [\n        \"1A\",\n        \"1B\"\n    ],\n    \"passenger_details\": [\n        {\n            \"name\": \"John Doe\",\n            \"age\": 30,\n            \"gender\": \"MALE\",\n            \"seat_number\": \"1A\"\n        },\n        {\n            \"name\": \"Jane Doe\",\n            \"age\": 28,\n            \"gender\": \"FEMALE\",\n            \"seat_number\": \"1B\"\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": []
@@ -207,7 +215,7 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"payment_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"payment_gateway_order_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+                            "raw": "{\n    \"payment_id\": \"pay_ABC123XYZ\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -248,7 +256,7 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"coupon_code\": \"sample_string_value\",\n    \"discount_amount\": 1500\n}",
+                            "raw": "{\n    \"coupon_code\": \"WELCOME50\",\n    \"discount_amount\": 50\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -288,7 +296,7 @@
                         },
                         "body": {
                             "mode": "raw",
-                            "raw": "\"sample_string_value\"",
+                            "raw": "{\n    \"token\": \"eyJhbGciOiJIUzI1Ni...\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -325,202 +333,15 @@
                                 "bookings",
                                 "verify-id"
                             ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "getIdVerificationStatus",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"booking_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"id_type\": \"AADHAAR\",\n    \"id_number\": \"123456789012\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
                             }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/bookings/:id/id-verification",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "bookings",
-                                ":id",
-                                "id-verification"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Home",
-            "item": [
-                {
-                    "name": "getActiveTrip",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/user/active-trip",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "user",
-                                "active-trip"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "getSmartSuggestions",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/recommendations/smart-suggestions",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "recommendations",
-                                "smart-suggestions"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "getBanners",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/promotions/banners",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "promotions",
-                                "banners"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Offers",
-            "item": [
-                {
-                    "name": "getOffers",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/offers",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "offers"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "validateOffer",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/v1/offers/validate",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "offers",
-                                "validate"
-                            ]
                         }
                     },
                     "response": []

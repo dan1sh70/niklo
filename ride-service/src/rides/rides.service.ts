@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Ride, RideStatus, RideType } from './entities/ride.entity';
 import { RideRating } from './entities/ride-rating.entity';
 import { RedisService } from '../redis/redis.service';
+import { PassengerGateway } from '../gateways/passenger.gateway';
+import { forwardRef, Inject } from '@nestjs/common';
 import axios from 'axios';
 
 @Injectable()
@@ -16,6 +18,8 @@ export class RidesService {
     @InjectRepository(RideRating)
     private readonly ratingRepository: Repository<RideRating>,
     private readonly redisService: RedisService,
+    @Inject(forwardRef(() => PassengerGateway))
+    private readonly passengerGateway: PassengerGateway,
   ) {}
 
   async estimateRide(estimateDto: any) {
@@ -148,6 +152,22 @@ export class RidesService {
 
         const ride = await this.rideRepository.findOne({ where: { id: rideId } });
 
+        // Query actual user profile
+        let passengerName = 'Passenger Name';
+        let passengerPhone = '+919999999999';
+        try {
+          const userRes = await axios.get(
+            `${process.env.USER_SERVICE_URL || 'http://user-service:3002'}/api/v1/user/${ride?.user_id}/profile`,
+            { timeout: 3000 }
+          );
+          if (userRes.data?.data) {
+            passengerName = userRes.data.data.name || passengerName;
+            passengerPhone = userRes.data.data.phone || passengerPhone;
+          }
+        } catch {
+          this.logger.warn(`Could not fetch passenger profile for ${ride?.user_id}`);
+        }
+
         await this.redisService.publish(
           'ride:new_request_queue',
           JSON.stringify({
@@ -159,8 +179,8 @@ export class RidesService {
             fareEstimate: ride?.fare_amount,
             distanceKm: ride?.distance_km,
             otp: ride?.otp,
-            passengerName: 'Passenger Name',
-            passengerPhone: '+919999999999',
+            passengerName,
+            passengerPhone,
           }),
         );
 
@@ -284,8 +304,19 @@ export class RidesService {
   }
 
   async acceptRide(rideId: string, driverId: string) {
+    // Atomic update
+    const result = await this.rideRepository.createQueryBuilder()
+      .update(Ride)
+      .set({ status: RideStatus.ACCEPTED, driver_id: driverId })
+      .where('id = :rideId AND status = :status', { rideId, status: RideStatus.REQUESTED })
+      .execute();
+
+    if (result.affected === 0) {
+      throw new Error('Ride already accepted by another driver or cancelled');
+    }
+
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
-    if (!ride || ride.status !== RideStatus.REQUESTED) return;
+    if (!ride) return;
 
     let driverProfile: any = {};
     try {
@@ -308,6 +339,19 @@ export class RidesService {
     ride.status           = RideStatus.ACCEPTED;
 
     await this.rideRepository.save(ride);
+    
+    // Broadcast real-time driver assigned message
+    this.passengerGateway.broadcastDriverAssigned(rideId, {
+      driverId,
+      driverName:    ride.driver_name,
+      driverPhone:   ride.driver_phone,
+      driverPhoto:   ride.driver_photo_url,
+      vehicleNumber: ride.vehicle_number,
+      vehicleModel:  ride.vehicle_model,
+      vehicleColor:  ride.vehicle_color,
+      vehicleType:   ride.ride_type,
+    });
+
     await this.redisService.publish(
       'ride:status_update',
       JSON.stringify({ rideId, status: RideStatus.ACCEPTED, driverId }),
@@ -316,6 +360,62 @@ export class RidesService {
 
   async rejectRide(rideId: string, driverId: string) {
     this.logger.log(`Ride ${rideId} rejected by driver ${driverId}`);
+    
+    // Mark driver as tried
+    const redisClient = this.redisService.getClient();
+    await redisClient.sadd(`ride:tried:${rideId}`, driverId);
+    await redisClient.expire(`ride:tried:${rideId}`, 600); // 10 min TTL
+
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride || ride.status !== RideStatus.REQUESTED) return;
+
+    await this.matchDriverExcluding(rideId, ride.pickup_latitude, ride.pickup_longitude);
+  }
+
+  private async matchDriverExcluding(rideId: string, lat: number, lng: number) {
+    const redisClient = this.redisService.getClient();
+    const tried = await redisClient.smembers(`ride:tried:${rideId}`);
+    const drivers = await this.redisService.getNearbyDrivers(lat, lng, 10);
+    const candidates = drivers.filter(d => !tried.includes(d));
+
+    if (candidates.length === 0) {
+      await this.updateRideStatus(rideId, RideStatus.CANCELLED);
+      return;
+    }
+
+    const nextDriverId = candidates[0];
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    
+    let passengerName = 'Passenger Name';
+    let passengerPhone = '+919999999999';
+    try {
+      const userRes = await axios.get(
+        `${process.env.USER_SERVICE_URL || 'http://user-service:3002'}/api/v1/user/${ride?.user_id}/profile`,
+        { timeout: 3000 }
+      );
+      if (userRes.data?.data) {
+        passengerName = userRes.data.data.name || passengerName;
+        passengerPhone = userRes.data.data.phone || passengerPhone;
+      }
+    } catch {
+      this.logger.warn(`Could not fetch passenger profile for ${ride?.user_id}`);
+    }
+
+    await this.redisService.publish(
+      'ride:new_request_queue',
+      JSON.stringify({
+        rideId,
+        driverId: nextDriverId,
+        timeout: 30,
+        pickupAddress: ride?.pickup_address,
+        dropAddress: ride?.dropoff_address,
+        fareEstimate: ride?.fare_amount,
+        distanceKm: ride?.distance_km,
+        otp: ride?.otp,
+        passengerName,
+        passengerPhone,
+      }),
+    );
   }
 
   async verifyRideOtp(rideId: string, otp: string) {
@@ -345,6 +445,8 @@ export class RidesService {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (ride) {
       ride.status = RideStatus.COMPLETED;
+      ride.fare_final = ride.fare_amount;
+      ride.ended_at = new Date();
       await this.rideRepository.save(ride);
       await this.redisService.publish(
         'ride:status_update',
@@ -360,6 +462,7 @@ export class RidesService {
 
   async setDriverOffline(driverId: string) {
     this.logger.log(`Setting driver ${driverId} offline`);
+    await this.redisService.removeDriverFromPool(driverId);
     await this.redisService.publish('driver:online_status', JSON.stringify({ driverId, status: 'offline' }));
   }
 
@@ -382,6 +485,27 @@ export class RidesService {
       fare_final:      r.status === RideStatus.COMPLETED ? r.fare_amount : null,
       created_at:      r.created_at,
       ended_at:        r.updated_at,
+    }));
+  }
+
+  async getDriverTrips(driverId: string, limit = 20, offset = 0) {
+    const rides = await this.rideRepository.find({
+      where: { driver_id: driverId },
+      order: { created_at: 'DESC' },
+      take: Math.min(limit, 100),
+      skip: offset,
+    });
+  
+    return rides.map((r) => ({
+      rideId:          r.id,
+      status:          r.status,
+      ride_type:       r.ride_type,
+      pickup_address:  r.pickup_address,
+      drop_address:    r.dropoff_address,
+      distance_km:     r.distance_km,
+      fare_final:      r.fare_final,
+      created_at:      r.created_at,
+      ended_at:        r.ended_at,
     }));
   }
   

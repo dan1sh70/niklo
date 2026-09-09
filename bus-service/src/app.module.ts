@@ -13,6 +13,7 @@ import { OperatorsModule } from './operators/operators.module';
 import { BusesModule } from './buses/buses.module';
 import { RoutesModule } from './routes/routes.module';
 import { SchedulesModule } from './schedules/schedules.module';
+import { DriversModule } from './drivers/drivers.module';
 import { JwtStrategy } from './common/strategies/jwt.strategy';
 import databaseConfig from './config/database.config';
 import { LocationsController } from './locations/locations.controller';
@@ -63,6 +64,7 @@ import { Reflector } from '@nestjs/core';
     BusesModule,
     RoutesModule,
     SchedulesModule,
+    DriversModule,
     TypeOrmModule.forFeature([PopularBusRoute]),
   ],
   controllers: [AppController, LocationsController, PopularRoutesController],

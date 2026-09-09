@@ -26,21 +26,28 @@ export class PassengerGateway
       await this.redisService.subscribe('driver_locations', (msg) => {
         try {
           const payload = JSON.parse(msg);
-          // Assuming the passenger is subscribed to a room named after the driverId or we map it to rideId.
-          // Since we might not know rideId here without querying DB, it's common to have the passenger
-          // subscribe to the driver's room `payload.driverId` or have a map.
-          // For now, we will broadcast it if the room exists, or we expect the passenger to join driverId room.
-          // In a real app, you'd look up the active ride for this driver.
-          // To keep it simple per requirements, we'll emit to a room with the driver's ID.
-          // The passenger frontend should listen to `driver_locations` or join `payload.driverId`.
-          this.server.to(payload.driverId).emit('ride:location_update', payload);
+          if (payload.rideId) {
+            this.server.to(payload.rideId).emit('ride:location_update', payload);
+          }
         } catch (err) {
           this.logger.error('Error parsing driver_locations message', err);
         }
       });
-      this.logger.log('Subscribed to Redis driver_locations successfully.');
+      
+      await this.redisService.subscribe('ride:status_update', (msg) => {
+        try {
+          const payload = JSON.parse(msg);
+          if (payload.rideId) {
+            this.broadcastStatusChange(payload.rideId, { status: payload.status });
+          }
+        } catch (err) {
+          this.logger.error('Error parsing ride:status_update message', err);
+        }
+      });
+      
+      this.logger.log('Subscribed to Redis channels successfully.');
     } catch (err) {
-      this.logger.error('Failed to subscribe to Redis driver_locations', err);
+      this.logger.error('Failed to subscribe to Redis channels', err);
     }
   }
 

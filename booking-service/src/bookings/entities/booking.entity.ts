@@ -93,6 +93,9 @@ export class Booking {
   @Column({ type: 'simple-array', nullable: true })
   seat_numbers: string[];
 
+  @Column({ type: 'jsonb', nullable: true })
+  passenger_details: any[];
+
   @Column({ type: 'varchar', length: 50, nullable: true })
   coupon_code: string;
 

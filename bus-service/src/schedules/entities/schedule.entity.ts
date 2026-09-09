@@ -60,6 +60,9 @@ export class Schedule {
   @Column({ type: 'int' })
   available_seats: number;
 
+  @Column({ type: 'text', array: true, default: '{}' })
+  booked_seats: string[];
+
   @Column({
     type: 'enum',
     enum: ScheduleStatus,

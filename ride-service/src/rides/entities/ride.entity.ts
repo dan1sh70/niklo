@@ -59,14 +59,14 @@ export class Ride {
   @Column({ type: 'varchar', length: 6, default: '1234' })
   otp: string;
 
-  @Column({ type: 'numeric', precision: 6, scale: 2 })
-  distance_km: number;
+  @Column({ type: 'numeric', precision: 6, scale: 2, nullable: true, default: null })
+  distance_km: number | null;
 
-  @Column({ type: 'int' })
-  estimated_time_mins: number;
+  @Column({ type: 'int', nullable: true, default: null })
+  estimated_time_mins: number | null;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
-  fare_amount: number;
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true, default: null })
+  fare_amount: number | null;
 
   @Column({ type: 'numeric', precision: 3, scale: 2, default: 1.0 })
   surge_multiplier: number;

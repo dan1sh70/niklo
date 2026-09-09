@@ -22,7 +22,7 @@ export class SchedulesService {
     return this.scheduleRepo.save(schedule);
   }
 
-  async findAll(routeId?: string, date?: string): Promise<Schedule[]> {
+  async findAll(routeId?: string, date?: string, operatorId?: string): Promise<Schedule[]> {
     const qb = this.scheduleRepo
       .createQueryBuilder('schedule')
       .leftJoinAndSelect('schedule.route', 'route')
@@ -37,6 +37,9 @@ export class SchedulesService {
     }
     if (date) {
       qb.andWhere('schedule.departure_date = :date', { date });
+    }
+    if (operatorId) {
+      qb.andWhere('schedule.operator_id = :operatorId', { operatorId });
     }
 
     return qb.orderBy('schedule.departure_time', 'ASC').getMany();
@@ -62,6 +65,7 @@ export class SchedulesService {
       order: { is_upper_deck: 'ASC', row_num: 'ASC', col_num: 'ASC' },
     });
     return {
+      schedule,
       schedule_id: schedule.id,
       bus_id: schedule.bus_id,
       bus_type: schedule.bus.bus_type,
@@ -83,6 +87,8 @@ export class SchedulesService {
       .leftJoinAndSelect('schedule.bus', 'bus')
       .leftJoinAndSelect('schedule.operator', 'operator')
       .leftJoinAndSelect('bus.seats', 'seats')
+      .leftJoinAndSelect('route.boarding_points', 'boarding_points')
+      .leftJoinAndSelect('route.dropping_points', 'dropping_points')
       .where('schedule.status = :status', { status: ScheduleStatus.SCHEDULED })
       .andWhere('route.is_active = :active', { active: true });
 
@@ -97,10 +103,7 @@ export class SchedulesService {
       });
     }
     if (date) {
-      qb.andWhere(
-        '(schedule.departure_date = :date OR schedule.departure_date <= :date)',
-        { date }
-      );
+      qb.andWhere('schedule.departure_date = :date', { date });
     }
 
     return qb.orderBy('schedule.departure_time', 'ASC').getMany();
@@ -150,8 +153,8 @@ export class SchedulesService {
       is_upper_deck: s.is_upper_deck,
       seat_type: s.seat_type,
       price: Number(seatData.base_fare) + Number(s.price_offset),
-      // A seat is unavailable if marked in DB OR currently locked in Redis
-      is_available: s.is_available && !lockedSeatNumbers.includes(s.seat_number),
+      // A seat is unavailable if marked in DB OR currently locked in Redis OR marked as booked in schedule
+      is_available: s.is_available && !lockedSeatNumbers.includes(s.seat_number) && !(seatData as any).schedule?.booked_seats?.includes(s.seat_number),
       is_ladies_seat: s.is_ladies_seat ?? false,
       booked_gender: s.booked_gender ?? null,
     });
@@ -198,20 +201,17 @@ export class SchedulesService {
   }
 
   async markSeatsBooked(scheduleId: string, seatNumbers: string[]): Promise<void> {
-    // Mark seats as unavailable in the bus_seats table
-    await this.seatRepo
-      .createQueryBuilder()
-      .update()
-      .set({ is_available: false })
-      .where('bus_id = (SELECT bus_id FROM schedules WHERE id = :scheduleId)', { scheduleId })
-      .andWhere('seat_number IN (:...seatNumbers)', { seatNumbers })
-      .execute();
+    const schedule = await this.findOne(scheduleId);
+    const updatedBookedSeats = [...(schedule.booked_seats || []), ...seatNumbers];
 
-    // Decrement available_seats count on the schedule
+    // Decrement available_seats count and update booked_seats array
     await this.scheduleRepo
       .createQueryBuilder()
       .update()
-      .set({ available_seats: () => `available_seats - ${seatNumbers.length}` })
+      .set({ 
+        available_seats: () => `available_seats - ${seatNumbers.length}`,
+        booked_seats: updatedBookedSeats,
+      })
       .where('id = :scheduleId', { scheduleId })
       .andWhere('available_seats >= :count', { count: seatNumbers.length })
       .execute();

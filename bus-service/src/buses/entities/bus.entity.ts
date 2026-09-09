@@ -17,6 +17,7 @@ export enum BusType {
   AC_SEATER = 'AC_SEATER',
   NON_AC_SEATER = 'NON_AC_SEATER',
   VOLVO_AC = 'VOLVO_AC',
+  LUXURY_COACH = 'LUXURY_COACH',
 }
 
 @Entity('buses')

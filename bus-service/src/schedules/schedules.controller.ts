@@ -39,10 +39,11 @@ export class SchedulesController {
 
   @Get()
   async findAll(
+    @Query('operator_id') operatorId?: string,
     @Query('route_id') routeId?: string,
     @Query('date') date?: string,
   ) {
-    const data = await this.schedulesService.findAll(routeId, date);
+    const data = await this.schedulesService.findAll(routeId, date, operatorId);
     return { success: true, statusCode: 200, data };
   }
 
@@ -55,6 +56,18 @@ export class SchedulesController {
   @Get(':id/seat-map')
   async getSeatMap(@Param('id') id: string) {
     const data = await this.schedulesService.getSeatMap(id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get(':id/seats')
+  async getSeatsAlias(@Param('id') id: string) {
+    const data = await this.schedulesService.getSeatMap(id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get(':id/manifest')
+  async getManifest(@Param('id') id: string) {
+    const data = await this.schedulesService.getManifest(id);
     return { success: true, statusCode: 200, data };
   }
 

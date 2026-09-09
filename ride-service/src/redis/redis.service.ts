@@ -50,6 +50,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     await this.client.geoadd('drivers:online', lng, lat, driverId);
   }
 
+  async removeDriverFromPool(driverId: string) {
+    await this.client.zrem('drivers:online', driverId);
+    await this.client.del(`driver:loc:${driverId}`);
+  }
+
   async getNearbyDrivers(
     lat: number,
     lng: number,

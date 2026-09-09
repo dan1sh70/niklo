@@ -17,6 +17,7 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   @WebSocketServer()
   server: Server;
   private readonly logger = new Logger(DriverGateway.name);
+  private socketToDriver = new Map<string, string>();
 
   constructor(
     private readonly redisService: RedisService,
@@ -47,6 +48,13 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Driver disconnected: ${client.id}`);
+    const driverId = this.socketToDriver.get(client.id);
+    if (driverId) {
+      this.redisService.removeDriverFromPool(driverId).catch(err => {
+        this.logger.error(`Failed to remove driver ${driverId} from pool on disconnect`, err);
+      });
+      this.socketToDriver.delete(client.id);
+    }
   }
 
   @SubscribeMessage('driver:go_online')
@@ -55,6 +63,7 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @ConnectedSocket() client: Socket,
   ) {
     client.join(data.driverId);
+    this.socketToDriver.set(client.id, data.driverId);
     await this.redisService.setDriverLocation(
       data.driverId,
       data.lat,
@@ -74,6 +83,7 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
       lng: number;
       bearing: number;
       speed: number;
+      rideId?: string;
     },
   ) {
     await this.redisService.setDriverLocation(

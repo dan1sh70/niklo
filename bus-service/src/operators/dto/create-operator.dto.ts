@@ -4,9 +4,14 @@ import {
   IsOptional,
   IsEmail,
   Matches,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateOperatorDto {
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -17,7 +22,7 @@ export class CreateOperatorDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\+[1-9]\d{1,14}$/, { message: 'Phone must be E.164 format' })
+  @Matches(/^(\+?[1-9]\d{1,14}|\d{10})$/, { message: 'Invalid phone format' })
   contact_phone?: string;
 
   @IsOptional()
