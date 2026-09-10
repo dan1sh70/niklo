@@ -11,7 +11,7 @@
         },
         {
             "key": "token",
-            "value": "your_jwt_token_here",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJwaG9uZSI6Iis5MTk4NzY1NDMyMTAiLCJpYXQiOjE3ODkwMTUzODUsImV4cCI6MTc5MTYwNzM4NX0.97hrMqwtC1Cgym-VExE6oP4x6uhZWCgjyyVsSRsAVxI",
             "type": "string"
         }
     ],

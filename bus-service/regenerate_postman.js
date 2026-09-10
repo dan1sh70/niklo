@@ -1,5 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+
+const testToken = jwt.sign(
+    { sub: '11111111-1111-1111-1111-111111111111', phone: '+919876543210' }, 
+    'super-secret-jwt-key', 
+    { expiresIn: '30d' }
+);
 
 const collectionPath = path.join(__dirname, 'Niklo_Bus_Service.postman_collection.json');
 let data = {
@@ -9,7 +16,7 @@ let data = {
     },
     variable: [
         { key: "baseUrl", value: "http://localhost:3000", type: "string" },
-        { key: "token", value: "your_jwt_token_here", type: "string" }
+        { key: "token", value: testToken, type: "string" }
     ],
     item: []
 };
