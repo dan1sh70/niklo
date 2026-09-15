@@ -57,6 +57,18 @@ export class BookingsService implements OnApplicationBootstrap {
   }
 
   private mapBookingToDto(b: Booking) {
+    let formattedDate = null;
+    if (b.travel_date) {
+      try {
+        const dateObj = typeof b.travel_date === 'string' ? new Date(b.travel_date) : b.travel_date;
+        if (!isNaN(dateObj.getTime())) {
+          formattedDate = dateObj.toISOString().split('T')[0];
+        }
+      } catch (e) {
+        formattedDate = null;
+      }
+    }
+
     return {
       id: b.id,
       bookingReference: b.booking_reference,
@@ -65,7 +77,7 @@ export class BookingsService implements OnApplicationBootstrap {
       subtitle: b.subtitle,
       fromLocation: b.from_location,
       toLocation: b.to_location,
-      travelDate: b.travel_date ? b.travel_date.toISOString().split('T')[0] : null,
+      travelDate: formattedDate,
       departureTime: b.departure_time,
       totalAmount: Number(b.total_amount),
       status: b.status,
@@ -95,6 +107,14 @@ export class BookingsService implements OnApplicationBootstrap {
       }
     }
 
+    let parsedTravelDate = dto.travel_date || dto.slot_date || dto.check_in_date || new Date();
+    if (parsedTravelDate === 'Select Date' || parsedTravelDate === '') {
+      parsedTravelDate = new Date();
+    } else if (typeof parsedTravelDate === 'string') {
+      const parsed = new Date(parsedTravelDate);
+      parsedTravelDate = isNaN(parsed.getTime()) ? new Date() : parsed;
+    }
+
     const booking = this.bookingRepo.create({
       user_id: this.MOCK_USER_ID,
       booking_type: dto.booking_type ? dto.booking_type.toUpperCase() : BookingType.BUS,
@@ -104,7 +124,7 @@ export class BookingsService implements OnApplicationBootstrap {
       subtitle: dto.subtitle || (dto.booking_type === 'PACKAGE' ? `${dto.travelers || 2} Travelers` : 'Booking Subtitle'),
       from_location: dto.boarding_point || dto.location || 'Unknown',
       to_location: dto.dropping_point || dto.destination || 'Unknown',
-      travel_date: dto.travel_date || dto.slot_date || dto.check_in_date || new Date(),
+      travel_date: parsedTravelDate,
       departure_time: dto.departure_time || dto.time_slot || '10:00',
       total_amount: dto.total_amount + insurance_premium,
       status: BookingStatus.PENDING,
