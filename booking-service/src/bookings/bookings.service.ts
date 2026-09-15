@@ -57,7 +57,7 @@ export class BookingsService implements OnApplicationBootstrap {
   }
 
   private mapBookingToDto(b: Booking) {
-    let formattedDate = null;
+    let formattedDate: string | null = null;
     if (b.travel_date) {
       try {
         const dateObj = typeof b.travel_date === 'string' ? new Date(b.travel_date) : b.travel_date;
