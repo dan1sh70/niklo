@@ -144,4 +144,10 @@ export class UsersController {
     const data = await this.usersService.syncWalletBalance(id, body.amount);
     return { success: true, statusCode: 200, data };
   }
+
+  @Get(':id/profile')
+  async getProfileById(@Param('id') id: string) {
+    const data = await this.usersService.getProfileById(id);
+    return { success: true, statusCode: 200, data };
+  }
 }

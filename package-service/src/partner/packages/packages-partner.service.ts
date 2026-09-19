@@ -8,6 +8,9 @@ import { PackageInclusion } from './entities/package-inclusion.entity';
 import { PackageGalleryMedia } from '../../packages/entities/package-gallery-media.entity';
 import { PackageItineraryDay } from '../../packages/entities/package-itinerary-day.entity';
 
+import { PackagePartner } from '../setup/entities/package_partner.entity';
+import { ForbiddenException } from '@nestjs/common';
+
 @Injectable()
 export class PackagesPartnerService {
   constructor(
@@ -23,6 +26,8 @@ export class PackagesPartnerService {
     private readonly mediaRepository: Repository<PackageGalleryMedia>,
     @InjectRepository(PackageItineraryDay)
     private readonly dayRepository: Repository<PackageItineraryDay>,
+    @InjectRepository(PackagePartner)
+    private readonly partnerRepository: Repository<PackagePartner>,
   ) {}
 
   async listPackages(partnerId: string, status?: string) {
@@ -48,6 +53,11 @@ export class PackagesPartnerService {
     });
   }
   async initializeDraft(partnerId: string) {
+    const partner = await this.partnerRepository.findOne({ where: { id: partnerId } });
+    if (!partner || partner.verification_status !== 'APPROVED') {
+      throw new ForbiddenException('Only approved partners can create packages');
+    }
+
     const pkg = this.packageRepository.create({
       partner_id: partnerId,
       title: 'New Package',
@@ -111,6 +121,9 @@ export class PackagesPartnerService {
 
   async saveItinerary(partnerId: string, packageId: string, days: any[]) {
     if (days) {
+      // Clear existing to prevent duplicates
+      await this.dayRepository.delete({ package_id: packageId });
+      
       for (const day of days) {
         const savedDay = await this.dayRepository.save(this.dayRepository.create({
           package_id: packageId,
@@ -138,6 +151,9 @@ export class PackagesPartnerService {
   }
 
   async saveInclusions(partnerId: string, packageId: string, body: { included: string[]; excluded: string[] }) {
+    // Clear existing to prevent duplicates
+    await this.inclusionRepository.delete({ package_id: packageId });
+
     if (body.included) {
       for (const item of body.included) {
         await this.inclusionRepository.save(this.inclusionRepository.create({
@@ -178,6 +194,9 @@ export class PackagesPartnerService {
   }
 
   async saveAvailability(partnerId: string, packageId: string, body: { seatsPerDeparture: number; departureDates: any[] }) {
+    // Clear existing to prevent duplicates
+    await this.departureRepository.delete({ package_id: packageId });
+
     if (body.departureDates) {
       for (const depDate of body.departureDates) {
         await this.departureRepository.save(this.departureRepository.create({

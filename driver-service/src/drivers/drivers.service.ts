@@ -199,4 +199,23 @@ export class DriversService implements OnApplicationBootstrap {
 
     return payout;
   }
+  async getProfile(driverId: string) {
+    const driver = await this.driverRepo.findOne({
+      where: { id: driverId },
+    });
+    if (!driver) {
+      throw new NotFoundException('Driver not found');
+    }
+    return driver;
+  }
+
+  async recordEarnings(driverId: string, amount: number, type: EarningType, rideId?: string) {
+    const earning = this.earningRepo.create({
+      driver_id: driverId,
+      amount,
+      type,
+      ride_id: rideId,
+    });
+    return await this.earningRepo.save(earning);
+  }
 }

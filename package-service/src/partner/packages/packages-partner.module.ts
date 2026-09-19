@@ -8,6 +8,7 @@ import { PackageDeparture } from './entities/package-departure.entity';
 import { PackageItineraryActivity } from './entities/package-itinerary-activity.entity';
 import { PackageInclusion } from './entities/package-inclusion.entity';
 import { PackageGalleryMedia } from '../../packages/entities/package-gallery-media.entity';
+import { PackagePartner } from '../setup/entities/package_partner.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PackageGalleryMedia } from '../../packages/entities/package-gallery-med
       PackageItineraryActivity,
       PackageInclusion,
       PackageGalleryMedia,
+      PackagePartner,
     ]),
   ],
   controllers: [PackagesPartnerController],

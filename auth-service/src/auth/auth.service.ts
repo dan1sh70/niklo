@@ -60,14 +60,26 @@ export class AuthService {
       const isTestCredentials = phone === '+919999999999' && otp === '123456';
 
       if (!isTestCredentials) {
+        const isLocked = await this.redisService.checkOtpLockout(phone);
+        if (isLocked) {
+          throw new BadRequestException('Account locked due to too many failed attempts. Try again later.');
+        }
+
         const storedOtp = await this.redisService.getOtp(phone);
 
         if (!storedOtp || storedOtp !== otp) {
+          const attempts = await this.redisService.incrementOtpAttempts(phone);
+          if (attempts >= 5) {
+            await this.redisService.lockOtp(phone, 900); // 15 mins
+            await this.redisService.resetOtpAttempts(phone);
+            throw new BadRequestException('Account locked due to too many failed attempts.');
+          }
           throw new BadRequestException('Invalid or expired OTP');
         }
 
-        // OTP matched, delete it
+        // OTP matched, delete it and reset attempts
         await this.redisService.deleteOtp(phone);
+        await this.redisService.resetOtpAttempts(phone);
       }
 
       // Find or create user

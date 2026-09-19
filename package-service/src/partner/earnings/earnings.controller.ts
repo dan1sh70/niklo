@@ -38,7 +38,8 @@ export class EarningsController {
 
   @Get('transactions/:id/invoice')
   async getInvoice(@Req() req: any, @Param('id') id: string) {
-    return { success: true, data: { downloadUrl: `https://storage.niklo.com/invoices/tax_invoice_${id}.pdf` } };
+    const data = await this.earningsService.downloadInvoice(req.user.partnerProfileId, id);
+    return { success: true, data };
   }
 
   @Post('withdraw')

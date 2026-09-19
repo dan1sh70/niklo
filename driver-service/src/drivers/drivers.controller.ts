@@ -3,7 +3,7 @@ import { DriversService } from './drivers.service';
 import { OnboardDriverDto, UploadKycDto } from './dto/create-driver.dto';
 import { BankDetailsDto } from './dto/bank-details.dto';
 
-@Controller('api/v1/driver')
+@Controller()
 export class DriversController {
   constructor(private readonly driversService: DriversService) {}
 
@@ -58,6 +58,18 @@ export class DriversController {
   @Post('withdraw')
   async withdraw(@Body() body: { driverId: string; amount: number }) {
     const data = await this.driversService.withdraw(body.driverId, body.amount);
+    return { success: true, data };
+  }
+
+  @Get(':id/profile')
+  async getProfile(@Param('id') id: string) {
+    const data = await this.driversService.getProfile(id);
+    return { success: true, data };
+  }
+
+  @Post('earnings/record')
+  async recordEarnings(@Body() body: { driverId: string; amount: number; type: any; rideId?: string }) {
+    const data = await this.driversService.recordEarnings(body.driverId, body.amount, body.type, body.rideId);
     return { success: true, data };
   }
 }

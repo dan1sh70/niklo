@@ -28,4 +28,26 @@ export class RedisService {
   async deleteOtp(phone: string): Promise<void> {
     await this.redis.del(`otp:${phone}`);
   }
+
+  async incrementOtpAttempts(phone: string): Promise<number> {
+    const key = `otp:attempts:${phone}`;
+    const attempts = await this.redis.incr(key);
+    if (attempts === 1) {
+      await this.redis.expire(key, 300); // 5 minutes window
+    }
+    return attempts;
+  }
+
+  async lockOtp(phone: string, durationSeconds: number): Promise<void> {
+    await this.redis.set(`otp:lockout:${phone}`, 'locked', 'EX', durationSeconds);
+  }
+
+  async checkOtpLockout(phone: string): Promise<boolean> {
+    const locked = await this.redis.get(`otp:lockout:${phone}`);
+    return !!locked;
+  }
+
+  async resetOtpAttempts(phone: string): Promise<void> {
+    await this.redis.del(`otp:attempts:${phone}`);
+  }
 }

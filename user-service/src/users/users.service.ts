@@ -69,6 +69,25 @@ export class UsersService {
     };
   }
 
+  async getProfileById(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      id: user.id,
+      phone: user.phone,
+      email: user.email,
+      name: user.name,
+      dob: user.dob,
+      gender: user.gender,
+      avatar_url: user.avatar_url,
+      kyc_status: user.kyc_status,
+      wallet_balance: Number(user.wallet_balance),
+      preferred_language: user.preferred_language,
+    };
+  }
+
   async updateProfile(jwtUser: any, updateData: any) {
     const user = await this.getOrCreateUser(jwtUser);
     

@@ -26,8 +26,11 @@ export class SupportTicket {
   @Column({ default: 'OPEN' })
   status: string;
 
-  @Column('text', { array: true, default: [] })
+  @Column({ type: 'text', array: true, default: [] })
   attachment_urls: string[];
+
+  @Column({ type: 'text', nullable: true })
+  latest_response: string;
 
   @Column({ nullable: true })
   assigned_agent_id: string;

@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Delete, Body, Param, Req, UseGuards,
-  UseInterceptors, UploadedFile, HttpCode, HttpStatus, Query
+  UseInterceptors, UploadedFile, HttpCode, HttpStatus, Query, BadRequestException
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SetupService } from './setup.service';
@@ -28,9 +28,37 @@ export class SetupController {
     return { success: true, message: 'Partner type saved', data };
   }
 
+  @Post('email/otp/send')
+  async sendEmailOtp(@Req() req: any) {
+    return { success: true, message: 'OTP sent to email', data: { otp: '1234' } }; // Mocked
+  }
+
+  @Post('email/otp/verify')
+  async verifyEmailOtp(@Req() req: any, @Body() body: { otp: string }) {
+    const data = await this.setupService.verifyEmail(req.user.id, body.otp);
+    return { success: true, message: 'Email verified', data };
+  }
+
+  @Post('phone/otp/send')
+  async sendPhoneOtp(@Req() req: any) {
+    return { success: true, message: 'OTP sent to phone', data: { otp: '1234' } }; // Mocked
+  }
+
+  @Post('phone/otp/verify')
+  async verifyPhoneOtp(@Req() req: any, @Body() body: { otp: string }) {
+    const data = await this.setupService.verifyPhone(req.user.id, body.otp);
+    return { success: true, message: 'Phone verified', data };
+  }
+
   @Post('business')
   async saveBusinessDetails(@Req() req: any, @Body() body: any) {
-    // Body now matches { businessName, email, phone, address: { line1, city, state, pincode } }
+    // Body now matches { businessName, email, phone, address: { line1, city, state, pincode }, panNumber, ownerName }
+    if (body.panNumber) {
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panRegex.test(body.panNumber)) {
+        throw new BadRequestException('Invalid PAN number format');
+      }
+    }
     const data = await this.setupService.saveBusinessDetails(req.user.id, body);
     return { success: true, message: 'Business details saved', data };
   }

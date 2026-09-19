@@ -126,16 +126,34 @@ export class SetupService {
     return { partnerType, nextStep: 2 };
   }
 
+  async verifyEmail(userId: string, otp: string) {
+    if (otp !== '1234') throw new BadRequestException('Invalid OTP');
+    const partner = await this.getOrCreatePartner(userId);
+    partner.email_verified = true;
+    await this.partnerRepo.save(partner);
+    return { verified: true };
+  }
+
+  async verifyPhone(userId: string, otp: string) {
+    if (otp !== '1234') throw new BadRequestException('Invalid OTP');
+    const partner = await this.getOrCreatePartner(userId);
+    partner.phone_verified = true;
+    await this.partnerRepo.save(partner);
+    return { verified: true };
+  }
+
   async saveBusinessDetails(userId: string, dto: any) {
     const partner = await this.getOrCreatePartner(userId);
     Object.assign(partner, {
       business_name: dto.businessName,
+      owner_name: dto.ownerName,
+      pan_number: dto.panNumber,
       email: dto.email,
       phone: dto.phone,
-      address_line1: dto.address,
-      city: dto.city,
-      state: dto.state,
-      pincode: dto.pincode,
+      address_line1: dto.address?.line1 || dto.address,
+      city: dto.address?.city || dto.city,
+      state: dto.address?.state || dto.state,
+      pincode: dto.address?.pincode || dto.pincode,
     });
     partner.onboarding_step = 'DOCUMENTS';
     await this.partnerRepo.save(partner);

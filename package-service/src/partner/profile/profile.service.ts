@@ -33,7 +33,12 @@ export class ProfileService {
     return {
       partnerId: partner.id,
       businessName: partner.business_name,
+      tradeName: partner.trade_name || partner.business_name,
+      ownerName: partner.owner_name || 'Owner',
       businessType: partner.business_type,
+      panNumber: partner.pan_number,
+      gstin: partner.gstin,
+      logoUrl: partner.logo_url,
       email: partner.email,
       phone: partner.phone,
       address: partner.address_line1,
@@ -41,7 +46,14 @@ export class ProfileService {
       state: partner.state,
       pincode: partner.pincode,
       verificationStatus: partner.verification_status,
-      createdAt: partner.created_at
+      isVerified: partner.verification_status === 'approved',
+      createdAt: partner.created_at,
+      stats: {
+        activePackages: 0,
+        monthlyBookings: 0,
+        monthlyRevenue: 0,
+        rating: 0
+      }
     };
   }
 
@@ -55,6 +67,10 @@ export class ProfileService {
       { id: partner.id },
       {
         business_name: body.businessName,
+        trade_name: body.tradeName,
+        owner_name: body.ownerName,
+        pan_number: body.panNumber,
+        gstin: body.gstNumber,
         email: body.email,
         phone: body.phone,
         address_line1: body.address,
@@ -65,6 +81,15 @@ export class ProfileService {
     );
     return this.getProfile(partner.id);
   }
+
+  async toggleNotifications(userId: string, body: { enabled: boolean }) {
+    const partner = await this.partnerRepository.findOne({ where: { user_id: userId } });
+    if (!partner) throw new NotFoundException('Partner not found');
+    partner.notifications_enabled = body.enabled;
+    await this.partnerRepository.save(partner);
+    return { enabled: partner.notifications_enabled };
+  }
+
   async getDocuments(partnerId: string) {
     const docs = await this.documentRepository.find({ where: { partner_id: partnerId } });
     return docs.map(doc => ({
@@ -78,13 +103,42 @@ export class ProfileService {
     }));
   }
 
+  private async uploadToS3(file: any): Promise<string> {
+    const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+    
+    // Fallback if not configured
+    if (!process.env.AWS_REGION || !process.env.AWS_S3_BUCKET) {
+      return 'https://mock-s3-bucket.s3.amazonaws.com/' + (file ? file.originalname : 'mock_file.pdf');
+    }
+
+    const s3 = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dummy',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dummy'
+      }
+    });
+
+    const key = `kyc_docs/${Date.now()}_${file.originalname}`;
+    await s3.send(new PutObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    }));
+
+    return `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+  }
+
   async uploadDocument(partnerId: string, file: any, body: any) {
+    const fileUrl = file ? await this.uploadToS3(file) : 'https://mock.url/file.pdf';
+    
     const doc = this.documentRepository.create({
       partner_id: partnerId,
       doc_type: body.documentType,
       title: body.documentType, // e.g. GST_CERTIFICATE
       file_name: file ? file.originalname : 'mock_file.pdf',
-      file_url: file ? 'https://mock.url/' + file.originalname : 'https://mock.url/file.pdf',
+      file_url: fileUrl,
       file_size_bytes: file ? file.size : 1000,
       mime_type: file ? file.mimetype : 'application/pdf',
       status: 'PENDING'
@@ -102,14 +156,26 @@ export class ProfileService {
     };
   }
 
+  async uploadLogo(partnerId: string, file: any) {
+    const partner = await this.partnerRepository.findOne({ where: [{ id: partnerId }, { user_id: partnerId }] });
+    if (!partner) throw new NotFoundException('Partner not found');
+    
+    const logoUrl = file ? await this.uploadToS3(file) : 'https://mock.url/logo.png';
+    partner.logo_url = logoUrl;
+    await this.partnerRepository.save(partner);
+    return { logoUrl };
+  }
+
   async renewDocument(partnerId: string, documentId: string, file: any, body: any) {
     const doc = await this.documentRepository.findOne({ where: { id: documentId, partner_id: partnerId } });
     if (!doc) throw new NotFoundException('Document not found');
     
-    doc.file_name = file ? file.originalname : 'mock_file.pdf';
-    doc.file_url = file ? 'https://mock.url/' + file.originalname : 'https://mock.url/file.pdf';
-    doc.file_size_bytes = file ? file.size : 1000;
-    doc.mime_type = file ? file.mimetype : 'application/pdf';
+    const fileUrl = file ? await this.uploadToS3(file) : doc.file_url;
+    
+    doc.file_name = file ? file.originalname : doc.file_name;
+    doc.file_url = fileUrl;
+    doc.file_size_bytes = file ? file.size : doc.file_size_bytes;
+    doc.mime_type = file ? file.mimetype : doc.mime_type;
     doc.status = 'PENDING';
     doc.review_notes = '';
 
@@ -149,6 +215,17 @@ export class ProfileService {
     };
   }
 
+  private encryptAES(text: string): string {
+    const crypto = require('crypto');
+    const secretKey = process.env.ENCRYPTION_KEY || '12345678901234567890123456789012'; // 32 bytes
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(secretKey), iv);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return `${iv.toString('hex')}:${authTag}:${encrypted}`;
+  }
+
   async addBankDetails(partnerId: string, body: any) {
     const { otp, accountHolderName, accountNumber, confirmAccountNumber, ifscCode, accountType } = body;
     
@@ -165,10 +242,12 @@ export class ProfileService {
     await this.bankAccountRepository.update({ partner_id: partnerId }, { is_primary: false });
 
     // Create new bank account
+    const encryptedAccount = this.encryptAES(accountNumber);
+    
     const bankAccount = this.bankAccountRepository.create({
       partner_id: partnerId,
       account_holder_name: accountHolderName,
-      account_number_encrypted: 'ENCRYPTED_' + accountNumber,
+      account_number_encrypted: encryptedAccount,
       account_number_mask: '•••• •••• ' + accountNumber.slice(-4),
       ifsc_code: ifscCode,
       account_type: accountType || 'CURRENT',
@@ -249,7 +328,7 @@ export class ProfileService {
           priority: t.priority,
           createdAt: t.created_at,
           lastUpdated: t.updated_at,
-          latestResponse: "We are reviewing your ticket."
+          latestResponse: t.latest_response || "We are reviewing your ticket."
         }))
       }
     };
@@ -282,16 +361,31 @@ export class ProfileService {
   }
 
   async getLegalDocument(documentType: string) {
-    return {
-      success: true,
-      data: {
-        documentType: documentType,
-        title: documentType === 'terms' ? "Terms and Conditions for Tour Package Partners" : "Privacy Policy",
-        version: "v2.4",
-        lastUpdated: "August 2026",
-        markdownContent: documentType === 'terms' ? "# Niklo Package Partner Agreement\n\n1. **Commission & Fees**: Niklo charges a standard 10% platform facilitation fee...\n2. **Traveler Safety & Insurance**..." : "# Privacy Policy\n\nYour data is secure."
-      }
-    };
+    try {
+      // Mock fetching from an external S3 CMS or raw githubusercontent link
+      const response = await fetch(`https://mock-cms-url.com/legal/${documentType}.md`);
+      const markdownContent = response.ok ? await response.text() : (documentType === 'terms' ? "# Niklo Package Partner Agreement\n\n1. **Commission & Fees**..." : "# Privacy Policy\n\nYour data is secure.");
+      
+      return {
+        success: true,
+        data: {
+          documentType: documentType,
+          title: documentType === 'terms' ? "Terms and Conditions" : "Privacy Policy",
+          version: "v2.5",
+          lastUpdated: "September 2026",
+          markdownContent
+        }
+      };
+    } catch (e) {
+      return {
+        success: true,
+        data: {
+          documentType,
+          title: "Legal Document",
+          markdownContent: "# Error loading document\n\nPlease try again later."
+        }
+      };
+    }
   }
 
   async logout(partnerId: string, fcmToken: string) { return {}; }

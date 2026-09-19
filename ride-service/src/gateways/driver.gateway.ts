@@ -74,6 +74,17 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     );
   }
 
+  @SubscribeMessage('driver:go_offline')
+  async handleGoOffline(
+    @MessageBody() data: { driverId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    await this.ridesService.setDriverOffline(data.driverId);
+    this.socketToDriver.delete(client.id);
+    client.leave(data.driverId);
+    this.logger.log(`Driver ${data.driverId} is offline`);
+  }
+
   @SubscribeMessage('driver:location')
   async handleLocationUpdate(
     @MessageBody()
@@ -107,6 +118,13 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @MessageBody() data: { rideId: string; driverId: string },
   ) {
     await this.ridesService.rejectRide(data.rideId, data.driverId);
+  }
+
+  @SubscribeMessage('ride:arrived')
+  async handleRideArrived(
+    @MessageBody() data: { rideId: string },
+  ) {
+    await this.ridesService.updateRideStatus(data.rideId, 'ARRIVED');
   }
 
   @SubscribeMessage('ride:start')

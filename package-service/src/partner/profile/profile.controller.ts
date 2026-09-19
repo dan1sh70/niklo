@@ -20,7 +20,8 @@ export class ProfileController {
 
   @Patch('notifications-toggle')
   async toggleNotifications(@Req() req: any, @Body() body: any) {
-    return { success: true, message: 'Notification preferences updated' }; // Mock for now
+    const data = await this.profileService.toggleNotifications(req.user.id, body);
+    return { success: true, message: 'Notification preferences updated', data };
   }
 
   @Get('bank')
@@ -63,6 +64,37 @@ export class ProfileController {
   @Get('legal/:documentType')
   async getLegalDocument(@Param('documentType') documentType: string) {
     return this.profileService.getLegalDocument(documentType);
+  }
+
+  @Get('documents')
+  async getDocuments(@Req() req: any) {
+    const partnerId = req.user.partnerProfileId || req.user.id;
+    const data = await this.profileService.getDocuments(partnerId);
+    return { success: true, data };
+  }
+
+  @Post('documents/:id/renew')
+  @UseInterceptors(FileInterceptor('file'))
+  async renewDocument(
+    @Req() req: any,
+    @Param('id') documentId: string,
+    @Body() body: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const partnerId = req.user.partnerProfileId || req.user.id;
+    const data = await this.profileService.renewDocument(partnerId, documentId, file, body);
+    return { success: true, message: 'Document submitted for renewal', data };
+  }
+
+  @Post('logo')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLogo(
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const partnerId = req.user.partnerProfileId || req.user.id;
+    const data = await this.profileService.uploadLogo(partnerId, file);
+    return { success: true, message: 'Logo updated successfully', data };
   }
 
   @Post('logout')

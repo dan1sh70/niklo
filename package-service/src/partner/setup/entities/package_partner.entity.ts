@@ -31,6 +31,9 @@ export class PackagePartner {
   @Column({ type: 'varchar', length: 150, nullable: true })
   trade_name: string;
 
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  owner_name: string;
+
   @Column({ type: 'varchar', length: 50, nullable: true })
   business_type: string;
 
@@ -43,8 +46,14 @@ export class PackagePartner {
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string;
 
+  @Column({ type: 'boolean', default: false })
+  phone_verified: boolean;
+
   @Column({ type: 'varchar', length: 120, nullable: true })
   email: string;
+
+  @Column({ type: 'boolean', default: false })
+  email_verified: boolean;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   address_line1: string;
@@ -64,6 +73,9 @@ export class PackagePartner {
   @Column({ type: 'varchar', length: 15, nullable: true })
   gstin: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  logo_url: string;
+
   @Column({ type: 'text', array: true, default: [] })
   primary_regions: string[];
 
@@ -81,6 +93,9 @@ export class PackagePartner {
 
   @Column({ type: 'text', nullable: true })
   rejection_reason: string;
+
+  @Column({ type: 'boolean', default: true })
+  notifications_enabled: boolean;
 
   @Column({ type: 'timestamptz', nullable: true })
   verified_at: Date;

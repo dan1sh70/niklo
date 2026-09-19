@@ -70,8 +70,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       radiusKm,
       'km',
       'ASC',
-    );
-    return results as string[];
+    ) as string[];
+
+    const activeDrivers: string[] = [];
+    for (const dId of results) {
+      const loc = await this.client.get(`driver:loc:${dId}`);
+      if (!loc) {
+        // Ghost driver, remove from pool
+        await this.client.zrem('drivers:online', dId);
+      } else {
+        activeDrivers.push(dId);
+      }
+    }
+    return activeDrivers;
   }
 
   async publish(channel: string, message: string) {

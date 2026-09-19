@@ -121,7 +121,7 @@ export class RidesService {
       ...mapped,
       status: RideStatus.REQUESTED,
       user_id: passengerId,
-      otp: Math.floor(100000 + Math.random() * 900000).toString().substring(0, 6),
+      otp: Math.floor(1000 + Math.random() * 9000).toString().substring(0, 4),
     };
     const ride = this.rideRepository.create(rideData);
     const savedRide = await this.rideRepository.save(ride);
@@ -145,10 +145,13 @@ export class RidesService {
     let matched = false;
 
     for (let attempts = 0; attempts < 3 && !matched; attempts++) {
+      const redisClient = this.redisService.getClient();
+      const tried = await redisClient.smembers(`ride:tried:${rideId}`);
       const drivers = await this.redisService.getNearbyDrivers(lat, lng, radius);
+      const candidates = drivers.filter(d => !tried.includes(d));
 
-      if (drivers && drivers.length > 0) {
-        const driverId = drivers[0];
+      if (candidates && candidates.length > 0) {
+        const driverId = candidates[0];
 
         const ride = await this.rideRepository.findOne({ where: { id: rideId } });
 
@@ -185,7 +188,24 @@ export class RidesService {
         );
 
         this.logger.log(`Matched driver ${driverId} for ride ${rideId} at radius ${radius}km`);
-        matched = true;
+        
+        // Wait for up to 30s to see if driver accepts
+        for (let t = 0; t < 15; t++) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          const currentRide = await this.rideRepository.findOne({ where: { id: rideId } });
+          if (currentRide?.status !== RideStatus.REQUESTED) {
+            matched = true;
+            break;
+          }
+        }
+
+        if (!matched) {
+          // 30s passed and ride is still requested (driver ignored)
+          this.logger.log(`Driver ${driverId} timed out for ride ${rideId}, rejecting...`);
+          await this.rejectRide(rideId, driverId);
+          // rejectRide will call matchDriverExcluding which will handle the rest of the flow
+          matched = true; // exit this loop since matchDriverExcluding takes over
+        }
       } else {
         radius += 5; // Expand radius
         // Wait before retry
@@ -202,6 +222,19 @@ export class RidesService {
   async getRideStatus(id: string) {
     const ride = await this.rideRepository.findOne({ where: { id } });
     if (!ride) throw new NotFoundException(`Ride ${id} not found`);
+
+    let currentLocation: { lat: number; lng: number } | null = null;
+    if (ride.driver_id) {
+      try {
+        const locStr = await this.redisService.getClient().get(`driver:loc:${ride.driver_id}`);
+        if (locStr) {
+          const locObj = JSON.parse(locStr);
+          currentLocation = { lat: locObj.lat, lng: locObj.lng };
+        }
+      } catch (err) {
+        this.logger.warn(`Failed to fetch live location for driver ${ride.driver_id}`, err);
+      }
+    }
 
     return {
       rideId:  ride.id,
@@ -223,7 +256,7 @@ export class RidesService {
         vehicleColor:    ride.vehicle_color,
         vehicleType:     ride.ride_type,
         vehicleImageUrl: this._vehicleImageUrl(ride.ride_type),
-        currentLocation: null,
+        currentLocation,
       } : null,
     };
   }
@@ -416,6 +449,22 @@ export class RidesService {
         passengerPhone,
       }),
     );
+    
+    // Wait for up to 30s to see if driver accepts
+    let matched = false;
+    for (let t = 0; t < 15; t++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const currentRide = await this.rideRepository.findOne({ where: { id: rideId } });
+      if (currentRide?.status !== RideStatus.REQUESTED) {
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      this.logger.log(`Driver ${nextDriverId} timed out for ride ${rideId}, rejecting...`);
+      await this.rejectRide(rideId, nextDriverId); // This recurse-calls matchDriverExcluding
+    }
   }
 
   async verifyRideOtp(rideId: string, otp: string) {
@@ -441,11 +490,46 @@ export class RidesService {
     }
   }
 
+  private calculateHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
   async completeRide(rideId: string, finalLat: number, finalLng: number) {
     const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (ride) {
       ride.status = RideStatus.COMPLETED;
-      ride.fare_final = ride.fare_amount;
+
+      const actualDistanceKm = this.calculateHaversineDistance(
+        ride.pickup_latitude,
+        ride.pickup_longitude,
+        finalLat,
+        finalLng
+      );
+
+      const BASE = 50;
+      const RATES: Record<string, number> = {
+        MINI: 12,
+        SEDAN: 15,
+        SUV: 20,
+        PREMIUM: 25,
+        OUTSTATION: 18,
+      };
+      
+      const ratePerKm = RATES[ride.ride_type?.toUpperCase()] || 15;
+      const newFare = Math.round(BASE + actualDistanceKm * ratePerKm);
+
+      ride.fare_final = Math.max(newFare, ride.fare_amount || 0); // Don't charge less than estimated? Actually it could be less. Let's just use newFare, but maybe minimum base fare.
+      ride.fare_final = Math.max(newFare, BASE);
       ride.ended_at = new Date();
       await this.rideRepository.save(ride);
       await this.redisService.publish(
@@ -482,7 +566,7 @@ export class RidesService {
       drop_address:    r.dropoff_address,
       distance_km:     r.distance_km,
       fare_estimate:   r.fare_amount,
-      fare_final:      r.status === RideStatus.COMPLETED ? r.fare_amount : null,
+      fare_final:      r.status === RideStatus.COMPLETED ? (r.fare_final ?? r.fare_amount) : null,
       created_at:      r.created_at,
       ended_at:        r.updated_at,
     }));
@@ -507,6 +591,31 @@ export class RidesService {
       created_at:      r.created_at,
       ended_at:        r.ended_at,
     }));
+  }
+
+  async getActiveRideForUser(userId: string) {
+    const activeRide = await this.rideRepository.findOne({
+      where: [
+        { user_id: userId, status: RideStatus.REQUESTED },
+        { user_id: userId, status: RideStatus.ACCEPTED },
+        { user_id: userId, status: RideStatus.ARRIVED },
+        { user_id: userId, status: RideStatus.IN_PROGRESS },
+      ],
+      order: { created_at: 'DESC' },
+    });
+    return activeRide ? { hasActiveRide: true, rideId: activeRide.id, status: activeRide.status } : { hasActiveRide: false };
+  }
+
+  async getActiveRideForDriver(driverId: string) {
+    const activeRide = await this.rideRepository.findOne({
+      where: [
+        { driver_id: driverId, status: RideStatus.ACCEPTED },
+        { driver_id: driverId, status: RideStatus.ARRIVED },
+        { driver_id: driverId, status: RideStatus.IN_PROGRESS },
+      ],
+      order: { created_at: 'DESC' },
+    });
+    return activeRide ? { hasActiveRide: true, rideId: activeRide.id, status: activeRide.status } : { hasActiveRide: false };
   }
   
   async getRideMapPreview(id: string) {

@@ -22,6 +22,12 @@ export class RidesController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Get('active')
+  async getActiveRideForUser(@Req() req: any) {
+    const data = await this.ridesService.getActiveRideForUser(req.user.id);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Get(':id/status')
   async getRideStatus(@Param('id') id: string) {
     const data = await this.ridesService.getRideStatus(id);
@@ -71,9 +77,10 @@ export class RidesController {
   @Post(':id/complete')
   @HttpCode(HttpStatus.OK)
   async completeRide(@Param('id') id: string, @Body() body: any) {
-    const finalLat = body?.finalLat ?? 12.9716;
-    const finalLng = body?.finalLng ?? 77.5946;
-    await this.ridesService.completeRide(id, finalLat, finalLng);
+    if (!body?.finalLat || !body?.finalLng) {
+      return { success: false, statusCode: 400, message: 'finalLat and finalLng are required' };
+    }
+    await this.ridesService.completeRide(id, body.finalLat, body.finalLng);
     return { success: true, statusCode: 200, data: { message: 'Ride completed successfully' } };
   }
 
@@ -91,9 +98,10 @@ export class RidesController {
   @Post('driver/go-online')
   @HttpCode(HttpStatus.OK)
   async goOnline(@Body() body: any) {
-    const lat = body.lat ?? 12.9716;
-    const lng = body.lng ?? 77.5946;
-    const driverId = body.driverId || 'd1111111-1111-1111-1111-111111111111';
+    const { lat, lng, driverId } = body;
+    if (!driverId || lat === undefined || lng === undefined) {
+      return { success: false, statusCode: 400, message: 'driverId, lat, and lng are required' };
+    }
     await this.ridesService.setDriverLocation(driverId, lat, lng);
     return { success: true, statusCode: 200, data: { message: 'Driver is now online' } };
   }
@@ -101,7 +109,10 @@ export class RidesController {
   @Post('driver/go-offline')
   @HttpCode(HttpStatus.OK)
   async goOffline(@Body() body: any) {
-    const driverId = body.driverId || 'd1111111-1111-1111-1111-111111111111';
+    const { driverId } = body;
+    if (!driverId) {
+      return { success: false, statusCode: 400, message: 'driverId is required' };
+    }
     await this.ridesService.setDriverOffline(driverId);
     return { success: true, statusCode: 200, data: { message: 'Driver is now offline' } };
   }
@@ -113,6 +124,12 @@ export class RidesController {
     @Query('offset') offset = '0',
   ) {
     const data = await this.ridesService.getMyRides(req.user.id, +limit, +offset);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('driver/active')
+  async getActiveRideForDriver(@Req() req: any) {
+    const data = await this.ridesService.getActiveRideForDriver(req.user.id);
     return { success: true, statusCode: 200, data };
   }
 

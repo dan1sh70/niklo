@@ -9,27 +9,19 @@ export class HomeDashboardController {
 
   @Get('dashboard')
   async getDashboard(@Req() req: any) {
-    const data = await this.homeService.getDashboard(req.user.partnerProfileId);
+    const data = await this.homeService.getDashboard(req.user.id);
     return { success: true, data };
   }
 
   @Get('chart')
   async getChartData(@Req() req: any, @Query('period') period: string) {
-    const data = await this.homeService.getChartData(req.user.partnerProfileId, period || 'Week');
+    const data = await this.homeService.getChartData(req.user.id, period || 'Week');
     return { success: true, data };
   }
 
   @Get('verification-banner')
   async getVerificationBanner(@Req() req: any) {
-    return {
-      success: true,
-      data: {
-        showBanner: false,
-        bannerType: 'INFO',
-        title: 'Profile Approved',
-        subtitle: 'Your tour operator account is verified.',
-        actionRoute: null
-      }
-    };
+    const data = await this.homeService.getVerificationBanner(req.user.id);
+    return { success: true, data };
   }
 }
