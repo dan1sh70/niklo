@@ -28,6 +28,7 @@ jobs:
           - adventure-service
           - notification-service
           - admin-service
+          - admin-frontend
           - booking-service
           - ai-planner-service
           - nginx
