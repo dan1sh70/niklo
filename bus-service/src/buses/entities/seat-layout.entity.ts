@@ -49,6 +49,6 @@ export class SeatLayout {
   @Column({ type: 'boolean', default: false })
   is_ladies_seat: boolean;
 
-  @Column({ type: 'varchar', length: 5, nullable: true, default: null })
+  @Column({ type: 'varchar', length: 20, nullable: true, default: null })
   booked_gender: string | null;
 }
