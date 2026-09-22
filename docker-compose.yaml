@@ -257,7 +257,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    image: ghcr.io/dan1sh70/niklo-package-service:sha-d395dde
+    image: ghcr.io/dan1sh70/niklo-package-service:latest
+    pull_policy: always
   adventure-service:
     environment:
       NODE_ENV: development
@@ -283,7 +284,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    image: ghcr.io/dan1sh70/niklo-adventure-service:sha-d395dde
+    image: ghcr.io/dan1sh70/niklo-adventure-service:latest
+    pull_policy: always
   notification-service:
     environment:
       NODE_ENV: development
