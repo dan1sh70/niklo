@@ -18,6 +18,10 @@ export class SchedulesService {
   ) {}
 
   async create(dto: CreateScheduleDto): Promise<Schedule> {
+    if (dto.departure_time && dto.departure_time.includes('T')) dto.departure_time = dto.departure_time.split('T')[1].substring(0, 8);
+    if (dto.arrival_time && dto.arrival_time.includes('T')) dto.arrival_time = dto.arrival_time.split('T')[1].substring(0, 8);
+    if (dto.departure_date && dto.departure_date.includes('T')) dto.departure_date = dto.departure_date.split('T')[0];
+    
     const schedule = this.scheduleRepo.create(dto);
     return this.scheduleRepo.save(schedule);
   }
@@ -111,6 +115,11 @@ export class SchedulesService {
 
   async update(id: string, dto: UpdateScheduleDto): Promise<Schedule> {
     const schedule = await this.findOne(id);
+    
+    if (dto.departure_time && dto.departure_time.includes('T')) dto.departure_time = dto.departure_time.split('T')[1].substring(0, 8);
+    if (dto.arrival_time && dto.arrival_time.includes('T')) dto.arrival_time = dto.arrival_time.split('T')[1].substring(0, 8);
+    if (dto.departure_date && dto.departure_date.includes('T')) dto.departure_date = dto.departure_date.split('T')[0];
+    
     Object.assign(schedule, dto);
     return this.scheduleRepo.save(schedule);
   }
