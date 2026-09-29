@@ -21,7 +21,7 @@ export class AdventuresService implements OnApplicationBootstrap {
     if (count === 0) {
       await this.adventureRepository.save([
         {
-          id: 'exp_scuba_goa_01',
+          id: 'e4d8a1c9-5b23-4f76-88a2-71c18e9d3a01',
           title: 'Grand Island Scuba Diving & Water Sports',
           category: 'Water Sports',
           location: 'Grand Island, Goa',
@@ -161,12 +161,22 @@ export class AdventuresService implements OnApplicationBootstrap {
     let avgValue = 5.0;
     let avgOverall = 5.0;
     
-    if (reviews.length > 0) {
-      avgSafety = reviews.reduce((sum, r) => sum + Number(r.safety_rating), 0) / reviews.length;
-      avgExp = reviews.reduce((sum, r) => sum + Number(r.experience_rating), 0) / reviews.length;
-      avgValue = reviews.reduce((sum, r) => sum + Number(r.value_rating), 0) / reviews.length;
-      avgOverall = reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length;
+    if (reviews.length === 0) {
+      const adventure = await this.adventureRepository.findOne({ where: { id } });
+      return {
+        overview: {
+          averageRating: adventure ? Number(adventure.rating) : 5.0,
+          totalReviews: adventure ? adventure.reviews_count : 0,
+          breakdown: { safety: 5.0, experience: 5.0, value: 5.0 },
+        },
+        reviews: [],
+      };
     }
+
+    avgSafety = reviews.reduce((sum, r) => sum + Number(r.safety_rating), 0) / reviews.length;
+    avgExp = reviews.reduce((sum, r) => sum + Number(r.experience_rating), 0) / reviews.length;
+    avgValue = reviews.reduce((sum, r) => sum + Number(r.value_rating), 0) / reviews.length;
+    avgOverall = reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length;
 
     return {
       overview: {
@@ -206,7 +216,9 @@ export class AdventuresService implements OnApplicationBootstrap {
     
     if (slots.length === 0) {
       // Mock generated slots for the day if not in DB
-      const isValidDate = requestedDate > new Date();
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const isValidDate = requestedDate >= startOfToday;
       return {
         adventure_id: id,
         date: checkParams.date,
@@ -248,11 +260,41 @@ export class AdventuresService implements OnApplicationBootstrap {
   }
 
   async findOne(id: string) {
-    const adventure = await this.adventureRepository.findOne({ where: { id } });
+    const adventure = await this.adventureRepository.findOne({ where: { id, is_active: true } });
     if (!adventure) {
       throw new NotFoundException(`Adventure with ID ${id} was not found.`);
     }
     return this.mapAdventureToDto(adventure);
+  }
+
+  async createReview(adventureId: string, dto: any) {
+    const adventure = await this.adventureRepository.findOne({ where: { id: adventureId } });
+    if (!adventure) {
+      throw new NotFoundException(`Adventure with ID ${adventureId} not found`);
+    }
+
+    const review = this.reviewRepository.create({
+      adventure_id: adventureId,
+      user_id: dto.user_id,
+      user_name: dto.user_name || 'Verified Adventurer',
+      user_avatar: dto.user_avatar,
+      rating: Number(dto.rating),
+      comment: dto.comment,
+      safety_rating: dto.safety_rating ?? 5.0,
+      experience_rating: dto.experience_rating ?? 5.0,
+      value_rating: dto.value_rating ?? 5.0,
+    });
+    await this.reviewRepository.save(review);
+
+    // Recalculate average rating & total reviews on parent adventure table
+    const allReviews = await this.reviewRepository.find({ where: { adventure_id: adventureId } });
+    const avg = allReviews.reduce((sum, r) => sum + Number(r.rating), 0) / allReviews.length;
+
+    adventure.rating = Number(avg.toFixed(1));
+    adventure.reviews_count = allReviews.length;
+    await this.adventureRepository.save(adventure);
+
+    return review;
   }
 
   async update(id: string, updateAdventureDto: any) {

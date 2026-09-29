@@ -15,6 +15,7 @@ import {
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto, UpdateScheduleDto } from './dto/schedule.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { InternalOnlyGuard } from '../common/guards/internal-only.guard';
 
 @Controller('api/v1/bus/schedules')
 export class SchedulesController {
@@ -79,6 +80,7 @@ export class SchedulesController {
   }
 
   @Post(':id/confirm-seats')
+  @UseGuards(InternalOnlyGuard)
   @HttpCode(HttpStatus.OK)
   async confirmSeats(
     @Param('id') scheduleId: string,

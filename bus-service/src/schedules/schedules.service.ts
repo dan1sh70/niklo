@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 import { Schedule, ScheduleStatus } from './entities/schedule.entity';
 import { CreateScheduleDto, UpdateScheduleDto } from './dto/schedule.dto';
 import { SeatLayout } from '../buses/entities/seat-layout.entity';
@@ -15,6 +17,7 @@ export class SchedulesService {
     @InjectRepository(SeatLayout)
     private readonly seatRepo: Repository<SeatLayout>,
     @InjectRedis() private readonly redis: Redis,
+    private readonly httpService: HttpService,
   ) {}
 
   async create(dto: CreateScheduleDto): Promise<Schedule> {
@@ -133,15 +136,25 @@ export class SchedulesService {
 
   async getManifest(id: string): Promise<any> {
     const schedule = await this.findOne(id);
+    let manifestData = [];
+    try {
+      const bookingServiceUrl = process.env.BOOKING_SERVICE_URL || 'http://booking-service:3014';
+      const response = await lastValueFrom(
+        this.httpService.get(`${bookingServiceUrl}/api/v1/bookings/internal/manifest/${id}`, {
+          headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' }
+        })
+      );
+      manifestData = response.data?.data || [];
+    } catch (e) {
+      console.error(`Failed to fetch manifest from booking-service: ${e.message}`);
+    }
+
     return {
       schedule_id: schedule.id,
       route: `${schedule.route?.source_city} to ${schedule.route?.destination_city}`,
       departure_time: schedule.departure_time,
       bus_number: schedule.bus?.registration_number,
-      manifest: [
-        { seat: '1A', passengerName: 'John Doe', age: 30, gender: 'M', pnr: 'B123456' },
-        { seat: '1B', passengerName: 'Jane Doe', age: 28, gender: 'F', pnr: 'B123456' },
-      ],
+      manifest: manifestData,
       generated_at: new Date(),
     };
   }
@@ -173,6 +186,7 @@ export class SchedulesService {
     
     return {
       schedule_id: seatData.schedule_id,
+      base_fare: Number(seatData.base_fare),
       total_seats: seatData.total_seats,
       available_seats: seatData.available_seats,
       lower_deck: lowerDeck,

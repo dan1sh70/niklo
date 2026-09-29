@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { OperatorsService } from './operators.service';
 import { CreateOperatorDto } from './dto/create-operator.dto';
@@ -53,5 +55,28 @@ export class OperatorsController {
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.operatorsService.remove(id);
+  }
+
+  @Get(':id/reviews')
+  async getReviews(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 10;
+    return this.operatorsService.getReviews(id, pageNum, limitNum);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/reviews')
+  @HttpCode(HttpStatus.CREATED)
+  async createReview(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: any,
+    @Req() req: any,
+  ) {
+    const userName = req.user?.name || 'Verified User'; // Ideally get from user profile service
+    return this.operatorsService.createReview(id, dto, userName);
   }
 }

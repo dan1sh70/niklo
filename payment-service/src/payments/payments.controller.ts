@@ -26,10 +26,4 @@ export class PaymentsController {
   async getPaymentDetails(@Param('id') id: string) {
     return this.paymentsService.findOne(id);
   }
-
-  @Post('webhook/razorpay')
-  async razorpayWebhook(@Request() req: any, @Body() body: any) {
-    const signature = req.headers['x-razorpay-signature'];
-    return this.paymentsService.handleWebhook(body, signature);
-  }
 }

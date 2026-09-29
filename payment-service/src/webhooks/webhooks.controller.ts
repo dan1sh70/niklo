@@ -36,7 +36,7 @@ export class WebhooksController {
       return res.status(500).send('Configuration Error');
     }
 
-    const payload = JSON.stringify(req.body);
+    const payload = req['rawBody'] ? req['rawBody'].toString('utf8') : JSON.stringify(req.body);
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payload)

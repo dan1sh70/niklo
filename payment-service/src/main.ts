@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.use(helmet());
-  app.enableCors();
+  app.enableCors({ origin: true, credentials: true });
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
+import { InternalOnlyGuard } from '../common/guards/internal-only.guard';
 
 @Controller('api/v1/bookings')
 export class BookingsController {
@@ -31,6 +32,7 @@ export class BookingsController {
   }
 
   @Post(':id/confirm-payment')
+  @UseGuards(InternalOnlyGuard)
   @HttpCode(HttpStatus.OK)
   async confirmPayment(
     @Param('id') id: string,
@@ -67,6 +69,13 @@ export class BookingsController {
   @Get(':id/id-verification')
   async getIdVerificationStatus(@Param('id') id: string) {
     const data = await this.bookingsService.getIdVerificationStatus(id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Get('internal/manifest/:referenceId')
+  @UseGuards(InternalOnlyGuard)
+  async getInternalManifest(@Param('referenceId') referenceId: string) {
+    const data = await this.bookingsService.getManifestByReferenceId(referenceId);
     return { success: true, statusCode: 200, data };
   }
 }

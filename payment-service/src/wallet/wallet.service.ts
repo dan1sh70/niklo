@@ -97,6 +97,7 @@ export class WalletService {
         this.httpService.post(
           `${userServiceUrl}/api/v1/user/${userId}/sync-wallet`,
           { amount: -Number(dto.amount) },
+          { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } }
         ),
       );
     } catch (error) {
@@ -139,6 +140,7 @@ export class WalletService {
         this.httpService.post(
           `${userServiceUrl}/api/v1/user/${userId}/sync-wallet`,
           { amount },
+          { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } }
         ),
       );
     } catch (error) {

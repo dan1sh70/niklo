@@ -128,8 +128,8 @@ export class PaymentsService {
         try {
           const userServiceUrl = process.env.USER_SERVICE_URL || 'http://user-service:3002';
           await lastValueFrom(this.httpService.post(`${userServiceUrl}/api/v1/user/${payment.user_id}/sync-wallet`, {
-            amount: Number(payment.amount),
-          }));
+            amount: Number(paymentEntity.amount)
+          }, { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } }));
         } catch (error) {
           // Log error but don't fail webhook
           console.error(`Failed to sync wallet for user ${payment.user_id}:`, error.message);
@@ -141,7 +141,7 @@ export class PaymentsService {
           await lastValueFrom(this.httpService.post(`${bookingServiceUrl}/api/v1/bookings/${payment.booking_id}/confirm-payment`, {
             payment_id: paymentEntity.id,
             payment_gateway_order_id: paymentEntity.order_id
-          }));
+          }, { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } }));
         } catch (error) {
           console.error(`Failed to confirm booking ${payment.booking_id} from webhook:`, error.message);
         }

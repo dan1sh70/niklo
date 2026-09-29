@@ -56,6 +56,10 @@ export class AuthService {
   }
 
   async verifyOtp(phone: string, otp: string, role?: string): Promise<any> {
+    if (role === UserRole.ADMIN || role === 'Admin' || role === 'ADMIN') {
+      throw new HttpException('Admin login is not allowed via OTP', HttpStatus.FORBIDDEN);
+    }
+
     try {
       const isTestCredentials = phone === '+919999999999' && otp === '123456';
 
@@ -139,6 +143,10 @@ export class AuthService {
   }
 
   async socialLogin(provider: string, idToken: string, role?: string): Promise<any> {
+    if (role === UserRole.ADMIN || role === 'Admin' || role === 'ADMIN') {
+      throw new HttpException('Admin login is not allowed via Social Login', HttpStatus.FORBIDDEN);
+    }
+
     // TODO: Verify idToken with Google/Apple/Facebook API
     console.log(
       `[MOCK SOCIAL LOGIN] Verifying ${provider} idToken: ${idToken}`,

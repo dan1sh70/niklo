@@ -114,6 +114,8 @@ export class AppModule implements OnApplicationBootstrap {
         contact_email: 'info@nationaltravels.com',
         gst_number: '29AAAAA0000A1Z5',
         is_active: true,
+        rating: 4.5,
+        ratings_count: 100,
       });
 
       // 2. Seed Bus

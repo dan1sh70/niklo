@@ -7,6 +7,7 @@ import { UpdateOperatorDto } from './dto/update-operator.dto';
 
 import { Bus } from '../buses/entities/bus.entity';
 import { Schedule, ScheduleStatus } from '../schedules/entities/schedule.entity';
+import { OperatorReview } from './entities/operator-review.entity';
 
 @Injectable()
 export class OperatorsService {
@@ -17,6 +18,8 @@ export class OperatorsService {
     private readonly busRepo: Repository<Bus>,
     @InjectRepository(Schedule)
     private readonly scheduleRepo: Repository<Schedule>,
+    @InjectRepository(OperatorReview)
+    private readonly reviewRepo: Repository<OperatorReview>,
   ) {}
 
   async create(dto: CreateOperatorDto): Promise<Operator> {
@@ -82,5 +85,46 @@ export class OperatorsService {
       total_earnings_today: totalEarningsToday,
       occupancy_rate_percent: Number(occupancyRatePercent.toFixed(2)),
     };
+  }
+
+  async getReviews(operatorId: string, page: number = 1, limit: number = 10) {
+    const [reviews, total] = await this.reviewRepo.findAndCount({
+      where: { operator_id: operatorId },
+      order: { created_at: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      reviews,
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async createReview(operatorId: string, dto: any, userName: string) {
+    const operator = await this.findOne(operatorId);
+    
+    const review = this.reviewRepo.create({
+      operator_id: operatorId,
+      booking_id: dto.booking_id,
+      user_name: userName,
+      rating: Number(dto.rating),
+      comment: dto.comment,
+      tags: dto.tags,
+      is_verified: true, // Assuming authenticated user implies verified for now
+    });
+    await this.reviewRepo.save(review);
+
+    // Recalculate average rating
+    const allReviews = await this.reviewRepo.find({ where: { operator_id: operatorId } });
+    const avg = allReviews.reduce((sum, r) => sum + Number(r.rating), 0) / allReviews.length;
+    
+    operator.rating = Number(avg.toFixed(2));
+    operator.ratings_count = allReviews.length;
+    await this.operatorRepo.save(operator);
+
+    return review;
   }
 }

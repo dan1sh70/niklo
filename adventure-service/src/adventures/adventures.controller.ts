@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AdventuresService } from './adventures.service';
 
@@ -46,6 +47,29 @@ export class AdventuresController {
     }
     const data = await this.adventuresService.getReviews(id);
     return { success: true, statusCode: 200, data };
+  }
+
+  @Post(':id/reviews')
+  @HttpCode(HttpStatus.CREATED)
+  async createReview(
+    @Param('id') id: string,
+    @Body() createReviewDto: {
+      rating: number;
+      comment: string;
+      user_name?: string;
+      user_avatar?: string;
+      safety_rating?: number;
+      experience_rating?: number;
+      value_rating?: number;
+    },
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id; // from JWT auth if authenticated
+    const data = await this.adventuresService.createReview(id, {
+      ...createReviewDto,
+      user_id: userId,
+    });
+    return { success: true, statusCode: 201, data };
   }
 
   @Get(':id')

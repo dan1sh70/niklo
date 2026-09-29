@@ -17,6 +17,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { InternalOnlyGuard } from '../common/guards/internal-only.guard';
 
 @Controller('api/v1/user')
 export class UsersController {
@@ -139,6 +140,7 @@ export class UsersController {
   }
 
   @Post(':id/sync-wallet')
+  @UseGuards(InternalOnlyGuard)
   @HttpCode(HttpStatus.OK)
   async syncWallet(@Param('id') id: string, @Body() body: { amount: number }) {
     const data = await this.usersService.syncWalletBalance(id, body.amount);

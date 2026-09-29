@@ -31,6 +31,12 @@ export class Operator {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
+  @Column({ type: 'numeric', precision: 3, scale: 2, default: 4.5 })
+  rating: number;
+
+  @Column({ type: 'int', default: 0 })
+  ratings_count: number;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 

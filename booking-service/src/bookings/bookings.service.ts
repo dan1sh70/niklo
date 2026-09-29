@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { Booking, BookingStatus, BookingType } from './entities/booking.entity';
+import { OffersService } from '../offers/offers.service';
 
 @Injectable()
 export class BookingsService implements OnApplicationBootstrap {
@@ -17,6 +18,7 @@ export class BookingsService implements OnApplicationBootstrap {
     @InjectRepository(Booking)
     private readonly bookingRepo: Repository<Booking>,
     private readonly httpService: HttpService,
+    private readonly offersService: OffersService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -219,12 +221,13 @@ export class BookingsService implements OnApplicationBootstrap {
     if (booking.booking_type === BookingType.BUS && booking.reference_id && booking.seat_numbers?.length) {
       try {
         const busServiceUrl = process.env.BUS_SERVICE_URL || 'http://bus-service:3003';
-        await lastValueFrom(
-          this.httpService.post(
-            `${busServiceUrl}/api/v1/bus/schedules/${booking.reference_id}/confirm-seats`,
-            { seat_numbers: booking.seat_numbers },
-          )
-        );
+          await lastValueFrom(
+            this.httpService.post(
+              `${busServiceUrl}/api/v1/bus/schedules/${booking.reference_id}/confirm-seats`,
+              { seat_numbers: booking.seat_numbers },
+              { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } }
+            )
+          );
       } catch (e) {
         console.error(`Failed to mark seats booked on bus-service: ${e.message}`);
       }
@@ -270,13 +273,16 @@ export class BookingsService implements OnApplicationBootstrap {
   }
 
   async applyCoupon(id: string, body: { coupon_code: string; discount_amount: number }) {
-    const booking = await this.bookingRepo.findOne({
-      where: { id },
-    });
+    const booking = await this.bookingRepo.findOne({ where: { id } });
     if (!booking) throw new NotFoundException('Booking not found');
 
-    const discount = Number(body.discount_amount) || 0;
-    booking.coupon_code = body.coupon_code;
+    const offerResult = await this.offersService.validateCoupon({
+      code: body.coupon_code,
+      order_amount: Number(booking.total_amount),
+    });
+
+    const discount = offerResult.discount_amount;
+    booking.coupon_code = offerResult.code;
     booking.discount_amount = discount;
     booking.total_amount = Math.max(0, Number(booking.total_amount) - discount);
     await this.bookingRepo.save(booking);
@@ -333,5 +339,27 @@ export class BookingsService implements OnApplicationBootstrap {
       passenger_id: booking.user_id,
       status: booking.status,
     };
+  }
+
+  async getManifestByReferenceId(referenceId: string) {
+    const bookings = await this.bookingRepo.find({
+      where: { reference_id: referenceId, status: BookingStatus.CONFIRMED },
+    });
+    
+    const manifest = [];
+    for (const b of bookings) {
+      if (b.passenger_details && Array.isArray(b.passenger_details)) {
+        b.passenger_details.forEach(p => {
+           manifest.push({
+             seat: p.seat_number || p.seat || 'N/A',
+             passengerName: p.name || p.passengerName || p.full_name || 'Passenger',
+             age: p.age || 0,
+             gender: p.gender || 'U',
+             pnr: b.booking_reference,
+           });
+        });
+      }
+    }
+    return manifest;
   }
 }
