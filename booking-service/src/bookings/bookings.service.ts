@@ -288,9 +288,9 @@ export class BookingsService implements OnApplicationBootstrap {
       status: dto.paymentMethod === 'online' ? BookingStatus.PENDING : BookingStatus.CONFIRMED,
       qr_code_token: 'dummy_token',
       isHourly,
-      hourlyCheckInTime: isHourly ? hourlyCheckInTime : null,
-      hourlyDurationHours: isHourly ? hourlyDurationHours : null,
-      hourlyCheckOutTime: isHourly ? dto.hourlyCheckOutTime : null,
+      hourlyCheckInTime: isHourly ? hourlyCheckInTime : undefined,
+      hourlyDurationHours: isHourly ? hourlyDurationHours : undefined,
+      hourlyCheckOutTime: isHourly ? dto.hourlyCheckOutTime : undefined,
       passenger_details: dto.guests || [],
     });
 
@@ -429,7 +429,7 @@ export class BookingsService implements OnApplicationBootstrap {
     const booking = await this.bookingRepo.findOne({ where: { id } });
     if (!booking) throw new NotFoundException('Booking not found');
 
-    const offerResult = await this.offersService.validateCoupon({
+    const offerResult = await this.offersService.validateOffer({
       code: body.coupon_code,
       order_amount: Number(booking.total_amount),
     });
@@ -499,7 +499,7 @@ export class BookingsService implements OnApplicationBootstrap {
       where: { reference_id: referenceId, status: BookingStatus.CONFIRMED },
     });
     
-    const manifest = [];
+    const manifest: any[] = [];
     for (const b of bookings) {
       if (b.passenger_details && Array.isArray(b.passenger_details)) {
         b.passenger_details.forEach(p => {
