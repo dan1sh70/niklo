@@ -7,6 +7,7 @@ import { RoomType } from './entities/room-type.entity';
 import { PartnerOffer } from './entities/partner-offer.entity';
 import { PartnerReviewReply } from './entities/partner-review-reply.entity';
 import { Booking } from '../bookings/entities/booking.entity';
+import { computeStayPrice } from '../common/pricing.util';
 
 @Injectable()
 export class HotelsService implements OnApplicationBootstrap {
@@ -59,6 +60,12 @@ export class HotelsService implements OnApplicationBootstrap {
           rating_breakdown: { cleanliness: 4.7, location: 4.8, service: 4.6, value: 4.5 },
           description: 'The Lalit Great Eastern Kolkata blends heritage charm with modern luxury...',
           is_active: true,
+          is_hourly: true,
+          hourly_options: {
+            '3h': { available: true, price: 2275 },
+            '6h': { available: true, price: 3575 },
+            '9h': { available: true, price: 4875 }
+          },
           roomTypes: [{
             id: 'rm_deluxe_01', title: 'Deluxe Ocean View Room', price_per_night: 6500,
             max_guests: 2, max_adults: 2, max_children: 1, available_rooms_count: 5,
@@ -117,6 +124,13 @@ export class HotelsService implements OnApplicationBootstrap {
       priceInt: Number(h.price_per_night),
       price_per_night: Number(h.price_per_night),
       priceText: `₹${Number(h.price_per_night).toLocaleString()}/night`,
+      is_hourly: h.is_hourly,
+      isHourly: h.is_hourly,
+      hourlyOptions: h.hourly_options || {
+        '3h': { available: true, price: Math.round(Number(h.price_per_night) * 0.35) },
+        '6h': { available: true, price: Math.round(Number(h.price_per_night) * 0.55) },
+        '9h': { available: true, price: Math.round(Number(h.price_per_night) * 0.75) },
+      },
       badgeText: h.badge_text,
       distanceText: h.distance_text,
       freeBreakfast: h.free_breakfast,
@@ -128,7 +142,12 @@ export class HotelsService implements OnApplicationBootstrap {
       nearbyPlaces: h.nearby_places,
       features: h.features,
       rules: h.house_rules,
-      ratingBreakdown: h.rating_breakdown,
+      ratingBreakdown: h.rating_breakdown ? {
+        overall: Number(h.user_rating) || 4.5,
+        label: h.rating_text || 'Very Good',
+        totalRatings: h.reviews_count || 0,
+        breakdown: h.rating_breakdown
+      } : null,
       description: h.description,
     };
   }
@@ -209,7 +228,13 @@ export class HotelsService implements OnApplicationBootstrap {
     if (category === 'Luxury')    query.andWhere('hotel.price_per_night >= :min', { min: 7000 });
     if (category === 'Mid-Range') query.andWhere('hotel.price_per_night BETWEEN :a AND :b', { a: 3000, b: 7000 });
 
-    if (filters.isHourly === 'true' || filters.isHourly === true) {
+    if (category === 'Mid-Range') query.andWhere('hotel.price_per_night BETWEEN :a AND :b', { a: 3000, b: 7000 });
+
+    const isHourlyRequested = 
+      params.isHourly === true || params.isHourly === 'true' ||
+      params.filters?.isHourly === true || params.filters?.isHourly === 'true';
+
+    if (isHourlyRequested) {
       query.andWhere('hotel.is_hourly = true');
     }
     
@@ -277,18 +302,16 @@ export class HotelsService implements OnApplicationBootstrap {
       .getCount();
 
     const availableCount = Math.max(0, roomType.available_rooms_count - existingBookings);
-    const requestedRooms = checkParams.rooms_count || 1;
+    const requestedRooms = checkParams.rooms_count || checkParams.rooms || 1;
     const available = availableCount >= requestedRooms;
 
-    let baseRate = Number(roomType.price_per_night);
-    // Rough estimate for hourly rates: 35% of nightly rate for short stays
-    if (isHourly) {
-        baseRate = Math.round(baseRate * 0.35);
-    }
-    
-    const totalRoomPrice = isHourly ? baseRate * requestedRooms : baseRate * nightsCount * requestedRooms;
-    const taxesAndFees = Math.round(totalRoomPrice * 0.12); // 12% tax mock
-    const grandTotal = totalRoomPrice + taxesAndFees;
+    const { basePrice, taxes, grandTotal } = computeStayPrice(
+      Number(roomType.price_per_night),
+      requestedRooms,
+      isHourly,
+      isHourly ? hoursCount : undefined,
+      nightsCount
+    );
 
     return {
       hotel_id: hotel.id,
@@ -298,10 +321,19 @@ export class HotelsService implements OnApplicationBootstrap {
       remaining_rooms: roomType.available_rooms_count,
       nights_count: isHourly ? 0 : nightsCount,
       hours_count: isHourly ? hoursCount : 0,
-      price_per_night: baseRate,
-      total_room_price: totalRoomPrice,
-      taxes_and_fees: taxesAndFees,
+      price_per_night: Number(roomType.price_per_night),
+      total_room_price: basePrice,
+      taxes_and_fees: taxes,
       grand_total: grandTotal,
+      availableRooms: [
+        {
+          id: roomType.id,
+          title: roomType.title,
+          price: Number(roomType.price_per_night),
+          total_price: grandTotal,
+          available_count: roomType.available_rooms_count,
+        }
+      ]
     };
   }
 
@@ -384,13 +416,14 @@ export class HotelsService implements OnApplicationBootstrap {
       limit,
       reviews: reviews.map((r) => ({
         id: r.id,
-        reviewerName: r.reviewer_name || r.user_name,
-        reviewerAvatar: r.user_avatar,
+        reviewer_name: r.reviewer_name || r.user_name || 'Anonymous',
+        reviewer_avatar: r.user_avatar,
         rating: Number(r.rating),
         title: r.title,
         comment: r.comment,
-        propertyReply: r.property_reply,
-        date: r.created_at,
+        property_reply: r.property_reply,
+        has_property_reply: !!r.property_reply,
+        created_at: r.created_at,
       })),
     };
   }
@@ -402,11 +435,11 @@ export class HotelsService implements OnApplicationBootstrap {
     const review = this.reviewRepository.create({
       hotel,
       user_id: userId,
-      user_name: body.reviewerName || 'Anonymous',
-      reviewer_name: body.reviewerName || null,
+      user_name: body.reviewer_name || body.reviewerName || 'Anonymous',
+      reviewer_name: body.reviewer_name || body.reviewerName || null,
       title: body.title || '',
       rating: body.rating,
-      comment: body.comment || '',
+      comment: body.comment || body.review || '',
     });
     
     await this.reviewRepository.save(review);

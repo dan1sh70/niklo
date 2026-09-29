@@ -35,7 +35,7 @@ export class Hotel {
   })
   stay_type: StayType;
 
-  @Column({ length: 100, default: 'City' })
+  @Column({ length: 100, default: 'Bengaluru' })
   city: string;
 
   @Column('text', { nullable: true })
@@ -115,6 +115,20 @@ export class Hotel {
 
   @Column({ default: false })
   is_hourly: boolean;
+
+  @Column({ type: 'jsonb', nullable: true })
+  hourly_options: {
+    '3h'?: { available: boolean; price?: number; rate_multiplier?: number };
+    '6h'?: { available: boolean; price?: number; rate_multiplier?: number };
+    '9h'?: { available: boolean; price?: number; rate_multiplier?: number };
+  };
+
+  @Column({ type: 'jsonb', nullable: true })
+  hourly_operating_hours: {
+    checkin_start: string; // e.g. "05:00"
+    checkin_end: string;   // e.g. "22:00"
+    max_checkout: string;  // e.g. "24:00"
+  };
 
   @OneToMany(() => RoomType, (roomType) => roomType.hotel, { cascade: true })
   roomTypes: RoomType[];

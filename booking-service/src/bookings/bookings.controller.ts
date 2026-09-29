@@ -31,6 +31,19 @@ export class BookingsController {
     return { success: true, statusCode: 201, data };
   }
 
+  @Post('hotel/quote')
+  @HttpCode(HttpStatus.OK)
+  async quoteHotelBooking(@Body() dto: any) {
+    const data = await this.bookingsService.quoteBooking(dto);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post('hotel')
+  async createHotelBooking(@Body() dto: any) {
+    const data = await this.bookingsService.createHotelBooking(dto);
+    return { success: true, statusCode: 201, data };
+  }
+
   @Post(':id/confirm-payment')
   @UseGuards(InternalOnlyGuard)
   @HttpCode(HttpStatus.OK)

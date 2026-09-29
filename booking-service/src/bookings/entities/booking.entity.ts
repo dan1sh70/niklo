@@ -102,6 +102,18 @@ export class Booking {
   @Column({ type: 'numeric', precision: 10, scale: 2, default: 0.00 })
   discount_amount: number;
 
+  @Column({ default: false })
+  isHourly: boolean;
+
+  @Column({ nullable: true })
+  hourlyCheckInTime: string;
+
+  @Column({ type: 'int', nullable: true })
+  hourlyDurationHours: number;
+
+  @Column({ nullable: true })
+  hourlyCheckOutTime: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 
