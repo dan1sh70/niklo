@@ -10,7 +10,7 @@ import { PayoutsModule } from './payouts/payouts.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { SeoModule } from './seo/seo.module';
 import { SalesModule } from './sales/sales.module';
-import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 import { AdminsModule } from './admins/admins.module';
 import { RolesModule } from './roles/roles.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
@@ -41,6 +41,7 @@ import databaseConfig from './config/database.config';
     ApiKeysModule,
     SeoModule,
     SalesModule,
+    AuthModule,
     AdminsModule,
     RolesModule,
     AuditLogsModule,
@@ -51,7 +52,7 @@ import databaseConfig from './config/database.config';
     PaymentsModule,
     ContentModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

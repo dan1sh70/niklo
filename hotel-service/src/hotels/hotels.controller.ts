@@ -42,6 +42,14 @@ export class HotelsController {
     return this.hotelsService.getPopularCities();
   }
 
+  // --- HOTEL PARTNER PROPERTY MANAGEMENT ENDPOINTS --- //
+
+  @UseGuards(JwtAuthGuard)
+  @Get('partner/properties')
+  getPartnerProperties(@Req() req: any) {
+    return this.hotelsService.getPartnerProperties(req.user.id);
+  }
+
   @Post('search')
   @HttpCode(HttpStatus.OK)
   async searchHotels(@Body() searchParams: any) {
@@ -104,13 +112,7 @@ export class HotelsController {
     );
   }
 
-  // --- HOTEL PARTNER PROPERTY MANAGEMENT ENDPOINTS --- //
 
-  @UseGuards(JwtAuthGuard)
-  @Get('partner/properties')
-  getPartnerProperties(@Req() req: any) {
-    return this.hotelsService.getPartnerProperties(req.user.id);
-  }
 
   @UseGuards(JwtAuthGuard)
   @Get(':hotelId/rooms')

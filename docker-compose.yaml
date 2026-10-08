@@ -13,16 +13,10 @@ services:
       - notification-service
       - booking-service
       - ai-planner-service
+      - admin-service
+      - admin-frontend
     expose:
       - '80'
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - wget --spider -q http://localhost/ || exit 1
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     labels:
       - traefik.enable=true
       - traefik.http.routers.nginx.rule=Host(`irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io`)
@@ -49,16 +43,6 @@ services:
       - redis
     expose:
       - '3001'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3001/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-auth-service:latest
     pull_policy: always
   bus-service:
@@ -76,16 +60,6 @@ services:
       - postgres-db
     expose:
       - '3003'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3003/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-bus-service:latest
     pull_policy: always
   payment-service:
@@ -106,16 +80,6 @@ services:
       - postgres-db
     expose:
       - '3007'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3007/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-payment-service:latest
     pull_policy: always
   hotel-service:
@@ -133,16 +97,6 @@ services:
       - postgres-db
     expose:
       - '3004'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3004/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-hotel-service:latest
     pull_policy: always
   user-service:
@@ -163,16 +117,6 @@ services:
       - postgres-db
     expose:
       - '3002'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3002/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-user-service:latest
     pull_policy: always
   ride-service:
@@ -193,16 +137,6 @@ services:
       - redis
     expose:
       - '3005'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3005/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-ride-service:latest
     pull_policy: always
   driver-service:
@@ -220,16 +154,6 @@ services:
       - postgres-db
     expose:
       - '3011'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3011/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-driver-service:latest
     pull_policy: always
   package-service:
@@ -247,16 +171,6 @@ services:
       - postgres-db
     expose:
       - '3012'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3012/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-package-service:latest
     pull_policy: always
   adventure-service:
@@ -274,16 +188,6 @@ services:
       - postgres-db
     expose:
       - '3013'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3013/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-adventure-service:latest
     pull_policy: always
   notification-service:
@@ -301,16 +205,6 @@ services:
       - postgres-db
     expose:
       - '3009'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3009/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-notification-service:latest
     pull_policy: always
   booking-service:
@@ -331,16 +225,6 @@ services:
       - redis
     expose:
       - '3014'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3014/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-booking-service:latest
     pull_policy: always
   ai-planner-service:
@@ -358,17 +242,33 @@ services:
       - postgres-db
     expose:
       - '3015'
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - require('http').get('http://127.0.0.1:3015/',r=>{process.exit(r.statusCode<400?0:1)}).on('error',()=>process.exit(1))
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     image: ghcr.io/dan1sh70/niklo-ai-planner-service:latest
+    pull_policy: always
+  admin-service:
+    environment:
+      NODE_ENV: development
+      PORT: 3008
+      DB_HOST: postgres-db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: niklo_postgres_password
+      DB_NAME: postgres
+      JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+    depends_on:
+      - postgres-db
+    expose:
+      - '3008'
+    image: ghcr.io/dan1sh70/niklo-admin-service:latest
+    pull_policy: always
+  admin-frontend:
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://admin-service:3008
+    expose:
+      - '3000'
+    image: ghcr.io/dan1sh70/niklo-admin-frontend:latest
     pull_policy: always
   postgres-db:
     environment:
@@ -377,28 +277,11 @@ services:
       POSTGRES_PASSWORD: niklo_postgres_password
     volumes:
       - postgres-db-data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -U postgres -d postgres
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
     image: ghcr.io/dan1sh70/niklo-postgres-db:latest
   redis:
     image: redis:7-alpine
     volumes:
       - redis-data:/data
-    healthcheck:
-      test:
-        - CMD
-        - redis-cli
-        - ping
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 volumes:
   postgres-db-data: null
   redis-data: null
