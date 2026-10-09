@@ -33,7 +33,7 @@ export default function UsersPage() {
     queryKey: ['users'],
     queryFn: async () => {
       const res = await apiClient.get('/admin/users');
-      return res.data;
+      return res.data?.data || res.data || [];
     }
   });
 

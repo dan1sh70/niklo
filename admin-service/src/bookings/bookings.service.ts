@@ -8,16 +8,20 @@ export class BookingsService {
 
   constructor(private httpService: HttpService) {}
 
+  private internalHeaders = {
+    headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' }
+  };
+
   async getBookings() {
     const response = await lastValueFrom(
-      this.httpService.get(`${this.bookingServiceUrl}/api/v1/bookings/internal/all`)
+      this.httpService.get(`${this.bookingServiceUrl}/api/v1/bookings/internal/all`, this.internalHeaders)
     );
     return response.data;
   }
 
   async cancelBooking(id: string) {
     const response = await lastValueFrom(
-      this.httpService.post(`${this.bookingServiceUrl}/api/v1/bookings/internal/${id}/cancel`)
+      this.httpService.post(`${this.bookingServiceUrl}/api/v1/bookings/internal/${id}/cancel`, {}, this.internalHeaders)
     );
     return response.data;
   }

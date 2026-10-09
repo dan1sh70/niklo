@@ -19,9 +19,15 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor for error handling (e.g., redirect to login on 401)
+// Response interceptor for error handling and standard payload unwrapping
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Automatically unwrap standard backend responses: { success: true, statusCode: 200, data: ... }
+    if (response.data && response.data.success !== undefined && response.data.data !== undefined) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {

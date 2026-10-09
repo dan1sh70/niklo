@@ -33,7 +33,7 @@ export default function BookingsPage() {
     queryKey: ['bookings'],
     queryFn: async () => {
       const res = await apiClient.get('/admin/bookings');
-      return res.data;
+      return res.data?.data || res.data || [];
     }
   });
 

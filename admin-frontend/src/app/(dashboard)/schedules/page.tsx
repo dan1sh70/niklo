@@ -12,7 +12,7 @@ export default function SchedulesPage() {
     queryKey: ['schedules'],
     queryFn: async () => {
       const res = await apiClient.get('/admin/schedules');
-      return res.data; // assuming array
+      return res.data?.data || res.data || [];
     }
   });
 
