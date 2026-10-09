@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base API instance for admin-service BFF
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_ADMIN_BFF_URL || 'http://localhost:3014/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_ADMIN_BFF_URL || 'https://backendadmin.niklo.co/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
