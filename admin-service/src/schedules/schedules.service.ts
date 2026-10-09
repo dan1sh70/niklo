@@ -14,4 +14,11 @@ export class SchedulesService {
     );
     return response.data;
   }
+
+  async createSchedule(data: any) {
+    const response = await lastValueFrom(
+      this.httpService.post(`${this.busServiceUrl}/api/v1/bus/schedules`, data)
+    );
+    return response.data;
+  }
 }

@@ -66,13 +66,13 @@ export default function BookingsPage() {
       header: 'User ID',
     },
     {
-      accessorKey: 'schedule_id',
-      header: 'Schedule ID',
+      accessorKey: 'reference_id',
+      header: 'Reference ID',
     },
     {
-      accessorKey: 'price',
+      accessorKey: 'total_amount',
       header: 'Price',
-      cell: ({ row }: { row: { getValue: (key: string) => string } }) => `$${row.getValue('price')}`,
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => `$${row.getValue('total_amount')}`,
     },
     {
       accessorKey: 'status',
