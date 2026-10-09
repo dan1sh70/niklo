@@ -147,6 +147,29 @@ export class UsersController {
     return { success: true, statusCode: 200, data };
   }
 
+  @Get('internal/all')
+  @UseGuards(InternalOnlyGuard)
+  async getAllUsers() {
+    const data = await this.usersService.getAllUsers();
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post('internal/:id/reset-password')
+  @UseGuards(InternalOnlyGuard)
+  @HttpCode(HttpStatus.OK)
+  async resetUserPassword(@Param('id') id: string) {
+    const data = await this.usersService.resetUserPassword(id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post('internal/:id/ban')
+  @UseGuards(InternalOnlyGuard)
+  @HttpCode(HttpStatus.OK)
+  async banUser(@Param('id') id: string) {
+    const data = await this.usersService.banUser(id);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Get(':id/profile')
   async getProfileById(@Param('id') id: string) {
     const data = await this.usersService.getProfileById(id);

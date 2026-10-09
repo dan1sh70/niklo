@@ -59,6 +59,20 @@ export class BookingsService implements OnApplicationBootstrap {
     }
   }
 
+  async getAllBookings() {
+    return this.bookingRepo.find({
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async cancelBookingInternal(id: string) {
+    const booking = await this.bookingRepo.findOne({ where: { id } });
+    if (!booking) throw new NotFoundException('Booking not found');
+    booking.status = BookingStatus.CANCELLED;
+    await this.bookingRepo.save(booking);
+    return { status: 'cancelled', bookingId: id };
+  }
+
   private mapBookingToDto(b: Booking) {
     let formattedDate: string | null = null;
     if (b.travel_date) {

@@ -91,4 +91,19 @@ export class BookingsController {
     const data = await this.bookingsService.getManifestByReferenceId(referenceId);
     return { success: true, statusCode: 200, data };
   }
+
+  @Get('internal/all')
+  @UseGuards(InternalOnlyGuard)
+  async getAllBookings() {
+    const data = await this.bookingsService.getAllBookings();
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post('internal/:id/cancel')
+  @UseGuards(InternalOnlyGuard)
+  @HttpCode(HttpStatus.OK)
+  async cancelBookingInternal(@Param('id') id: string) {
+    const data = await this.bookingsService.cancelBookingInternal(id);
+    return { success: true, statusCode: 200, data };
+  }
 }

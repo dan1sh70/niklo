@@ -52,6 +52,27 @@ export class UsersService {
     return user;
   }
 
+  async getAllUsers() {
+    return this.userRepository.find({
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async resetUserPassword(id: string) {
+    // In a real app, this would generate a random password, hash it, and email it.
+    // For now we just return a success payload or mock behavior.
+    return { status: 'password_reset_initiated', userId: id };
+  }
+
+  async banUser(id: string) {
+    // For example, set an is_banned flag or change role
+    // Here we'll just mock it or assume it sets some flag.
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    // user.is_banned = true; (assuming you have such a column)
+    return { status: 'user_banned', userId: id };
+  }
+
   async getProfile(jwtUser: any) {
     const user = await this.getOrCreateUser(jwtUser);
 

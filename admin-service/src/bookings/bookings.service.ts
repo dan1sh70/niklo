@@ -10,14 +10,14 @@ export class BookingsService {
 
   async getBookings() {
     const response = await lastValueFrom(
-      this.httpService.get(`${this.bookingServiceUrl}/api/v1/bookings`)
+      this.httpService.get(`${this.bookingServiceUrl}/api/v1/bookings/internal/all`)
     );
     return response.data;
   }
 
   async cancelBooking(id: string) {
     const response = await lastValueFrom(
-      this.httpService.post(`${this.bookingServiceUrl}/api/v1/bookings/${id}/cancel`)
+      this.httpService.post(`${this.bookingServiceUrl}/api/v1/bookings/internal/${id}/cancel`)
     );
     return response.data;
   }

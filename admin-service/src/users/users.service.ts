@@ -10,21 +10,21 @@ export class UsersService {
 
   async getUsers() {
     const response = await lastValueFrom(
-      this.httpService.get(`${this.userServiceUrl}/api/v1/users`)
+      this.httpService.get(`${this.userServiceUrl}/api/v1/user/internal/all`)
     );
     return response.data;
   }
 
   async resetPassword(id: string) {
     const response = await lastValueFrom(
-      this.httpService.post(`${this.userServiceUrl}/api/v1/users/${id}/reset-password`)
+      this.httpService.post(`${this.userServiceUrl}/api/v1/user/internal/${id}/reset-password`)
     );
     return response.data;
   }
 
   async banUser(id: string) {
     const response = await lastValueFrom(
-      this.httpService.post(`${this.userServiceUrl}/api/v1/users/${id}/ban`)
+      this.httpService.post(`${this.userServiceUrl}/api/v1/user/internal/${id}/ban`)
     );
     return response.data;
   }
