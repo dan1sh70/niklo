@@ -14,7 +14,7 @@ export class ContentService {
         this.httpService.get(`${this.contentServiceUrl}/api/v1/blogs`)
       );
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to reach content-service for getBlogs:', error.message);
       return { success: true, data: [] }; // Return mock empty list to prevent 500 error
     }
