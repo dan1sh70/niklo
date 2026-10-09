@@ -31,7 +31,7 @@ export class HotelsService implements OnApplicationBootstrap {
     if (count === 0) {
       const seedHotels = [
         {
-          id: 'htl_kolkata_001', title: 'The Lalit Great Eastern Kolkata',
+          id: '11111111-1111-1111-1111-111111111111', title: 'The Lalit Great Eastern Kolkata',
           stay_type: StayType.HOTEL,
           city: 'Kolkata', address: '1-2 Old Court House St, Dalhousie, Kolkata',
           latitude: 22.5694, longitude: 88.3522, star_rating: 5, user_rating: 4.6,
@@ -67,13 +67,13 @@ export class HotelsService implements OnApplicationBootstrap {
             '9h': { available: true, price: 4875 }
           },
           roomTypes: [{
-            id: 'rm_deluxe_01', title: 'Deluxe Ocean View Room', price_per_night: 6500,
+            id: '22222222-2222-2222-2222-222222222222', title: 'Deluxe Ocean View Room', price_per_night: 6500,
             max_guests: 2, max_adults: 2, max_children: 1, available_rooms_count: 5,
             room_size_sqft: 450, bed_type: 'King Bed', amenities: ['AC', 'TV'], images: []
           }]
         },
         {
-          id: 'htl_goa_002', title: 'Taj Exotica Resort & Spa, Goa',
+          id: '33333333-3333-3333-3333-333333333333', title: 'Taj Exotica Resort & Spa, Goa',
           stay_type: StayType.RESORT,
           city: 'Goa', address: 'Benaulim Beach, South Goa',
           latitude: 15.2559, longitude: 73.9216, star_rating: 5, user_rating: 4.8,
@@ -93,7 +93,7 @@ export class HotelsService implements OnApplicationBootstrap {
           description: 'Luxury five-star resort on the shores of Goa.',
           is_active: true,
           roomTypes: [{
-            id: 'rm_deluxe_02', title: 'Luxury Villa', price_per_night: 8500,
+            id: '44444444-4444-4444-4444-444444444444', title: 'Luxury Villa', price_per_night: 8500,
             max_guests: 2, max_adults: 2, max_children: 1, available_rooms_count: 2,
             room_size_sqft: 600, bed_type: 'King Bed', amenities: ['AC', 'Pool'], images: []
           }]
