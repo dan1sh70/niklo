@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const totalBookings = bookings?.length || 0;
   
   // Pending approvals (status === 'pending')
-  const pendingApprovals = approvals?.filter((a: any) => a.status === 'pending') || [];
+  const pendingApprovals = (approvals?.data || approvals || []).filter((a: any) => a.status === 'pending') || [];
   
   // Pending payouts (assuming payouts that are not 'completed')
   const pendingPayoutsList = payouts?.filter((p: any) => p.status === 'pending' || p.status === 'processing') || [];
@@ -135,7 +135,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
-              {approvals?.slice(0, 5).map((approval: any) => (
+              {(approvals?.data || approvals || []).slice(0, 5).map((approval: any) => (
                 <div key={approval.id} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
                   <div>
                     <p className="text-sm font-medium">{approval.resource_type.toUpperCase()} #{approval.id.substring(0, 8)}</p>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
-              {approvals?.length === 0 && (
+              {(approvals?.data || approvals || []).length === 0 && (
                 <div className="p-4 text-sm text-muted-foreground text-center">No recent approvals found.</div>
               )}
             </div>
