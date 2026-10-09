@@ -15,4 +15,8 @@ export class RolesService {
     const role = this.roleRepo.create(data);
     return this.roleRepo.save(role);
   }
+
+  async findByName(name: string): Promise<AdminRole | null> {
+    return this.roleRepo.findOne({ where: { name } });
+  }
 }

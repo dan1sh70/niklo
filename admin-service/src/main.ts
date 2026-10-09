@@ -14,23 +14,30 @@ async function bootstrap() {
   const rolesService = app.get(RolesService);
   const adminsService = app.get(AdminsService);
 
-  const superAdminRole = await rolesService.createRole({
+  let superAdminRole = await rolesService.findByName('Super Admin');
+  if (!superAdminRole) {
+    superAdminRole = await rolesService.createRole({
     name: 'Super Admin',
     description: 'Unrestricted access to all modules',
     permissions: ['*'],
-  });
+    });
+  }
 
-  await rolesService.createRole({
-    name: 'Customer Support Manager',
+  if (!(await rolesService.findByName('Customer Support Manager'))) {
+    await rolesService.createRole({
+      name: 'Customer Support Manager',
     description: 'Can manage bookings, users, and tickets',
     permissions: ['read:bookings', 'write:bookings', 'read:users', 'write:users', 'read:tickets', 'write:tickets'],
-  });
+    });
+  }
 
-  await rolesService.createRole({
-    name: 'Finance Reviewer',
+  if (!(await rolesService.findByName('Finance Reviewer'))) {
+    await rolesService.createRole({
+      name: 'Finance Reviewer',
     description: 'Can review payouts and refunds',
     permissions: ['read:finance', 'approve:payouts', 'approve:refunds'],
-  });
+    });
+  }
 
   const existingAdmin = await adminsService.findByEmail('admin@niklo.com');
   if (!existingAdmin) {
