@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class SchedulesService {
-  private busServiceUrl = process.env.BUS_SERVICE_URL || 'http://bus-service:3000';
+  private busServiceUrl = process.env.BUS_SERVICE_URL || 'http://bus-service:3003';
 
   constructor(private httpService: HttpService) {}
 

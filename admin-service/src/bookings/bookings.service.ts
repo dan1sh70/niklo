@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class BookingsService {
-  private bookingServiceUrl = process.env.BOOKING_SERVICE_URL || 'http://booking-service:3000';
+  private bookingServiceUrl = process.env.BOOKING_SERVICE_URL || 'http://booking-service:3014';
 
   constructor(private httpService: HttpService) {}
 

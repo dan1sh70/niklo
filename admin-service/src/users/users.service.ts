@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class UsersService {
-  private userServiceUrl = process.env.USER_SERVICE_URL || 'http://user-service:3000';
+  private userServiceUrl = process.env.USER_SERVICE_URL || 'http://user-service:3002';
 
   constructor(private httpService: HttpService) {}
 

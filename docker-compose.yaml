@@ -255,6 +255,10 @@ services:
       DB_PASSWORD: niklo_postgres_password
       DB_NAME: postgres
       JWT_SECRET: ${JWT_SECRET:-change-me-before-deploy}
+      USER_SERVICE_URL: http://user-service:3002
+      BUS_SERVICE_URL: http://bus-service:3003
+      BOOKING_SERVICE_URL: http://booking-service:3014
+      PAYMENT_SERVICE_URL: http://payment-service:3007
     depends_on:
       - postgres-db
     expose:
