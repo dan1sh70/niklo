@@ -265,7 +265,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3000
-      NEXT_PUBLIC_API_URL: http://admin-service:3008
+      NEXT_PUBLIC_ADMIN_BFF_URL: https://irtucumwj9akelon0k4iyatv.187.127.157.13.sslip.io/api/v1/admin
     expose:
       - '3000'
     image: ghcr.io/dan1sh70/niklo-admin-frontend:latest
