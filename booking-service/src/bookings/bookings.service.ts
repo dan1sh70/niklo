@@ -26,7 +26,7 @@ export class BookingsService implements OnApplicationBootstrap {
     const count = await this.bookingRepo.count();
     if (count === 0) {
       const mockBooking = this.bookingRepo.create({
-        id: 'bkg_771029',
+        id: '77777777-7777-7777-7777-777777777777',
         user_id: this.MOCK_USER_ID,
         booking_type: BookingType.BUS,
         reference_id: '22222222-2222-2222-2222-222222222222',
