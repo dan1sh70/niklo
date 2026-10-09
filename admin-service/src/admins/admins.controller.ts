@@ -10,7 +10,7 @@ export class AdminsController {
 
   @Get()
   async getProfile(@Req() req: any) {
-    const admin = await this.adminsService.findById(req.user.sub);
+    const admin = await this.adminsService.findById(req.user.id);
     if (!admin) throw new UnauthorizedException('Admin not found');
     const { password_hash, totp_secret, ...result } = admin;
     return result;
@@ -19,7 +19,7 @@ export class AdminsController {
   @Post('change-password')
   async changePassword(@Req() req: any, @Body() body: any) {
     const { currentPassword, newPassword } = body;
-    const admin = await this.adminsService.findById(req.user.sub);
+    const admin = await this.adminsService.findById(req.user.id);
     if (!admin) throw new UnauthorizedException('Admin not found');
     
     const isMatch = await bcrypt.compare(currentPassword, admin.password_hash);
@@ -27,7 +27,7 @@ export class AdminsController {
     
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(newPassword, salt);
-    await this.adminsService.updatePassword(req.user.sub, hash);
+    await this.adminsService.updatePassword(req.user.id, hash);
     
     return { success: true };
   }
