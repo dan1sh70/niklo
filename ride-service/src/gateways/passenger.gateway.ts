@@ -44,6 +44,17 @@ export class PassengerGateway
           this.logger.error('Error parsing ride:status_update message', err);
         }
       });
+
+      await this.redisService.subscribe('ride_chat', (msg) => {
+        try {
+          const payload = JSON.parse(msg);
+          if (payload.rideId) {
+            this.server.to(payload.rideId).emit('ride:chat_message', payload);
+          }
+        } catch (err) {
+          this.logger.error('Error parsing ride_chat message', err);
+        }
+      });
       
       this.logger.log('Subscribed to Redis channels successfully.');
     } catch (err) {
@@ -66,6 +77,22 @@ export class PassengerGateway
   ) {
     client.join(data.rideId);
     this.logger.log(`Client ${client.id} joined ride room: ${data.rideId}`);
+  }
+
+  @SubscribeMessage('ride:chat_message')
+  async handleChatMessage(
+    @MessageBody() data: { rideId: string; sender: string; text: string; timestamp?: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const payload = {
+      ...data,
+      sender: data.sender || 'passenger',
+      timestamp: data.timestamp || new Date().toISOString(),
+    };
+    // Emit to passenger room
+    this.server.to(data.rideId).emit('ride:chat_message', payload);
+    // Publish via redis to driver gateway as well
+    await this.redisService.publish('ride_chat', JSON.stringify(payload));
   }
 
   broadcastDriverAssigned(rideId: string, payload: any) {

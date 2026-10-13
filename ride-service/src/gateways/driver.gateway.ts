@@ -36,7 +36,19 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
           this.logger.error('Error parsing ride:new_request_queue message', err);
         }
       });
-      this.logger.log('Subscribed to Redis ride:new_request_queue successfully.');
+
+      await this.redisService.subscribe('ride_chat', (msg) => {
+        try {
+          const payload = JSON.parse(msg);
+          if (payload.rideId) {
+            this.server.to(payload.rideId).emit('ride:chat_message', payload);
+          }
+        } catch (err) {
+          this.logger.error('Error parsing ride_chat message in DriverGateway', err);
+        }
+      });
+
+      this.logger.log('Subscribed to Redis ride:new_request_queue & ride_chat successfully.');
     } catch (err) {
       this.logger.error('Failed to subscribe to Redis ride:new_request_queue', err);
     }
@@ -145,5 +157,30 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
   sendNewRequestToDriver(driverId: string, payload: any) {
     this.server.to(driverId).emit('ride:new_request', payload);
+  }
+
+  @SubscribeMessage('join:ride')
+  handleJoinRide(
+    @MessageBody() data: { rideId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(data.rideId);
+    this.logger.log(`Driver client ${client.id} joined ride room: ${data.rideId}`);
+  }
+
+  @SubscribeMessage('ride:chat_message')
+  async handleChatMessage(
+    @MessageBody() data: { rideId: string; sender: string; text: string; timestamp?: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const payload = {
+      ...data,
+      sender: data.sender || 'driver',
+      timestamp: data.timestamp || new Date().toISOString(),
+    };
+    // Emit to driver room
+    this.server.to(data.rideId).emit('ride:chat_message', payload);
+    // Publish via redis to passenger gateway
+    await this.redisService.publish('ride_chat', JSON.stringify(payload));
   }
 }

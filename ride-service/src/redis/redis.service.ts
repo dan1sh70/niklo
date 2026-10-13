@@ -40,10 +40,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async setDriverLocation(driverId: string, lat: number, lng: number) {
-    // Expiry in 30s as per specs: driver:loc:{driverId} 30s
+    // Expiry in 60s as per specs (prevent ghost drop while stationary): driver:loc:{driverId} 60s
     await this.client.setex(
       `driver:loc:${driverId}`,
-      30,
+      60,
       JSON.stringify({ lat, lng }),
     );
     // Add to Geo set for matching pool

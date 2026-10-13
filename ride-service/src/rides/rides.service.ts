@@ -28,9 +28,10 @@ export class RidesService {
     const lat2 = estimateDto.drop?.lat   ?? estimateDto.dropoffLatitude;
     const lng2 = estimateDto.drop?.lng   ?? estimateDto.dropoffLongitude;
 
-    let distanceKm = 18.5;
-    let estimatedTimeMins = 32;
+    let distanceKm = 0;
+    let estimatedTimeMins = 0;
     let polyline = '';
+    let resolvedViaGoogle = false;
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (apiKey && lat1 && lng1 && lat2 && lng2) {
@@ -42,9 +43,26 @@ export class RidesService {
           distanceKm = leg.distance.value / 1000;
           estimatedTimeMins = Math.ceil(leg.duration.value / 60);
           polyline = response.data.routes[0].overview_polyline.points;
+          resolvedViaGoogle = true;
         }
       } catch (err) {
         this.logger.error('Google Maps API failed', err);
+      }
+    }
+
+    if (!resolvedViaGoogle) {
+      if (lat1 && lng1 && lat2 && lng2) {
+        const directDist = this.calculateHaversineDistance(
+          Number(lat1),
+          Number(lng1),
+          Number(lat2),
+          Number(lng2),
+        );
+        distanceKm = Math.round(directDist * 1.3 * 10) / 10;
+        estimatedTimeMins = Math.max(5, Math.round((distanceKm / 25) * 60)); // ~25 km/h city average
+      } else {
+        distanceKm = 10.0;
+        estimatedTimeMins = 20;
       }
     }
 
@@ -89,10 +107,10 @@ export class RidesService {
     const pickupAddress = dto.pickupAddress || 'Unknown Pickup';
     const dropAddress = dto.dropAddress || dto.dropoffAddress || 'Unknown Dropoff';
 
-    const pickupLat = dto.pickup?.lat ?? dto.pickupLatitude ?? dto.pickup_latitude ?? null;
-    const pickupLng = dto.pickup?.lng ?? dto.pickupLongitude ?? dto.pickup_longitude ?? null;
-    const dropLat = dto.dropoff?.lat ?? dto.dropoffLatitude ?? dto.dropoff_latitude ?? null;
-    const dropLng = dto.dropoff?.lng ?? dto.dropoffLongitude ?? dto.dropoff_longitude ?? null;
+    const pickupLat = dto.pickup?.lat ?? dto.pickupLatitude ?? dto.pickup_latitude ?? dto.pickupLat ?? null;
+    const pickupLng = dto.pickup?.lng ?? dto.pickupLongitude ?? dto.pickup_longitude ?? dto.pickupLng ?? null;
+    const dropLat = dto.drop?.lat ?? dto.dropoff?.lat ?? dto.dropoffLatitude ?? dto.dropoff_latitude ?? dto.dropLat ?? null;
+    const dropLng = dto.drop?.lng ?? dto.dropoff?.lng ?? dto.dropoffLongitude ?? dto.dropoff_longitude ?? dto.dropLng ?? null;
 
     if (pickupLat === null || pickupLng === null) {
       throw new Error('Pickup coordinates are required (send pickup.lat and pickup.lng)');
@@ -141,10 +159,10 @@ export class RidesService {
   }
 
   private async matchDriver(rideId: string, lat: number, lng: number) {
-    let radius = 3; // Start with 3km as per blueprint
+    let radius = 3; // Progressive: 3km -> 7km -> 11km -> 15km -> 19km
     let matched = false;
 
-    for (let attempts = 0; attempts < 3 && !matched; attempts++) {
+    for (let attempts = 0; attempts < 5 && !matched; attempts++) {
       const redisClient = this.redisService.getClient();
       const tried = await redisClient.smembers(`ride:tried:${rideId}`);
       const drivers = await this.redisService.getNearbyDrivers(lat, lng, radius);
@@ -179,6 +197,10 @@ export class RidesService {
             timeout: 30,
             pickupAddress: ride?.pickup_address,
             dropAddress: ride?.dropoff_address,
+            pickupLat: ride?.pickup_latitude,
+            pickupLng: ride?.pickup_longitude,
+            dropLat: ride?.dropoff_latitude,
+            dropLng: ride?.dropoff_longitude,
             fareEstimate: ride?.fare_amount,
             distanceKm: ride?.distance_km,
             otp: ride?.otp,
@@ -207,9 +229,9 @@ export class RidesService {
           matched = true; // exit this loop since matchDriverExcluding takes over
         }
       } else {
-        radius += 5; // Expand radius
+        radius += 4; // Expand radius: 3km -> 7km -> 11km -> 15km -> 19km
         // Wait before retry
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
 
@@ -358,17 +380,29 @@ export class RidesService {
         { timeout: 3000 },
       );
       driverProfile = res.data?.data || res.data || {};
-    } catch {
-      this.logger.warn(`Driver profile fetch failed for ${driverId}`);
+    } catch (err: any) {
+      this.logger.warn(`Driver profile fetch failed for ${driverId}: ${err?.message}`);
+    }
+
+    const targetUserId = driverProfile.user_id || driverId;
+    let userProfile: any = {};
+    try {
+      const userRes = await axios.get(
+        `${process.env.USER_SERVICE_URL || 'http://user-service:3002'}/api/v1/user/${targetUserId}/profile`,
+        { timeout: 3000 },
+      );
+      userProfile = userRes.data?.data || userRes.data || {};
+    } catch (err: any) {
+      this.logger.warn(`User profile fetch failed for driver user ${targetUserId}: ${err?.message}`);
     }
 
     ride.driver_id        = driverId;
-    ride.driver_name      = driverProfile.name || driverProfile.full_name || null;
-    ride.driver_phone     = driverProfile.phone || driverProfile.mobile || null;
-    ride.driver_photo_url = driverProfile.photo_url || null;
+    ride.driver_name      = userProfile.name || userProfile.full_name || driverProfile.name || null;
+    ride.driver_phone     = userProfile.phone || userProfile.mobile || driverProfile.phone || null;
+    ride.driver_photo_url = userProfile.photo_url || userProfile.avatar || driverProfile.photo_url || null;
     ride.vehicle_number   = driverProfile.vehicle_number || null;
-    ride.vehicle_model    = driverProfile.vehicle_model || null;
-    ride.vehicle_color    = driverProfile.vehicle_color || null;
+    ride.vehicle_model    = driverProfile.vehicle_model || driverProfile.vehicle_type || null;
+    ride.vehicle_color    = driverProfile.vehicle_color || 'White';
     ride.status           = RideStatus.ACCEPTED;
 
     await this.rideRepository.save(ride);
@@ -442,6 +476,10 @@ export class RidesService {
         timeout: 30,
         pickupAddress: ride?.pickup_address,
         dropAddress: ride?.dropoff_address,
+        pickupLat: ride?.pickup_latitude,
+        pickupLng: ride?.pickup_longitude,
+        dropLat: ride?.dropoff_latitude,
+        dropLng: ride?.dropoff_longitude,
         fareEstimate: ride?.fare_amount,
         distanceKm: ride?.distance_km,
         otp: ride?.otp,
