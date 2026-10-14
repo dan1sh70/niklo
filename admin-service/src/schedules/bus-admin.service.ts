@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 
@@ -42,6 +42,12 @@ export class BusAdminService {
     }
 
     const response = await lastValueFrom(this.httpService.request(config));
+    if (response.status >= 400) {
+      throw new HttpException(
+        response.data || 'Downstream service error',
+        response.status,
+      );
+    }
     return response.data;
   }
 
