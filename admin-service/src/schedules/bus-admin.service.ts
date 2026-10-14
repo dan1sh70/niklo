@@ -72,7 +72,7 @@ export class BusAdminService {
 
   // --- LOCATIONS ---
   async getLocationsAutocomplete(query: string) {
-    return this.request('GET', '/api/v1/bus/locations/autocomplete', null, { query });
+    return this.request('GET', '/api/v1/bus/locations/autocomplete', undefined, { query });
   }
 
   // --- OPERATORS ---
@@ -81,7 +81,7 @@ export class BusAdminService {
   }
 
   async createOperator(data: any, headers?: any) {
-    return this.request('POST', '/api/v1/bus/operators', data, null, headers);
+    return this.request('POST', '/api/v1/bus/operators', data, undefined, headers);
   }
 
   async getOperatorById(id: string) {
@@ -89,15 +89,15 @@ export class BusAdminService {
   }
 
   async getOperatorSummary(id: string, headers?: any) {
-    return this.request('GET', `/api/v1/bus/operators/${id}/summary`, null, null, headers);
+    return this.request('GET', `/api/v1/bus/operators/${id}/summary`, undefined, undefined, headers);
   }
 
   async updateOperator(id: string, data: any, headers?: any) {
-    return this.request('PATCH', `/api/v1/bus/operators/${id}`, data, null, headers);
+    return this.request('PATCH', `/api/v1/bus/operators/${id}`, data, undefined, headers);
   }
 
   async deleteOperator(id: string, headers?: any) {
-    return this.request('DELETE', `/api/v1/bus/operators/${id}`, null, null, headers);
+    return this.request('DELETE', `/api/v1/bus/operators/${id}`, undefined, undefined, headers);
   }
 
   // --- POPULAR ROUTES ---
@@ -111,7 +111,7 @@ export class BusAdminService {
 
   // --- ROUTES ---
   async searchRoutes(source: string, destination: string) {
-    return this.request('GET', '/api/v1/bus/routes/search', null, { source, destination });
+    return this.request('GET', '/api/v1/bus/routes/search', undefined, { source, destination });
   }
 
   async getRoutes() {
@@ -119,7 +119,7 @@ export class BusAdminService {
   }
 
   async createRoute(data: any, headers?: any) {
-    return this.request('POST', '/api/v1/bus/routes', data, null, headers);
+    return this.request('POST', '/api/v1/bus/routes', data, undefined, headers);
   }
 
   async getRouteById(id: string) {
@@ -127,24 +127,24 @@ export class BusAdminService {
   }
 
   async updateRoute(id: string, data: any, headers?: any) {
-    return this.request('PATCH', `/api/v1/bus/routes/${id}`, data, null, headers);
+    return this.request('PATCH', `/api/v1/bus/routes/${id}`, data, undefined, headers);
   }
 
   async deleteRoute(id: string, headers?: any) {
-    return this.request('DELETE', `/api/v1/bus/routes/${id}`, null, null, headers);
+    return this.request('DELETE', `/api/v1/bus/routes/${id}`, undefined, undefined, headers);
   }
 
   // --- SCHEDULES ---
   async searchSchedules(source: string, destination: string, date: string) {
-    return this.request('GET', '/api/v1/bus/schedules/search', null, { source, destination, date });
+    return this.request('GET', '/api/v1/bus/schedules/search', undefined, { source, destination, date });
   }
 
   async getSchedules(routeId?: string, date?: string, operatorId?: string) {
-    return this.request('GET', '/api/v1/bus/schedules', null, { route_id: routeId, date, operator_id: operatorId });
+    return this.request('GET', '/api/v1/bus/schedules', undefined, { route_id: routeId, date, operator_id: operatorId });
   }
 
   async createSchedule(data: any, headers?: any) {
-    return this.request('POST', '/api/v1/bus/schedules', data, null, headers);
+    return this.request('POST', '/api/v1/bus/schedules', data, undefined, headers);
   }
 
   async getScheduleById(id: string) {
@@ -172,31 +172,31 @@ export class BusAdminService {
   }
 
   async updateSchedule(id: string, data: any, headers?: any) {
-    return this.request('PATCH', `/api/v1/bus/schedules/${id}`, data, null, headers);
+    return this.request('PATCH', `/api/v1/bus/schedules/${id}`, data, undefined, headers);
   }
 
   async deleteSchedule(id: string, headers?: any) {
-    return this.request('DELETE', `/api/v1/bus/schedules/${id}`, null, null, headers);
+    return this.request('DELETE', `/api/v1/bus/schedules/${id}`, undefined, undefined, headers);
   }
 
   // --- DRIVERS ---
   async getDrivers(operatorId?: string, headers?: any) {
-    return this.request('GET', '/api/v1/bus/drivers', null, { operator_id: operatorId }, headers);
+    return this.request('GET', '/api/v1/bus/drivers', undefined, { operator_id: operatorId }, headers);
   }
 
   async createDriver(data: any, headers?: any) {
-    return this.request('POST', '/api/v1/bus/drivers', data, null, headers);
+    return this.request('POST', '/api/v1/bus/drivers', data, undefined, headers);
   }
 
   async getDriverById(id: string, headers?: any) {
-    return this.request('GET', `/api/v1/bus/drivers/${id}`, null, null, headers);
+    return this.request('GET', `/api/v1/bus/drivers/${id}`, undefined, undefined, headers);
   }
 
   async updateDriver(id: string, data: any, headers?: any) {
-    return this.request('PATCH', `/api/v1/bus/drivers/${id}`, data, null, headers);
+    return this.request('PATCH', `/api/v1/bus/drivers/${id}`, data, undefined, headers);
   }
 
   async deleteDriver(id: string, headers?: any) {
-    return this.request('DELETE', `/api/v1/bus/drivers/${id}`, null, null, headers);
+    return this.request('DELETE', `/api/v1/bus/drivers/${id}`, undefined, undefined, headers);
   }
 }
