@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Save, Armchair, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,19 @@ function EditBusContent() {
       charging: true,
       water_bottle: true,
       blanket: true,
+    },
+  });
+
+  const { data: operators } = useQuery({
+    queryKey: ['admin-bus-operators'],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get('/bus/operators');
+        const list = res.data?.data || res.data || [];
+        return Array.isArray(list) ? list : [];
+      } catch {
+        return [];
+      }
     },
   });
 
@@ -82,7 +96,7 @@ function EditBusContent() {
 
     try {
       await apiClient.patch(`/bus/buses/${busId}`, {
-        registration_number: formData.registration_number,
+        registration_number: formData.registration_number.trim().toUpperCase(),
         bus_type: formData.bus_type,
         total_seats: Number(formData.total_seats),
         operator_id: formData.operator_id,
@@ -119,7 +133,7 @@ function EditBusContent() {
           <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Edit Bus Specification</h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Update registration number, seating capacity, status, and comfort perks.
+              Update registration number, operator agency assignment, and amenities.
             </p>
           </div>
         </div>
@@ -127,6 +141,22 @@ function EditBusContent() {
 
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-sm space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-700">Fleet Operator Agency *</label>
+            <select
+              required
+              value={formData.operator_id}
+              onChange={(e) => setFormData({ ...formData, operator_id: e.target.value })}
+              className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {(operators || []).map((op: any) => (
+                <option key={op.id} value={op.id}>
+                  {op.name} ({op.contact_phone || 'Registered Agency'})
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-700">Registration / Plate Number *</label>
             <Input
@@ -148,8 +178,8 @@ function EditBusContent() {
               <option value="AC_SEATER">AC Seater (2+2 Pushback)</option>
               <option value="NON_AC_SLEEPER">Non-AC Sleeper</option>
               <option value="NON_AC_SEATER">Non-AC Seater Standard</option>
-              <option value="VOLVO_MULTI_AXLE">Volvo Multi-Axle 9600</option>
-              <option value="SCANIA_METROLINK">Scania Metrolink High Deck</option>
+              <option value="VOLVO_AC">Volvo AC Multi-Axle</option>
+              <option value="LUXURY_COACH">Luxury Coach Express</option>
             </select>
           </div>
 

@@ -3,8 +3,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { Bus, ArrowLeft, Save, Armchair, ShieldCheck, Check } from 'lucide-react';
+import { Bus, ArrowLeft, Save, Armchair, Check, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
@@ -17,13 +18,30 @@ export default function NewBusPage() {
     registration_number: '',
     bus_type: 'AC_SLEEPER',
     total_seats: 36,
-    operator_id: '11111111-1111-1111-1111-111111111111',
+    operator_id: '',
     is_active: true,
     amenities: {
       wifi: true,
       charging: true,
       water_bottle: true,
       blanket: true,
+    },
+  });
+
+  // Fetch real registered operators to bind foreign key
+  const { data: operators, isLoading: operatorsLoading } = useQuery({
+    queryKey: ['admin-bus-operators'],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get('/bus/operators');
+        const list = res.data?.data || res.data || [];
+        return Array.isArray(list) ? list : [];
+      } catch {
+        return [
+          { id: '11111111-1111-1111-1111-111111111111', name: 'National Travels' },
+          { id: '11111111-1111-1111-1111-111111111122', name: 'Shree Travels Diu' },
+        ];
+      }
     },
   });
 
@@ -40,17 +58,22 @@ export default function NewBusPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.registration_number.trim()) {
-      toast.error('Registration number is required');
+      toast.error('Registration plate number is required');
+      return;
+    }
+    const opId = formData.operator_id || (operators && operators[0]?.id);
+    if (!opId) {
+      toast.error('Please select an active bus operator');
       return;
     }
     setLoading(true);
 
     try {
       await apiClient.post('/bus/buses', {
-        registration_number: formData.registration_number,
+        registration_number: formData.registration_number.trim().toUpperCase(),
         bus_type: formData.bus_type,
         total_seats: Number(formData.total_seats),
-        operator_id: formData.operator_id,
+        operator_id: opId,
         amenities: formData.amenities,
         is_active: formData.is_active,
       });
@@ -85,6 +108,28 @@ export default function NewBusPage() {
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-sm space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-700">Fleet Operator Agency *</label>
+            <div className="relative">
+              <select
+                required
+                value={formData.operator_id || (operators && operators[0]?.id) || ''}
+                onChange={(e) => setFormData({ ...formData, operator_id: e.target.value })}
+                className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {operatorsLoading && <option>Loading agencies...</option>}
+                {(operators || []).map((op: any) => (
+                  <option key={op.id} value={op.id}>
+                    {op.name} ({op.contact_phone || 'Registered Agency'})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Bus will be associated with this operator for billing, drivers, and route schedules.
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-700">Registration / Plate Number *</label>
             <Input
               required
@@ -106,8 +151,8 @@ export default function NewBusPage() {
               <option value="AC_SEATER">AC Seater (2+2 Pushback)</option>
               <option value="NON_AC_SLEEPER">Non-AC Sleeper</option>
               <option value="NON_AC_SEATER">Non-AC Seater Standard</option>
-              <option value="VOLVO_MULTI_AXLE">Volvo Multi-Axle 9600</option>
-              <option value="SCANIA_METROLINK">Scania Metrolink High Deck</option>
+              <option value="VOLVO_AC">Volvo AC Multi-Axle</option>
+              <option value="LUXURY_COACH">Luxury Coach Express</option>
             </select>
           </div>
 
@@ -126,17 +171,6 @@ export default function NewBusPage() {
               />
             </div>
             <p className="text-[11px] text-slate-400">Standard configurations: 36 sleeper berths, 45 or 49 seater rows.</p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700">Assigned Bus Operator UUID *</label>
-            <Input
-              required
-              placeholder="e.g. 11111111-1111-1111-1111-111111111111"
-              value={formData.operator_id}
-              onChange={(e) => setFormData({ ...formData, operator_id: e.target.value })}
-              className="h-11 rounded-xl bg-slate-50 border-slate-200 text-xs font-mono"
-            />
           </div>
         </div>
 
