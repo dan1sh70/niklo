@@ -4,22 +4,15 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { Package, Plus, Calendar, MapPin, Search, X, Check, ArrowRight } from 'lucide-react';
+import { Package, Plus, Calendar, MapPin, Search, Edit3, Trash2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function PackagesInventoryPage() {
   const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [formData, setFormData] = useState({
-    title: '',
-    destination: 'Diu & Somnath',
-    days: 4,
-    nights: 3,
-    price: 12500,
-    highlights: 'Lighthouse, Fort Diu, Somnath Temple Aarti, Beach Stay',
-  });
 
   const { data: packages } = useQuery({
     queryKey: ['admin-packages-inventory'],
@@ -64,20 +57,18 @@ export default function PackagesInventoryPage() {
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (payload: any) => {
-      return apiClient.post('/admin/proxy/package/api/v1/packages', payload);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiClient.delete(`/admin/proxy/package/api/v1/packages/${id}`);
     },
     onSuccess: () => {
+      toast.success('Package deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['admin-packages-inventory'] });
-      setIsModalOpen(false);
+    },
+    onError: () => {
+      toast.error('Failed to delete package');
     },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate(formData);
-  };
 
   const filteredPackages = (packages || []).filter((p: any) =>
     p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,12 +89,11 @@ export default function PackagesInventoryPage() {
           </p>
         </div>
 
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md gap-2"
-        >
-          <Plus className="w-4 h-4" /> Create New Package
-        </Button>
+        <Link href="/inventory/packages/new">
+          <Button className="bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md gap-2">
+            <Plus className="w-4 h-4" /> Create New Package
+          </Button>
+        </Link>
       </div>
 
       {/* Filter / Search Bar */}
@@ -156,112 +146,25 @@ export default function PackagesInventoryPage() {
                 </div>
               </div>
 
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
-                Published
-              </span>
+              <div className="flex items-center gap-2">
+                <Link href={`/inventory/packages/edit?id=${pkg.id}`}>
+                  <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5 text-slate-600">
+                    <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteMutation.mutate(pkg.id)}
+                  className="rounded-xl h-8 px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <h2 className="text-xl font-black text-slate-900 mb-1">Create Tour Package</h2>
-            <p className="text-xs text-slate-400 mb-6">Build an all-inclusive travel package with hotel, travel, and activities.</p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Package Title</label>
-                <Input
-                  required
-                  placeholder="e.g. Diu Island Weekend Escape"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Destinations Covered</label>
-                  <Input
-                    required
-                    placeholder="e.g. Diu & Somnath"
-                    value={formData.destination}
-                    onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Package Price (₹)</label>
-                  <Input
-                    required
-                    type="number"
-                    placeholder="9999"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Days</label>
-                  <Input
-                    required
-                    type="number"
-                    value={formData.days}
-                    onChange={(e) => setFormData({ ...formData, days: Number(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Nights</label>
-                  <Input
-                    required
-                    type="number"
-                    value={formData.nights}
-                    onChange={(e) => setFormData({ ...formData, nights: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Key Highlights</label>
-                <Input
-                  placeholder="Comma separated: Beach resort, Fort tour, Sightseeing"
-                  value={formData.highlights}
-                  onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                />
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 rounded-xl"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={createMutation.isPending}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl"
-                >
-                  {createMutation.isPending ? 'Publishing...' : 'Create & Publish'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

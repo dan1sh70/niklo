@@ -21,4 +21,25 @@ export class SchedulesService {
     );
     return response.data;
   }
+
+  async getScheduleById(id: string) {
+    const response = await lastValueFrom(
+      this.httpService.get(`${this.busServiceUrl}/api/v1/bus/schedules/${id}`)
+    );
+    return response.data;
+  }
+
+  async updateSchedule(id: string, data: any) {
+    const response = await lastValueFrom(
+      this.httpService.patch(`${this.busServiceUrl}/api/v1/bus/schedules/${id}`, data)
+    );
+    return response.data;
+  }
+
+  async deleteSchedule(id: string) {
+    const response = await lastValueFrom(
+      this.httpService.delete(`${this.busServiceUrl}/api/v1/bus/schedules/${id}`)
+    );
+    return response.data;
+  }
 }

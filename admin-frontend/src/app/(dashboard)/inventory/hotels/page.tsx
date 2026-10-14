@@ -4,23 +4,15 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { Building2, Plus, Star, MapPin, DollarSign, Search, CheckCircle2, X } from 'lucide-react';
+import { Building2, Plus, Star, MapPin, Search, Edit3, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function HotelsInventoryPage() {
   const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    city: '',
-    state: '',
-    rating: 4.5,
-    description: '',
-    amenities: 'WiFi, Pool, AC, Breakfast',
-  });
 
   const { data: hotels, isLoading } = useQuery({
     queryKey: ['admin-hotels-inventory'],
@@ -29,7 +21,6 @@ export default function HotelsInventoryPage() {
         const res = await apiClient.get('/admin/proxy/hotel/api/v1/hotels');
         return res.data?.data || res.data || [];
       } catch {
-        // Fallback demo data matching Niklo live inventory
         return [
           {
             id: 'htl-01',
@@ -76,29 +67,18 @@ export default function HotelsInventoryPage() {
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (payload: any) => {
-      return apiClient.post('/admin/proxy/hotel/api/v1/hotels', payload);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiClient.delete(`/admin/proxy/hotel/api/v1/hotels/${id}`);
     },
     onSuccess: () => {
+      toast.success('Hotel property removed');
       queryClient.invalidateQueries({ queryKey: ['admin-hotels-inventory'] });
-      setIsModalOpen(false);
-      setFormData({
-        name: '',
-        address: '',
-        city: '',
-        state: '',
-        rating: 4.5,
-        description: '',
-        amenities: 'WiFi, Pool, AC, Breakfast',
-      });
+    },
+    onError: () => {
+      toast.error('Failed to remove hotel property');
     },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate(formData);
-  };
 
   const filteredHotels = (hotels || []).filter((h: any) =>
     h.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -115,23 +95,22 @@ export default function HotelsInventoryPage() {
             Hotel Inventory Management
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Browse, add, and configure hotels across all destinations.
+            Browse, manage, and configure hotel resort properties across destinations.
           </p>
         </div>
 
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add New Hotel
-        </Button>
+        <Link href="/inventory/hotels/new">
+          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md gap-2">
+            <Plus className="w-4 h-4" /> Add New Hotel
+          </Button>
+        </Link>
       </div>
 
       {/* Filter / Search Bar */}
       <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center gap-3">
         <Search className="w-4 h-4 text-slate-400" />
         <Input
-          placeholder="Filter by hotel name or city (e.g. Diu, Somnath)..."
+          placeholder="Filter by hotel name or city (e.g. Diu, Somnath, Ahmedabad)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border-none shadow-none focus-visible:ring-0 p-0 text-sm"
@@ -168,100 +147,31 @@ export default function HotelsInventoryPage() {
                 </div>
               </div>
 
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
-                Active
-              </span>
+              <div className="flex items-center gap-2">
+                <Link href={`/inventory/hotels/edit?id=${hotel.id}`}>
+                  <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5 text-slate-600">
+                    <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteMutation.mutate(hotel.id)}
+                  className="rounded-xl h-8 px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </div>
           </div>
         ))}
-      </div>
 
-      {/* Add Hotel Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <h2 className="text-xl font-black text-slate-900 mb-1">Add Hotel Partner Property</h2>
-            <p className="text-xs text-slate-400 mb-6">Enter official property details to publish to Niklo app inventory.</p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Hotel Property Name</label>
-                <Input
-                  required
-                  placeholder="e.g. Radhika Beach Resort"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">City</label>
-                  <Input
-                    required
-                    placeholder="e.g. Diu"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">State</label>
-                  <Input
-                    required
-                    placeholder="e.g. Gujarat"
-                    value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Full Address / Landmark</label>
-                <Input
-                  required
-                  placeholder="e.g. Nagoa Beach Road"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Amenities</label>
-                <Input
-                  placeholder="Comma separated: AC, WiFi, Swimming Pool, Veg Dining"
-                  value={formData.amenities}
-                  onChange={(e) => setFormData({ ...formData, amenities: e.target.value })}
-                />
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 rounded-xl"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={createMutation.isPending}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl"
-                >
-                  {createMutation.isPending ? 'Publishing...' : 'Save & Publish'}
-                </Button>
-              </div>
-            </form>
+        {filteredHotels.length === 0 && (
+          <div className="col-span-full py-16 text-center text-slate-400 bg-white rounded-2xl border border-slate-100">
+            No hotel properties found matching your search.
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

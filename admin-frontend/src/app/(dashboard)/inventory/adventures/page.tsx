@@ -4,23 +4,15 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import { Waves, Plus, Star, MapPin, Search, X, Clock, Users } from 'lucide-react';
+import { Waves, Plus, Star, MapPin, Search, Edit3, Trash2, Clock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function AdventuresInventoryPage() {
   const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [formData, setFormData] = useState({
-    title: '',
-    category: 'Water Sports',
-    location: 'Nagoa Beach, Diu',
-    duration_minutes: 20,
-    price_per_person: 500,
-    max_participants: 6,
-    description: '',
-  });
 
   const { data: adventures } = useQuery({
     queryKey: ['admin-adventures-inventory'],
@@ -75,20 +67,18 @@ export default function AdventuresInventoryPage() {
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (payload: any) => {
-      return apiClient.post('/admin/proxy/adventure/api/v1/adventures', payload);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiClient.delete(`/admin/proxy/adventure/api/v1/adventures/${id}`);
     },
     onSuccess: () => {
+      toast.success('Activity deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['admin-adventures-inventory'] });
-      setIsModalOpen(false);
+    },
+    onError: () => {
+      toast.error('Failed to delete activity');
     },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate(formData);
-  };
 
   const filteredAdventures = (adventures || []).filter((a: any) =>
     a.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -109,12 +99,11 @@ export default function AdventuresInventoryPage() {
           </p>
         </div>
 
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-md gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add New Activity
-        </Button>
+        <Link href="/inventory/adventures/new">
+          <Button className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-md gap-2">
+            <Plus className="w-4 h-4" /> Add New Activity
+          </Button>
+        </Link>
       </div>
 
       {/* Filter / Search Bar */}
@@ -166,104 +155,25 @@ export default function AdventuresInventoryPage() {
                 </div>
               </div>
 
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
-                Active
-              </span>
+              <div className="flex items-center gap-2">
+                <Link href={`/inventory/adventures/edit?id=${adv.id}`}>
+                  <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5 text-slate-600">
+                    <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteMutation.mutate(adv.id)}
+                  className="rounded-xl h-8 px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <h2 className="text-xl font-black text-slate-900 mb-1">Add Adventure / Water Sport</h2>
-            <p className="text-xs text-slate-400 mb-6">Create a bookable outdoor experience for Niklo passengers.</p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Activity Title</label>
-                <Input
-                  required
-                  placeholder="e.g. Parasailing Adventure"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Category</label>
-                  <Input
-                    required
-                    placeholder="e.g. Water Sports"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Price Per Person (₹)</label>
-                  <Input
-                    required
-                    type="number"
-                    placeholder="500"
-                    value={formData.price_per_person}
-                    onChange={(e) => setFormData({ ...formData, price_per_person: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Duration (Minutes)</label>
-                  <Input
-                    required
-                    type="number"
-                    placeholder="20"
-                    value={formData.duration_minutes}
-                    onChange={(e) => setFormData({ ...formData, duration_minutes: Number(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Location / Beach</label>
-                  <Input
-                    required
-                    placeholder="e.g. Nagoa Beach, Diu"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 rounded-xl"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={createMutation.isPending}
-                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl"
-                >
-                  {createMutation.isPending ? 'Saving...' : 'Add Activity'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
