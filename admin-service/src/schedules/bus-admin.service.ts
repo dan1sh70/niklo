@@ -45,13 +45,23 @@ export class BusAdminService {
     return response.data;
   }
 
+  private isValidUUID(str: any): boolean {
+    if (typeof str !== 'string') return false;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str.trim());
+  }
+
   // --- BUSES ---
   async getBuses(operatorId?: string) {
     return this.request('GET', '/api/v1/bus/buses', undefined, operatorId ? { operator_id: operatorId } : undefined);
   }
 
   async createBus(data: any, headers?: any) {
-    return this.request('POST', '/api/v1/bus/buses', data, null, headers);
+    const payload = { ...data };
+    if (payload.operator_id && !this.isValidUUID(payload.operator_id)) {
+      delete payload.operator_id;
+    }
+    return this.request('POST', '/api/v1/bus/buses', payload, null, headers);
   }
 
   async getBusById(id: string) {
@@ -59,7 +69,23 @@ export class BusAdminService {
   }
 
   async updateBus(id: string, data: any, headers?: any) {
-    return this.request('PATCH', `/api/v1/bus/buses/${id}`, data, null, headers);
+    const payload: Record<string, any> = {};
+    if (data && typeof data === 'object') {
+      Object.keys(data).forEach((key) => {
+        const val = data[key];
+        if (val !== undefined && val !== null && val !== '') {
+          // If operator_id is provided, only include it if it's a valid UUID
+          if (key === 'operator_id') {
+            if (this.isValidUUID(val)) {
+              payload[key] = val.trim();
+            }
+          } else {
+            payload[key] = val;
+          }
+        }
+      });
+    }
+    return this.request('PATCH', `/api/v1/bus/buses/${id}`, payload, null, headers);
   }
 
   async bulkCreateSeats(id: string, data: any, headers?: any) {

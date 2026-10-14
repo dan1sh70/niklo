@@ -95,14 +95,20 @@ function EditBusContent() {
     setLoading(true);
 
     try {
-      await apiClient.patch(`/bus/buses/${busId}`, {
+      const payload: Record<string, any> = {
         registration_number: formData.registration_number.trim().toUpperCase(),
         bus_type: formData.bus_type,
         total_seats: Number(formData.total_seats),
-        operator_id: formData.operator_id,
         amenities: formData.amenities,
         is_active: formData.is_active,
-      });
+      };
+
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (formData.operator_id && uuidRegex.test(formData.operator_id.trim())) {
+        payload.operator_id = formData.operator_id.trim();
+      }
+
+      await apiClient.patch(`/bus/buses/${busId}`, payload);
 
       toast.success('Bus details updated successfully!');
       router.push('/inventory/buses');
@@ -144,11 +150,11 @@ function EditBusContent() {
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-700">Fleet Operator Agency *</label>
             <select
-              required
               value={formData.operator_id}
               onChange={(e) => setFormData({ ...formData, operator_id: e.target.value })}
               className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">-- Keep Current Operator / Unchanged --</option>
               {(operators || []).map((op: any) => (
                 <option key={op.id} value={op.id}>
                   {op.name} ({op.contact_phone || 'Registered Agency'})
