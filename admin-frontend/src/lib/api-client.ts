@@ -11,7 +11,7 @@ export const apiClient = axios.create({
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('admin_access_token');
+    const token = localStorage.getItem('niklo_token') || localStorage.getItem('admin_access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

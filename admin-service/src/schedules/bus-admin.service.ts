@@ -149,11 +149,36 @@ export class BusAdminService {
     return this.request('GET', `/api/v1/bus/schedules/${id}/boarding-points`);
   }
 
+  async getScheduleManifest(id: string) {
+    return this.request('GET', `/api/v1/bus/schedules/${id}/manifest`);
+  }
+
   async updateSchedule(id: string, data: any, headers?: any) {
     return this.request('PATCH', `/api/v1/bus/schedules/${id}`, data, null, headers);
   }
 
   async deleteSchedule(id: string, headers?: any) {
     return this.request('DELETE', `/api/v1/bus/schedules/${id}`, null, null, headers);
+  }
+
+  // --- DRIVERS ---
+  async getDrivers(operatorId?: string, headers?: any) {
+    return this.request('GET', '/api/v1/bus/drivers', null, { operator_id: operatorId }, headers);
+  }
+
+  async createDriver(data: any, headers?: any) {
+    return this.request('POST', '/api/v1/bus/drivers', data, null, headers);
+  }
+
+  async getDriverById(id: string, headers?: any) {
+    return this.request('GET', `/api/v1/bus/drivers/${id}`, null, null, headers);
+  }
+
+  async updateDriver(id: string, data: any, headers?: any) {
+    return this.request('PATCH', `/api/v1/bus/drivers/${id}`, data, null, headers);
+  }
+
+  async deleteDriver(id: string, headers?: any) {
+    return this.request('DELETE', `/api/v1/bus/drivers/${id}`, null, null, headers);
   }
 }

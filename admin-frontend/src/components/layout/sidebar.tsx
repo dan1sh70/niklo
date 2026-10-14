@@ -223,6 +223,15 @@ export function Sidebar({ className }: { className?: string }) {
                 Bus Operators
               </Link>
               <Link
+                href="/inventory/drivers"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  pathname.startsWith('/inventory/drivers') ? "text-[#0066FF] bg-blue-50 font-semibold" : "text-slate-500 hover:text-slate-800"
+                )}
+              >
+                Bus Drivers
+              </Link>
+              <Link
                 href="/schedules"
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",

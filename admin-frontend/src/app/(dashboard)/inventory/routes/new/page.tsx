@@ -4,35 +4,34 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
-import { ArrowLeft, Save, Plus, Trash2, MapPin, Navigation } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { LocationAutocomplete } from '@/components/ui/location-autocomplete';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
 export default function NewRoutePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    source_city: '',
-    destination_city: '',
-    distance_km: 350,
-    estimated_duration_minutes: 360,
-    is_active: true,
-  });
+  const [sourceCity, setSourceCity] = useState('');
+  const [destinationCity, setDestinationCity] = useState('');
+  const [distanceKm, setDistanceKm] = useState(350);
+  const [durationHours, setDurationHours] = useState(6);
+  const [durationMinutes, setDurationMinutes] = useState(0);
 
   const [boardingPoints, setBoardingPoints] = useState([
-    { name: '', landmark: '', address: '', order_index: 1 },
+    { name: '', address: '', landmark: '', contact_phone: '', latitude: 0, longitude: 0, order_index: 1 },
   ]);
 
   const [droppingPoints, setDroppingPoints] = useState([
-    { name: '', landmark: '', address: '', order_index: 1 },
+    { name: '', address: '', landmark: '', contact_phone: '', latitude: 0, longitude: 0, order_index: 1 },
   ]);
 
   const addBoarding = () => {
     setBoardingPoints([
       ...boardingPoints,
-      { name: '', landmark: '', address: '', order_index: boardingPoints.length + 1 },
+      { name: '', address: '', landmark: '', contact_phone: '', latitude: 0, longitude: 0, order_index: boardingPoints.length + 1 },
     ]);
   };
 
@@ -43,7 +42,7 @@ export default function NewRoutePage() {
   const addDropping = () => {
     setDroppingPoints([
       ...droppingPoints,
-      { name: '', landmark: '', address: '', order_index: droppingPoints.length + 1 },
+      { name: '', address: '', landmark: '', contact_phone: '', latitude: 0, longitude: 0, order_index: droppingPoints.length + 1 },
     ]);
   };
 
@@ -53,24 +52,30 @@ export default function NewRoutePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.source_city.trim() || !formData.destination_city.trim()) {
+    if (!sourceCity.trim() || !destinationCity.trim()) {
       toast.error('Source and Destination cities are required');
       return;
     }
+
+    const totalMinutes = Number(durationHours) * 60 + Number(durationMinutes);
+    if (totalMinutes <= 0) {
+      toast.error('Please specify valid trip duration');
+      return;
+    }
+
     setLoading(true);
 
     try {
       await apiClient.post('/bus/routes', {
-        source_city: formData.source_city,
-        destination_city: formData.destination_city,
-        distance_km: Number(formData.distance_km),
-        estimated_duration_minutes: Number(formData.estimated_duration_minutes),
-        is_active: formData.is_active,
+        source_city: sourceCity.trim(),
+        destination_city: destinationCity.trim(),
+        distance_km: Number(distanceKm),
+        estimated_duration_minutes: totalMinutes,
         boarding_points: boardingPoints.filter((p) => p.name.trim()),
         dropping_points: droppingPoints.filter((p) => p.name.trim()),
       });
 
-      toast.success('Route corridor created successfully!');
+      toast.success('Highway route corridor created successfully!');
       router.push('/inventory/routes');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to create route');
@@ -91,7 +96,7 @@ export default function NewRoutePage() {
           <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Create Highway Route Corridor</h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Specify origin, destination, distance, travel duration, and passenger boarding / dropping points.
+              Specify origin, destination, distance, human-friendly hours/minutes, and passenger terminals.
             </p>
           </div>
         </div>
@@ -100,24 +105,22 @@ export default function NewRoutePage() {
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-sm space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700">Origin / Source City *</label>
-            <Input
+            <label className="text-xs font-semibold text-slate-700">Origin / Source City (Autocomplete) *</label>
+            <LocationAutocomplete
               required
-              placeholder="e.g. Ahmedabad"
-              value={formData.source_city}
-              onChange={(e) => setFormData({ ...formData, source_city: e.target.value })}
-              className="h-11 rounded-xl bg-slate-50 border-slate-200 font-semibold"
+              value={sourceCity}
+              onChange={setSourceCity}
+              placeholder="Type to search origin city (e.g. Ahmedabad, Kolkata)..."
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700">Destination City *</label>
-            <Input
+            <label className="text-xs font-semibold text-slate-700">Destination City (Autocomplete) *</label>
+            <LocationAutocomplete
               required
-              placeholder="e.g. Diu"
-              value={formData.destination_city}
-              onChange={(e) => setFormData({ ...formData, destination_city: e.target.value })}
-              className="h-11 rounded-xl bg-slate-50 border-slate-200 font-semibold"
+              value={destinationCity}
+              onChange={setDestinationCity}
+              placeholder="Type to search destination (e.g. Diu, Siliguri)..."
             />
           </div>
 
@@ -125,25 +128,46 @@ export default function NewRoutePage() {
             <label className="text-xs font-semibold text-slate-700">Highway Distance (KM) *</label>
             <Input
               type="number"
+              min="1"
               required
-              value={formData.distance_km}
-              onChange={(e) => setFormData({ ...formData, distance_km: Number(e.target.value) })}
-              className="h-11 rounded-xl bg-slate-50 border-slate-200"
+              value={distanceKm}
+              onChange={(e) => setDistanceKm(Number(e.target.value))}
+              className="h-11 rounded-xl bg-slate-50 border-slate-200 font-semibold"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700">Estimated Duration (Minutes) *</label>
-            <Input
-              type="number"
-              required
-              value={formData.estimated_duration_minutes}
-              onChange={(e) => setFormData({ ...formData, estimated_duration_minutes: Number(e.target.value) })}
-              className="h-11 rounded-xl bg-slate-50 border-slate-200"
-            />
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-slate-400" /> Estimated Duration (Hours & Minutes) *
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="relative">
+                <Input
+                  type="number"
+                  min="0"
+                  max="72"
+                  required
+                  value={durationHours}
+                  onChange={(e) => setDurationHours(Number(e.target.value))}
+                  className="h-11 rounded-xl bg-slate-50 text-xs font-semibold pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">hrs</span>
+              </div>
+              <div className="relative">
+                <Input
+                  type="number"
+                  min="0"
+                  max="59"
+                  required
+                  value={durationMinutes}
+                  onChange={(e) => setDurationMinutes(Number(e.target.value))}
+                  className="h-11 rounded-xl bg-slate-50 text-xs font-semibold pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">mins</span>
+              </div>
+            </div>
             <p className="text-[11px] text-slate-400">
-              Approx {Math.floor(formData.estimated_duration_minutes / 60)}h{' '}
-              {formData.estimated_duration_minutes % 60}m transit time.
+              Total Transit Time: {durationHours}h {durationMinutes}m ({Number(durationHours) * 60 + Number(durationMinutes)} mins)
             </p>
           </div>
         </div>
@@ -155,7 +179,7 @@ export default function NewRoutePage() {
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Passenger Boarding Pickup Points
               </h3>
-              <p className="text-[11px] text-slate-400">Terminal stops where passengers board in {formData.source_city || 'origin'}</p>
+              <p className="text-[11px] text-slate-400">Terminal stops where passengers board in {sourceCity || 'origin'}</p>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={addBoarding} className="text-xs gap-1">
               <Plus className="w-3.5 h-3.5" /> Add Stop
@@ -163,9 +187,9 @@ export default function NewRoutePage() {
           </div>
 
           {boardingPoints.map((point, index) => (
-            <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/60 items-center">
+            <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/60 items-center">
               <Input
-                placeholder="Station / Stand Name (e.g. Geeta Mandir)"
+                placeholder="Station / Stand Name"
                 value={point.name}
                 onChange={(e) => {
                   const updated = [...boardingPoints];
@@ -175,7 +199,7 @@ export default function NewRoutePage() {
                 className="h-9 bg-white text-xs"
               />
               <Input
-                placeholder="Landmark (e.g. Platform 3)"
+                placeholder="Landmark"
                 value={point.landmark}
                 onChange={(e) => {
                   const updated = [...boardingPoints];
@@ -184,13 +208,23 @@ export default function NewRoutePage() {
                 }}
                 className="h-9 bg-white text-xs"
               />
+              <Input
+                placeholder="Street Address"
+                value={point.address}
+                onChange={(e) => {
+                  const updated = [...boardingPoints];
+                  updated[index].address = e.target.value;
+                  setBoardingPoints(updated);
+                }}
+                className="h-9 bg-white text-xs"
+              />
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="Street / City Address"
-                  value={point.address}
+                  placeholder="Contact Phone"
+                  value={point.contact_phone}
                   onChange={(e) => {
                     const updated = [...boardingPoints];
-                    updated[index].address = e.target.value;
+                    updated[index].contact_phone = e.target.value;
                     setBoardingPoints(updated);
                   }}
                   className="h-9 bg-white text-xs flex-1"
@@ -212,7 +246,7 @@ export default function NewRoutePage() {
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Passenger Dropping Destination Points
               </h3>
-              <p className="text-[11px] text-slate-400">Stops where passengers get dropped off in {formData.destination_city || 'destination'}</p>
+              <p className="text-[11px] text-slate-400">Stops where passengers get dropped off in {destinationCity || 'destination'}</p>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={addDropping} className="text-xs gap-1">
               <Plus className="w-3.5 h-3.5" /> Add Stop
@@ -220,9 +254,9 @@ export default function NewRoutePage() {
           </div>
 
           {droppingPoints.map((point, index) => (
-            <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/60 items-center">
+            <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/60 items-center">
               <Input
-                placeholder="Drop Point Name (e.g. Diu Bus Depot)"
+                placeholder="Drop Point Name"
                 value={point.name}
                 onChange={(e) => {
                   const updated = [...droppingPoints];
@@ -241,13 +275,23 @@ export default function NewRoutePage() {
                 }}
                 className="h-9 bg-white text-xs"
               />
+              <Input
+                placeholder="Street Address"
+                value={point.address}
+                onChange={(e) => {
+                  const updated = [...droppingPoints];
+                  updated[index].address = e.target.value;
+                  setDroppingPoints(updated);
+                }}
+                className="h-9 bg-white text-xs"
+              />
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="Street Address"
-                  value={point.address}
+                  placeholder="Contact Phone"
+                  value={point.contact_phone}
                   onChange={(e) => {
                     const updated = [...droppingPoints];
-                    updated[index].address = e.target.value;
+                    updated[index].contact_phone = e.target.value;
                     setDroppingPoints(updated);
                   }}
                   className="h-9 bg-white text-xs flex-1"

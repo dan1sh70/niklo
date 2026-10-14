@@ -247,6 +247,12 @@ export class BusAdminController {
     return this.busAdminService.getScheduleBoardingPoints(id);
   }
 
+  @Get('schedules/:id/manifest')
+  @Permissions('read:schedules')
+  async getScheduleManifest(@Param('id') id: string) {
+    return this.busAdminService.getScheduleManifest(id);
+  }
+
   @Patch('schedules/:id')
   @Permissions('write:schedules')
   async updateSchedule(
@@ -264,5 +270,44 @@ export class BusAdminController {
     @Headers('authorization') auth?: string,
   ) {
     return this.busAdminService.deleteSchedule(id, { Authorization: auth });
+  }
+
+  // ==================== DRIVERS ====================
+
+  @Get('drivers')
+  @Permissions('read:schedules')
+  async getDrivers(
+    @Query('operator_id') operatorId?: string,
+    @Headers('authorization') auth?: string,
+  ) {
+    return this.busAdminService.getDrivers(operatorId, { Authorization: auth });
+  }
+
+  @Post('drivers')
+  @Permissions('write:schedules')
+  async createDriver(@Body() body: any, @Headers('authorization') auth?: string) {
+    return this.busAdminService.createDriver(body, { Authorization: auth });
+  }
+
+  @Get('drivers/:id')
+  @Permissions('read:schedules')
+  async getDriverById(@Param('id') id: string, @Headers('authorization') auth?: string) {
+    return this.busAdminService.getDriverById(id, { Authorization: auth });
+  }
+
+  @Patch('drivers/:id')
+  @Permissions('write:schedules')
+  async updateDriver(
+    @Param('id') id: string,
+    @Body() body: any,
+    @Headers('authorization') auth?: string,
+  ) {
+    return this.busAdminService.updateDriver(id, body, { Authorization: auth });
+  }
+
+  @Delete('drivers/:id')
+  @Permissions('write:schedules')
+  async deleteDriver(@Param('id') id: string, @Headers('authorization') auth?: string) {
+    return this.busAdminService.deleteDriver(id, { Authorization: auth });
   }
 }
