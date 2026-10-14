@@ -57,11 +57,12 @@ function EditBusContent() {
         const res = await apiClient.get(`/bus/buses/${busId}`);
         const bus = res.data?.data || res.data;
         if (bus) {
+          const opId = bus.operator_id || (bus.operator && bus.operator.id) || '';
           setFormData({
             registration_number: bus.registration_number || '',
             bus_type: bus.bus_type || 'AC_SLEEPER',
             total_seats: bus.total_seats || 36,
-            operator_id: bus.operator_id || '',
+            operator_id: opId,
             is_active: bus.is_active !== undefined ? bus.is_active : true,
             amenities: bus.amenities || { wifi: true, charging: true },
           });
