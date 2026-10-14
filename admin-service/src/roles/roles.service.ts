@@ -19,4 +19,13 @@ export class RolesService {
   async findByName(name: string): Promise<AdminRole | null> {
     return this.roleRepo.findOne({ where: { name } });
   }
+
+  async findAll(): Promise<AdminRole[]> {
+    return this.roleRepo.find({ order: { created_at: 'ASC' } });
+  }
+
+  async updateRole(id: string, data: Partial<AdminRole>): Promise<AdminRole | null> {
+    await this.roleRepo.update(id, data);
+    return this.roleRepo.findOne({ where: { id } });
+  }
 }

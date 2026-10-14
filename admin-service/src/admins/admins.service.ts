@@ -36,4 +36,21 @@ export class AdminsService {
     const admin = this.adminRepo.create(data);
     return this.adminRepo.save(admin);
   }
+
+  async findAll(): Promise<AdminUser[]> {
+    return this.adminRepo.find({
+      relations: { role: true },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async updateAdmin(id: string, data: Partial<AdminUser>): Promise<AdminUser | null> {
+    await this.adminRepo.update(id, data);
+    return this.findById(id);
+  }
+
+  async deleteAdmin(id: string): Promise<boolean> {
+    const res = await this.adminRepo.delete(id);
+    return (res.affected ?? 0) > 0;
+  }
 }

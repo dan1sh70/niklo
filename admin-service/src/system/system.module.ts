@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { SystemController } from './system.controller.js';
-import { SystemService } from './system.service.js';
+import { HttpModule } from '@nestjs/axios';
+import { SystemController } from './system.controller';
+import { SystemService } from './system.service';
+import { ServicesProxyController } from './services-proxy.controller';
 
 @Module({
-  controllers: [SystemController],
-  providers: [SystemService]
+  imports: [HttpModule],
+  controllers: [SystemController, ServicesProxyController],
+  providers: [SystemService],
 })
 export class SystemModule {}

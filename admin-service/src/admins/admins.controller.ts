@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminsService } from './admins.service';
 import * as bcrypt from 'bcrypt';
@@ -30,5 +30,31 @@ export class AdminsController {
     await this.adminsService.updatePassword(req.user.id, hash);
     
     return { success: true };
+  }
+
+  @Get('all')
+  async getAllAdmins() {
+    const admins = await this.adminsService.findAll();
+    return admins.map(({ password_hash, totp_secret, ...rest }) => rest);
+  }
+
+  @Post('create')
+  async createNewAdmin(@Body() body: any) {
+    const { email, name, password, role_id } = body;
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password || 'Admin@123!', salt);
+    const newAdmin = await this.adminsService.createAdmin({
+      email,
+      name,
+      password_hash,
+      role_id,
+    });
+    const { password_hash: _, totp_secret: __, ...result } = newAdmin;
+    return result;
+  }
+
+  @Post(':id/status')
+  async toggleAdminStatus(@Param('id') id: string, @Body() body: { is_active: boolean }) {
+    return this.adminsService.updateAdmin(id, { is_active: body.is_active });
   }
 }
