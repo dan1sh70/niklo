@@ -10,26 +10,44 @@ export class BusAdminService {
 
   private async request(method: string, path: string, data?: any, params?: any, headers?: any) {
     const url = `${this.busServiceUrl}${path}`;
-    const response = await lastValueFrom(
-      this.httpService.request({
-        method,
-        url,
-        data,
-        params,
-        headers: {
-          'content-type': 'application/json',
-          'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key',
-          ...headers,
-        },
-        validateStatus: () => true,
-      })
-    );
+    
+    // Clean params so undefined / null values are not sent
+    const cleanParams: Record<string, any> = {};
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+    }
+
+    const config: any = {
+      method,
+      url,
+      headers: {
+        'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key',
+        ...headers,
+      },
+      validateStatus: () => true,
+    };
+
+    if (Object.keys(cleanParams).length > 0) {
+      config.params = cleanParams;
+    }
+
+    // Only set data and content-type if there is actually a body to send (POST/PATCH/PUT)
+    if (data !== undefined && data !== null) {
+      config.data = data;
+      config.headers['content-type'] = 'application/json';
+    }
+
+    const response = await lastValueFrom(this.httpService.request(config));
     return response.data;
   }
 
   // --- BUSES ---
   async getBuses(operatorId?: string) {
-    return this.request('GET', '/api/v1/bus/buses', null, { operator_id: operatorId });
+    return this.request('GET', '/api/v1/bus/buses', undefined, operatorId ? { operator_id: operatorId } : undefined);
   }
 
   async createBus(data: any, headers?: any) {

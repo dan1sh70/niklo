@@ -150,7 +150,7 @@ export default function BusesInventoryPage() {
                       <Armchair className="w-3.5 h-3.5 text-blue-500" /> {bus.total_seats} Seats
                     </span>
                   </div>
-                  {bus.amenities && (
+                  {bus.amenities && typeof bus.amenities === 'object' && !Array.isArray(bus.amenities) && (
                     <div className="pt-2 border-t border-slate-200/60 flex items-center gap-1.5 flex-wrap">
                       <span className="text-[10px] text-slate-400">Amenities:</span>
                       {Object.keys(bus.amenities).map((key) => (
