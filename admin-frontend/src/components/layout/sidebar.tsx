@@ -196,13 +196,40 @@ export function Sidebar({ className }: { className?: string }) {
           {openSubMenus['Inventory'] && (
             <div className="mt-1 pl-4 space-y-0.5 border-l-2 border-slate-100 ml-4">
               <Link
+                href="/inventory/buses"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  pathname.startsWith('/inventory/buses') ? "text-[#0066FF] bg-blue-50 font-semibold" : "text-slate-500 hover:text-slate-800"
+                )}
+              >
+                Bus Fleet
+              </Link>
+              <Link
+                href="/inventory/routes"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  pathname.startsWith('/inventory/routes') ? "text-[#0066FF] bg-blue-50 font-semibold" : "text-slate-500 hover:text-slate-800"
+                )}
+              >
+                Highway Routes
+              </Link>
+              <Link
+                href="/inventory/operators"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  pathname.startsWith('/inventory/operators') ? "text-[#0066FF] bg-blue-50 font-semibold" : "text-slate-500 hover:text-slate-800"
+                )}
+              >
+                Bus Operators
+              </Link>
+              <Link
                 href="/schedules"
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",
-                  pathname === '/schedules' ? "text-[#0066FF] bg-blue-50 font-semibold" : "text-slate-500 hover:text-slate-800"
+                  pathname.startsWith('/schedules') ? "text-[#0066FF] bg-blue-50 font-semibold" : "text-slate-500 hover:text-slate-800"
                 )}
               >
-                Bus Schedules
+                Bus Schedules & Seat Maps
               </Link>
               <Link
                 href="/inventory/hotels"

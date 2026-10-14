@@ -193,10 +193,15 @@ export default function BusSchedulesListPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <Link href={`/schedules/seats?id=${item.id}`}>
+                  <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5 text-blue-600 border-blue-200 hover:bg-blue-50 text-xs">
+                    Seat Map
+                  </Button>
+                </Link>
                 <Link href={`/schedules/edit?id=${item.id}`}>
-                  <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5 text-slate-600">
-                    <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
+                  <Button size="sm" variant="outline" className="rounded-xl h-8 px-2 text-slate-600">
+                    <Edit3 className="w-3.5 h-3.5" />
                   </Button>
                 </Link>
                 <Button
