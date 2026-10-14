@@ -6,11 +6,14 @@ import {
   IsOptional,
   IsObject,
   IsUUID,
+  Matches,
 } from 'class-validator';
 import { BusType } from '../entities/bus.entity';
 
 export class CreateBusDto {
-  @IsUUID('all')
+  @Matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, {
+    message: 'operator_id must be a UUID',
+  })
   @IsNotEmpty()
   operator_id: string;
 
