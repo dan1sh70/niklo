@@ -46,4 +46,68 @@ export class BookingsController {
   cancelBooking(@Req() req: any, @Param('bookingId') bookingId: string, @Body() dto: any) {
     return this.bookingsService.cancelBooking(req.user.id, bookingId, dto.reason);
   }
+
+  // --- HOTEL PARTNER BOOKING & SUMMARY ENDPOINTS --- //
+
+  @Get('hotel/partner/bookings')
+  getPartnerBookings(
+    @Req() req: any,
+    @Query('status') status?: string,
+    @Query('hotelId') hotelId?: string,
+  ) {
+    return this.bookingsService.getPartnerBookings(req.user.id, status, hotelId);
+  }
+
+  @Post('hotel/:bookingId/check-in')
+  @HttpCode(HttpStatus.OK)
+  checkInBooking(@Req() req: any, @Param('bookingId') bookingId: string) {
+    return this.bookingsService.checkInBooking(req.user.id, bookingId);
+  }
+
+  @Post('hotel/:bookingId/check-out')
+  @HttpCode(HttpStatus.OK)
+  checkOutBooking(@Req() req: any, @Param('bookingId') bookingId: string) {
+    return this.bookingsService.checkOutBooking(req.user.id, bookingId);
+  }
+
+  @Post('hotel/partner/:bookingId/cancel')
+  @HttpCode(HttpStatus.OK)
+  partnerCancelBooking(
+    @Req() req: any,
+    @Param('bookingId') bookingId: string,
+    @Body() body: { reason?: string },
+  ) {
+    return this.bookingsService.partnerCancelBooking(req.user.id, bookingId, body?.reason);
+  }
+
+  @Post('hotel/:bookingId/collect-cash')
+  @HttpCode(HttpStatus.OK)
+  collectCashAndCheckIn(@Req() req: any, @Param('bookingId') bookingId: string) {
+    return this.bookingsService.collectCashAndCheckIn(req.user.id, bookingId);
+  }
+
+  @Get('hotel/partner/summary')
+  getPartnerSummary(@Req() req: any) {
+    return this.bookingsService.getPartnerSummary(req.user.id);
+  }
+
+  @Get('hotel/partner/earnings')
+  getPartnerEarnings(@Req() req: any) {
+    return this.bookingsService.getPartnerEarnings(req.user.id);
+  }
+
+  @Get('hotel/partner/calendar')
+  getPartnerCalendar(@Req() req: any, @Query('days') days = '30') {
+    return this.bookingsService.getPartnerCalendar(req.user.id, parseInt(days, 10));
+  }
+
+  @Get('hotel/partner/occupancy/monthly')
+  getPartnerMonthlyOccupancy(@Req() req: any, @Query('months') months = '6') {
+    return this.bookingsService.getPartnerMonthlyOccupancy(req.user.id, parseInt(months, 10));
+  }
+
+  @Get('hotel/partner/notifications')
+  getPartnerNotifications(@Req() req: any, @Query('limit') limit = '30') {
+    return this.bookingsService.getPartnerNotifications(req.user.id, parseInt(limit, 10));
+  }
 }

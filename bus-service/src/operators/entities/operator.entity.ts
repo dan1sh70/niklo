@@ -37,6 +37,30 @@ export class Operator {
   @Column({ type: 'int', default: 0 })
   ratings_count: number;
 
+  @Column({ type: 'text', nullable: true })
+  business_address: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  pan_number: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  license_number: string;
+
+  @Column({ type: 'varchar', length: 30, default: 'APPROVED' })
+  verification_status: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  bank_name: string;
+
+  @Column({ type: 'text', nullable: true })
+  account_number_encrypted: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  ifsc_code: string;
+
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  account_holder_name: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 

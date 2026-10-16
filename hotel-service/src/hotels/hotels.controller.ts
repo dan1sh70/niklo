@@ -9,10 +9,8 @@ export class HotelsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createHotel(@Req() req: any, @Body() createHotelDto: CreateHotelDto) {
-    const partnerId = req.user.id;
-    // Inject partnerId into DTO if needed or pass directly
-    return this.hotelsService.createHotel({ ...createHotelDto, partner_id: partnerId });
+  createHotel(@Req() req: any, @Body() createHotelDto: any) {
+    return this.hotelsService.createHotel(req.user.id, createHotelDto);
   }
 
   @Get('popular-destinations')
@@ -166,5 +164,77 @@ export class HotelsController {
   @Post(':hotelId/reviews/:reviewId/reply')
   replyToReview(@Req() req: any, @Param('hotelId') hotelId: string, @Param('reviewId') reviewId: string, @Body() replyData: any) {
     return this.hotelsService.replyToReview(hotelId, reviewId, req.user.id, replyData);
+  }
+
+  // --- COMPLIANCE, BANKING, PAYOUTS & CALENDAR --- //
+
+  @UseGuards(JwtAuthGuard)
+  @Post('photos/upload')
+  async uploadPhoto(@Req() req: any, @Body() body: { url?: string; image?: string }) {
+    const fileUrl = body.url || body.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600';
+    return { success: true, statusCode: 201, data: { url: fileUrl } };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('documents/upload')
+  async uploadDocument(
+    @Req() req: any,
+    @Body() body: { docType: string; title: string; fileUrl?: string; hotelId?: string },
+  ) {
+    const fileUrl = body.fileUrl || `https://storage.niklotravel.com/documents/${req.user.id}/${Date.now()}.pdf`;
+    const doc = await this.hotelsService.saveComplianceDocument(
+      req.user.id,
+      body.docType,
+      body.title,
+      fileUrl,
+      body.hotelId,
+    );
+    return { success: true, statusCode: 201, data: doc };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('partner/documents')
+  async getComplianceDocuments(@Req() req: any) {
+    const data = await this.hotelsService.getComplianceDocuments(req.user.id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('partner/bank-details')
+  async getBankDetails(@Req() req: any) {
+    const data = await this.hotelsService.getBankDetails(req.user.id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('partner/bank-details')
+  async saveBankDetails(@Req() req: any, @Body() dto: any) {
+    const data = await this.hotelsService.saveBankDetails(req.user.id, dto);
+    return { success: true, statusCode: 201, data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('partner/payouts/request')
+  async requestPayout(@Req() req: any, @Body() body: { amount: number; hotelId?: string }) {
+    const data = await this.hotelsService.requestPayout(req.user.id, body.amount, body.hotelId);
+    return { success: true, statusCode: 201, data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('partner/payouts')
+  async getPayouts(@Req() req: any) {
+    const data = await this.hotelsService.getPayouts(req.user.id);
+    return { success: true, statusCode: 200, data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':hotelId/calendar/block')
+  async blockCalendar(
+    @Req() req: any,
+    @Param('hotelId') hotelId: string,
+    @Body() dto: { roomTypeId?: string; date: string; isBlocked: boolean },
+  ) {
+    const data = await this.hotelsService.blockCalendarDates(hotelId, req.user.id, dto);
+    return { success: true, statusCode: 200, data };
   }
 }

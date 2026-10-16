@@ -162,10 +162,21 @@ export class SchedulesService {
   async getSeatMap(id: string) {
     const seatData = await this.getSeats(id);
     
-    // Check Redis for currently locked seats
+    // Check Redis for currently locked seats using non-blocking scanStream (BE-BUS-003)
     const lockPattern = `lock:bus:${id}:*`;
-    const lockKeys = await this.redis.keys(lockPattern);
-    const lockedSeatNumbers = lockKeys.map(k => k.split(':').pop()!);
+    const lockedSeatNumbers: string[] = [];
+
+    const stream = this.redis.scanStream({
+      match: lockPattern,
+      count: 50,
+    });
+
+    for await (const resultKeys of stream) {
+      for (const key of resultKeys) {
+        const seatNo = key.split(':').pop();
+        if (seatNo) lockedSeatNumbers.push(seatNo);
+      }
+    }
     
     // Group seats by deck for the 2D grid representation and format to blueprint schema
     const formatSeat = (s: SeatLayout) => ({
@@ -250,7 +261,23 @@ export class SchedulesService {
     return {
       schedule_id: schedule.id,
       boarding_points: schedule.route?.boarding_points || [],
-      dropping_points: schedule.route?.dropping_points || []
+      dropping_points: schedule.route?.dropping_points || [],
     };
+  }
+
+  async releaseSeats(scheduleId: string, seatNumbers: string[]): Promise<void> {
+    const schedule = await this.findOne(scheduleId);
+    const currentBooked = schedule.booked_seats || [];
+    const updatedBookedSeats = currentBooked.filter((s) => !seatNumbers.includes(s));
+
+    await this.scheduleRepo
+      .createQueryBuilder()
+      .update()
+      .set({
+        available_seats: () => `available_seats + ${seatNumbers.length}`,
+        booked_seats: updatedBookedSeats,
+      })
+      .where('id = :scheduleId', { scheduleId })
+      .execute();
   }
 }

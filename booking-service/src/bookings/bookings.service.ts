@@ -70,6 +70,23 @@ export class BookingsService implements OnApplicationBootstrap {
     if (!booking) throw new NotFoundException('Booking not found');
     booking.status = BookingStatus.CANCELLED;
     await this.bookingRepo.save(booking);
+
+    // If this was a BUS booking, release seats on bus-service (BE-BUS-005)
+    if (booking.booking_type === BookingType.BUS && booking.reference_id && booking.seat_numbers?.length) {
+      try {
+        const busServiceUrl = process.env.BUS_SERVICE_URL || 'http://bus-service:3003';
+        await lastValueFrom(
+          this.httpService.post(
+            `${busServiceUrl}/api/v1/bus/schedules/${booking.reference_id}/release-seats`,
+            { seat_numbers: booking.seat_numbers },
+            { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } },
+          ),
+        );
+      } catch (e: any) {
+        console.error(`Failed to release seats on bus-service: ${e.message}`);
+      }
+    }
+
     return { status: 'cancelled', bookingId: id };
   }
 
@@ -416,18 +433,36 @@ export class BookingsService implements OnApplicationBootstrap {
       }
     } else if (booking.booking_type === BookingType.HOTEL && booking.reference_id) {
       try {
-        const hotelServiceUrl = process.env.HOTEL_SERVICE_URL || 'http://hotel-service:3008';
+        const hotelServiceUrl = process.env.HOTEL_SERVICE_URL || 'http://hotel-service:3004';
         await lastValueFrom(
           this.httpService.post(
             `${hotelServiceUrl}/api/v1/hotels/${booking.reference_id}/confirm-rooms`,
-            { 
+            {
               check_in: booking.travel_date,
-              rooms_count: 1 // Ideally coming from booking metadata
+              rooms_count: 1,
             },
-          )
+            { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } },
+          ),
         );
-      } catch (e) {
+      } catch (e: any) {
         console.error(`Failed to mark rooms booked on hotel-service: ${e.message}`);
+      }
+    } else if (booking.booking_type === BookingType.PACKAGE && booking.reference_id) {
+      try {
+        const packageServiceUrl = process.env.PACKAGE_SERVICE_URL || 'http://package-service:3012';
+        await lastValueFrom(
+          this.httpService.post(
+            `${packageServiceUrl}/api/v1/packages/${booking.reference_id}/confirm-booking`,
+            {
+              booking_id: booking.id,
+              travel_date: booking.travel_date,
+              total_amount: Number(booking.total_amount),
+            },
+            { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } },
+          ),
+        );
+      } catch (e: any) {
+        console.error(`Failed to notify package-service on booking: ${e.message}`);
       }
     }
 
@@ -512,21 +547,51 @@ export class BookingsService implements OnApplicationBootstrap {
     const bookings = await this.bookingRepo.find({
       where: { reference_id: referenceId, status: BookingStatus.CONFIRMED },
     });
-    
+
     const manifest: any[] = [];
     for (const b of bookings) {
       if (b.passenger_details && Array.isArray(b.passenger_details)) {
-        b.passenger_details.forEach(p => {
-           manifest.push({
-             seat: p.seat_number || p.seat || 'N/A',
-             passengerName: p.name || p.passengerName || p.full_name || 'Passenger',
-             age: p.age || 0,
-             gender: p.gender || 'U',
-             pnr: b.booking_reference,
-           });
+        b.passenger_details.forEach((p) => {
+          manifest.push({
+            seat: p.seat_number || p.seat || 'N/A',
+            passengerName: p.name || p.passengerName || p.full_name || 'Passenger',
+            age: p.age || 0,
+            gender: p.gender || 'U',
+            pnr: b.booking_reference,
+            contact_phone: b.contact_phone || 'N/A',
+            total_amount: Number(b.total_amount),
+            travel_date: b.travel_date,
+          });
         });
       }
     }
     return manifest;
+  }
+
+  async getOperatorBookingsInternal(
+    scheduleIds: string[],
+    page = 1,
+    limit = 20,
+    status?: BookingStatus,
+  ) {
+    if (!scheduleIds || scheduleIds.length === 0) {
+      return { bookings: [], total: 0 };
+    }
+
+    const query = this.bookingRepo
+      .createQueryBuilder('booking')
+      .where('booking.reference_id IN (:...scheduleIds)', { scheduleIds });
+
+    if (status) {
+      query.andWhere('booking.status = :status', { status });
+    }
+
+    const [bookings, total] = await query
+      .orderBy('booking.created_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { bookings, total };
   }
 }

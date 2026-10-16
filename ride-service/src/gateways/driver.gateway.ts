@@ -121,7 +121,10 @@ export class DriverGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   @SubscribeMessage('ride:accepted')
   async handleRideAccepted(
     @MessageBody() data: { rideId: string; driverId: string },
+    @ConnectedSocket() client: Socket,
   ) {
+    client.join(data.rideId);
+    this.logger.log(`Driver ${data.driverId} joined room ${data.rideId} upon ride acceptance`);
     await this.ridesService.acceptRide(data.rideId, data.driverId);
   }
 

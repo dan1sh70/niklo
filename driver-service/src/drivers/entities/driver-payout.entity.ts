@@ -39,7 +39,19 @@ export class DriverPayout {
   })
   status: PayoutStatus;
 
-  @Column({ type: 'timestamp with time zone' })
+  @Column({ type: 'varchar', nullable: true })
+  payout_id: string;
+
+  @Column({ type: 'text', nullable: true })
+  failure_reason: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  bank_account_number: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  ifsc_code: string;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
   scheduled_for: Date;
 
   @CreateDateColumn()

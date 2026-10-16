@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnApplicationBootstrap, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnApplicationBootstrap, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Hotel, StayType } from './entities/hotel.entity';
@@ -7,6 +7,10 @@ import { RoomType } from './entities/room-type.entity';
 import { PartnerOffer } from './entities/partner-offer.entity';
 import { PartnerReviewReply } from './entities/partner-review-reply.entity';
 import { Booking } from '../bookings/entities/booking.entity';
+import { HotelComplianceDocument } from './entities/hotel-compliance-document.entity';
+import { HotelBankDetail } from './entities/hotel-bank-detail.entity';
+import { HotelPayout } from './entities/hotel-payout.entity';
+import { PartnerCalendar } from './entities/partner-calendar.entity';
 import { computeStayPrice } from '../common/pricing.util';
 
 @Injectable()
@@ -24,6 +28,14 @@ export class HotelsService implements OnApplicationBootstrap {
     private readonly replyRepository: Repository<PartnerReviewReply>,
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
+    @InjectRepository(HotelComplianceDocument)
+    private readonly docRepository: Repository<HotelComplianceDocument>,
+    @InjectRepository(HotelBankDetail)
+    private readonly bankRepository: Repository<HotelBankDetail>,
+    @InjectRepository(HotelPayout)
+    private readonly payoutRepository: Repository<HotelPayout>,
+    @InjectRepository(PartnerCalendar)
+    private readonly calendarRepository: Repository<PartnerCalendar>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -195,14 +207,32 @@ export class HotelsService implements OnApplicationBootstrap {
   }
 
   async getActivePromotions() {
+    const offer = await this.offerRepository.findOne({
+      where: { is_active: true },
+      order: { created_at: 'DESC' },
+    });
+
+    if (offer) {
+      return {
+        offer: {
+          id: offer.id,
+          title: offer.title,
+          description: offer.description || 'Exclusive deal on select partner properties!',
+          cta: 'Grab Deal',
+          imagePath: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
+          expiresAt: offer.valid_to ? new Date(offer.valid_to).toISOString() : new Date(Date.now() + 30 * 86400000).toISOString(),
+        },
+      };
+    }
+
     return {
       offer: {
         id: 'promo_001',
         title: 'Exclusive Members Offer',
         description: 'Save up to 30% on select hotels this weekend!',
         cta: 'Grab Deal',
-        imagePath: 'https://cdn.niklo.com/promos/exclusive_banner.jpg',
-        expiresAt: '2025-12-31T23:59:59Z',
+        imagePath: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
+        expiresAt: new Date(Date.now() + 60 * 86400000).toISOString(),
       },
     };
   }
@@ -474,8 +504,20 @@ export class HotelsService implements OnApplicationBootstrap {
     };
   }
 
-  async createHotel(createHotelDto: any) {
-    const hotel = this.hotelRepository.create(createHotelDto);
+  async createHotel(partnerId: string, dto: any) {
+    const hotel = this.hotelRepository.create({
+      partnerId: partnerId,
+      title: dto.title || dto.hotelName,
+      city: dto.city || (dto.address ? dto.address.split(',')[0].trim() : 'Bengaluru'),
+      address: dto.address || '',
+      stay_type: dto.stay_type || dto.badgeText || StayType.HOTEL,
+      description: dto.description || '',
+      image_url: dto.image_url || dto.imagePath || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
+      price_per_night: dto.price_per_night || dto.priceInt || 3500,
+      badge_text: dto.badgeText || 'New Property',
+      total_rooms_count: Number(dto.total_rooms_count || dto.totalRooms || 1),
+      is_active: true,
+    });
     return await this.hotelRepository.save(hotel);
   }
 
@@ -493,8 +535,38 @@ export class HotelsService implements OnApplicationBootstrap {
     const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
     if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
 
-    const room = this.roomRepository.create({ ...roomData, hotel });
-    return this.roomRepository.save(room);
+    const room = this.roomRepository.create({
+      hotel,
+      title: roomData.title,
+      bed_type: roomData.roomType || roomData.bed_type || 'King Bed',
+      price_per_night: Number(roomData.price || roomData.price_per_night || 0),
+      available_rooms_count: Number(roomData.totalRooms || roomData.available_rooms_count || 1),
+      room_size_sqft: Number(roomData.size || roomData.room_size_sqft || 250),
+      max_guests: Number(roomData.guestCount?.toString().replace(/\D/g, '') || roomData.max_guests || 2),
+      max_adults: Number(roomData.max_adults || 2),
+      max_children: Number(roomData.max_children || 1),
+      meal_plan: roomData.mealPlan || roomData.meal_plan || 'Room Only',
+      meal_plan_desc: roomData.mealPlanDesc || roomData.meal_plan_desc,
+      amenities: roomData.amenities || [],
+      images: roomData.images || [],
+      inclusions: roomData.inclusions || [],
+      is_active: true,
+    });
+
+    const saved = await this.roomRepository.save(room);
+    return {
+      id: saved.id,
+      title: saved.title,
+      roomType: saved.bed_type,
+      price: Number(saved.price_per_night),
+      totalRooms: saved.available_rooms_count,
+      size: `${saved.room_size_sqft}`,
+      guestCount: `${saved.max_guests} Guests`,
+      amenities: saved.amenities,
+      images: saved.images,
+      mealPlan: saved.meal_plan,
+      isActive: saved.is_active,
+    };
   }
 
   async updateHotelRoom(hotelId: string, roomId: string, partnerId: string, roomData: any) {
@@ -504,7 +576,20 @@ export class HotelsService implements OnApplicationBootstrap {
     const room = await this.roomRepository.findOne({ where: { id: roomId, hotel: { id: hotelId } } });
     if (!room) throw new NotFoundException('Room not found');
 
-    Object.assign(room, roomData);
+    if (roomData.title) room.title = roomData.title;
+    if (roomData.price !== undefined || roomData.price_per_night !== undefined) {
+      room.price_per_night = Number(roomData.price ?? roomData.price_per_night);
+    }
+    if (roomData.totalRooms !== undefined || roomData.available_rooms_count !== undefined) {
+      room.available_rooms_count = Number(roomData.totalRooms ?? roomData.available_rooms_count);
+    }
+    if (roomData.size !== undefined || roomData.room_size_sqft !== undefined) {
+      room.room_size_sqft = Number(roomData.size ?? roomData.room_size_sqft);
+    }
+    if (roomData.amenities) room.amenities = roomData.amenities;
+    if (roomData.images) room.images = roomData.images;
+    if (roomData.mealPlan || roomData.meal_plan) room.meal_plan = roomData.mealPlan || roomData.meal_plan;
+
     return this.roomRepository.save(room);
   }
 
@@ -560,11 +645,110 @@ export class HotelsService implements OnApplicationBootstrap {
     const review = await this.reviewRepository.findOne({ where: { id: reviewId, hotel: { id: hotelId } } });
     if (!review) throw new NotFoundException('Review not found');
 
+    const replyText = replyData.reply || replyData.message || replyData.reply_text || '';
+    review.property_reply = replyText;
+    await this.reviewRepository.save(review);
+
     const reply = this.replyRepository.create({
       ...replyData,
       review,
       partnerId,
     });
     return this.replyRepository.save(reply);
+  }
+
+  // --- COMPLIANCE, BANKING, PAYOUTS & CALENDAR --- //
+
+  async saveComplianceDocument(partnerId: string, docType: string, title: string, fileUrl: string, hotelId?: string) {
+    const doc = this.docRepository.create({
+      partner_id: partnerId,
+      hotel_id: hotelId || null as any,
+      doc_type: docType,
+      title,
+      file_url: fileUrl,
+      status: 'PENDING',
+    });
+    return await this.docRepository.save(doc);
+  }
+
+  async getComplianceDocuments(partnerId: string) {
+    return await this.docRepository.find({ where: { partner_id: partnerId } });
+  }
+
+  async saveBankDetails(partnerId: string, dto: any) {
+    let bank = await this.bankRepository.findOne({ where: { partner_id: partnerId } });
+    if (bank) {
+      Object.assign(bank, dto);
+      return await this.bankRepository.save(bank);
+    } else {
+      const newBank = this.bankRepository.create({ ...dto, partner_id: partnerId }) as unknown as HotelBankDetail;
+      return await this.bankRepository.save(newBank);
+    }
+  }
+
+  async getBankDetails(partnerId: string) {
+    return await this.bankRepository.findOne({ where: { partner_id: partnerId } });
+  }
+
+  async requestPayout(partnerId: string, amount: number, hotelId?: string) {
+    const bank = await this.bankRepository.findOne({ where: { partner_id: partnerId } });
+    if (!bank) {
+      throw new BadRequestException('Please link and verify a bank account before requesting a payout.');
+    }
+
+    const commissionPercent = 10;
+    const commission = Math.round(amount * (commissionPercent / 100) * 100) / 100;
+    const tds = Math.round(amount * 0.01 * 100) / 100;
+    const net = Math.round((amount - commission - tds) * 100) / 100;
+
+    const payout = this.payoutRepository.create({
+      payout_ref: `HTL-PAY-${Date.now().toString().slice(-6)}`,
+      partner_id: partnerId,
+      hotel_id: hotelId || null as any,
+      amount,
+      commission_deducted: commission,
+      tds_deducted: tds,
+      net_disbursed: net,
+      status: 'REQUESTED',
+      transfer_mode: 'NEFT',
+    });
+
+    return await this.payoutRepository.save(payout);
+  }
+
+  async getPayouts(partnerId: string) {
+    return await this.payoutRepository.find({
+      where: { partner_id: partnerId },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async blockCalendarDates(hotelId: string, partnerId: string, dto: { roomTypeId?: string; date: string; isBlocked: boolean }) {
+    const hotel = await this.hotelRepository.findOne({ where: { id: hotelId, partnerId } });
+    if (!hotel) throw new ForbiddenException('Access denied or hotel not found');
+
+    const calDate = new Date(dto.date);
+    let cal = await this.calendarRepository.findOne({
+      where: {
+        hotel_id: hotelId,
+        room_type_id: dto.roomTypeId || hotelId,
+        date: calDate,
+      },
+    });
+
+    if (cal) {
+      cal.blocked = dto.isBlocked ? 1 : 0;
+    } else {
+      cal = this.calendarRepository.create({
+        hotel_id: hotelId,
+        room_type_id: dto.roomTypeId || hotelId,
+        date: calDate,
+        blocked: dto.isBlocked ? 1 : 0,
+        total_available: 0,
+        booked: 0,
+      });
+    }
+
+    return await this.calendarRepository.save(cal);
   }
 }

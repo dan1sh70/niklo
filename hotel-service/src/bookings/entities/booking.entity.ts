@@ -85,4 +85,16 @@ export class Booking {
 
   @Column({ nullable: true })
   cancellationReason: string;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  checkedInAt: Date;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  checkedOutAt: Date;
+
+  @Column({ type: 'jsonb', nullable: true, default: {} })
+  priceBreakdown: any;
+
+  @Column({ nullable: true })
+  guestName: string;
 }

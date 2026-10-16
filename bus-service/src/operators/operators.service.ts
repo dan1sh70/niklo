@@ -9,6 +9,9 @@ import { Bus } from '../buses/entities/bus.entity';
 import { Schedule, ScheduleStatus } from '../schedules/entities/schedule.entity';
 import { OperatorReview } from './entities/operator-review.entity';
 
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
+
 @Injectable()
 export class OperatorsService {
   constructor(
@@ -20,6 +23,7 @@ export class OperatorsService {
     private readonly scheduleRepo: Repository<Schedule>,
     @InjectRepository(OperatorReview)
     private readonly reviewRepo: Repository<OperatorReview>,
+    private readonly httpService: HttpService,
   ) {}
 
   async create(dto: CreateOperatorDto): Promise<Operator> {
@@ -54,26 +58,44 @@ export class OperatorsService {
   }
 
   async getSummary(id: string): Promise<any> {
-    const today = new Date().toISOString().split('T')[0];
-    
-    const totalBuses = await this.busRepo.count({ where: { operator_id: id } });
-    
-    const schedulesToday = await this.scheduleRepo.find({
-      where: { operator_id: id, departure_date: today },
+    const now = new Date();
+    const todayDateStr = now.toISOString().split('T')[0];
+    const weekDays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    const todayWeekday = weekDays[now.getDay()];
+
+    const totalBuses = await this.busRepo.count({ where: { operator_id: id, is_active: true } });
+
+    // Query one-off schedules dated today OR recurring schedules operating on today's weekday
+    const allActiveSchedules = await this.scheduleRepo.find({
+      where: { operator_id: id },
       relations: { bus: true },
     });
 
-    const activeSchedulesToday = schedulesToday.filter(s => s.status === ScheduleStatus.SCHEDULED || s.status === ScheduleStatus.IN_TRANSIT).length;
-    
+    const schedulesToday = allActiveSchedules.filter((s) => {
+      if (s.status !== ScheduleStatus.SCHEDULED && s.status !== ScheduleStatus.IN_TRANSIT) {
+        return false;
+      }
+      // Check one-off date match
+      if (s.departure_date === todayDateStr) return true;
+
+      // Check recurring operating days
+      if (s.operating_days && Array.isArray(s.operating_days)) {
+        return s.operating_days.includes(todayWeekday);
+      }
+      return false;
+    });
+
+    const activeSchedulesToday = schedulesToday.length;
     let totalTicketsSoldToday = 0;
     let totalEarningsToday = 0;
     let totalCapacity = 0;
 
     for (const schedule of schedulesToday) {
-      const sold = schedule.bus.total_seats - schedule.available_seats;
+      const totalBusSeats = schedule.bus?.total_seats || schedule.available_seats;
+      const sold = Math.max(0, totalBusSeats - schedule.available_seats);
       totalTicketsSoldToday += sold;
       totalEarningsToday += sold * Number(schedule.base_fare);
-      totalCapacity += schedule.bus.total_seats;
+      totalCapacity += totalBusSeats;
     }
 
     const occupancyRatePercent = totalCapacity > 0 ? (totalTicketsSoldToday / totalCapacity) * 100 : 0;
@@ -85,6 +107,62 @@ export class OperatorsService {
       total_earnings_today: totalEarningsToday,
       occupancy_rate_percent: Number(occupancyRatePercent.toFixed(2)),
     };
+  }
+
+  async getOperatorBookings(operatorId: string, page = 1, limit = 20, status?: string) {
+    const schedules = await this.scheduleRepo.find({
+      where: { operator_id: operatorId },
+      select: {
+        id: true,
+        departure_date: true,
+        departure_time: true,
+        route_id: true,
+      },
+      relations: { route: true },
+    });
+
+    if (schedules.length === 0) {
+      return { bookings: [], total: 0 };
+    }
+
+    const scheduleMap = new Map(schedules.map((s) => [s.id, s]));
+    const scheduleIds = schedules.map((s) => s.id);
+
+    try {
+      const bookingServiceUrl = process.env.BOOKING_SERVICE_URL || 'http://booking-service:3014';
+      const response = await lastValueFrom(
+        this.httpService.post(
+          `${bookingServiceUrl}/api/v1/bookings/internal/operator-bookings`,
+          { schedule_ids: scheduleIds, page, limit, status },
+          { headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key' } },
+        ),
+      );
+
+      const rawBookings = response.data?.data?.bookings || response.data?.bookings || [];
+      const total = response.data?.data?.total ?? response.data?.total ?? rawBookings.length;
+
+      const enrichedBookings = rawBookings.map((b: any) => {
+        const sched = scheduleMap.get(b.reference_id);
+        return {
+          id: b.id,
+          schedule_id: b.reference_id,
+          booking_reference: b.booking_reference,
+          passenger_name: b.passenger_details?.[0]?.name || b.title,
+          contact_phone: b.contact_phone,
+          seat_numbers: b.seat_numbers || [],
+          total_amount: Number(b.total_amount),
+          status: b.status,
+          travel_date: b.travel_date || sched?.departure_date,
+          departure_time: sched?.departure_time,
+          route: sched?.route ? `${sched.route.source_city} → ${sched.route.destination_city}` : 'Direct Route',
+          passenger_details: b.passenger_details || [],
+        };
+      });
+
+      return { bookings: enrichedBookings, total };
+    } catch (e: any) {
+      return { bookings: [], total: 0, error: e.message };
+    }
   }
 
   async getReviews(operatorId: string, page: number = 1, limit: number = 10) {

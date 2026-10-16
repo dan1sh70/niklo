@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PackageBooking } from './entities/package-booking.entity';
 import { PackageBookingTraveler } from './entities/package-booking-traveler.entity';
 import { PackageBookingCancellation } from './entities/package-booking-cancellation.entity';
+import { HolidayPackage } from '../../packages/entities/holiday-package.entity';
 import { PdfUtil } from '../common/utils/pdf.util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
@@ -16,18 +17,45 @@ export class BookingsPartnerService {
     private readonly travelerRepository: Repository<PackageBookingTraveler>,
     @InjectRepository(PackageBookingCancellation)
     private readonly cancellationRepository: Repository<PackageBookingCancellation>,
+    @InjectRepository(HolidayPackage)
+    private readonly packageRepository: Repository<HolidayPackage>,
   ) {}
 
   async listBookings(partnerId: string, status?: string) {
     const where: any = { partner_id: partnerId };
-    if (status) {
+    if (status && status !== 'ALL') {
       where.status = status;
     }
     const bookings = await this.bookingRepository.find({
       where,
-      order: { created_at: 'DESC' }
+      order: { created_at: 'DESC' },
     });
-    return bookings;
+
+    if (bookings.length === 0) return [];
+
+    const packageIds = [...new Set(bookings.map((b) => b.package_id))];
+    const bookingIds = bookings.map((b) => b.id);
+
+    const [packages, travelers] = await Promise.all([
+      this.packageRepository.findBy({ id: In(packageIds) }),
+      this.travelerRepository.find({ where: { booking_id: In(bookingIds), is_primary: true } }),
+    ]);
+
+    const packageMap = new Map(packages.map((p) => [p.id, p]));
+    const travelerMap = new Map(travelers.map((t) => [t.booking_id, t]));
+
+    return bookings.map((b) => {
+      const pkg = packageMap.get(b.package_id);
+      const traveler = travelerMap.get(b.id);
+      return {
+        ...b,
+        package_title: pkg?.title || 'Tour Package',
+        cover_image_url: (pkg as any)?.cover_image_url || '',
+        guest_name: traveler?.full_name || 'Guest Traveler',
+        guest_phone: traveler?.phone || '',
+        guest_email: traveler?.email || '',
+      };
+    });
   }
 
   async getBooking(partnerId: string, bookingId: string) {

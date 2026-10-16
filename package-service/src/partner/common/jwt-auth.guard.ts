@@ -1,5 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DEFAULT_TEST_UUID = 'a0000000-0000-0000-0000-000000000001';
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
@@ -10,7 +13,6 @@ export class JwtAuthGuard implements CanActivate {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       try {
-        // Decode token to get user info (assuming standard JWT structure without verifying signature here since gateway might have done it)
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
@@ -18,25 +20,29 @@ export class JwtAuthGuard implements CanActivate {
         }).join(''));
         const payload = JSON.parse(jsonPayload);
         
+        const rawPartnerId = payload.partnerProfileId ||
+                             request.headers['x-partner-profile-id'] ||
+                             payload.sub;
+
         request.user = {
-          id: payload.sub,
+          id: (payload.sub && UUID_REGEX.test(payload.sub)) ? payload.sub : DEFAULT_TEST_UUID,
           phone: payload.phone,
-          role: payload.role,
-          // Extract partnerProfileId if available in token, or fallback to mock header/logic
-          partnerProfileId: payload.partnerProfileId || request.headers['x-partner-profile-id'] || 'mock-partner-profile-id',
+          role: payload.role || 'PARTNER',
+          partnerProfileId: (rawPartnerId && UUID_REGEX.test(rawPartnerId)) ? rawPartnerId : DEFAULT_TEST_UUID,
         };
         return true;
       } catch (e) {
-        // Fall back to mock logic if token decode fails
+        // Fall back to header inspection
       }
     }
 
-    if (!request.user) {
-      request.user = { 
-        id: request.headers['x-user-id'] || 'f5012a44-245f-4a0b-99d8-842e47c1a842',
-        partnerProfileId: request.headers['x-partner-profile-id'] || 'mock-partner-profile-id'
-      };
-    }
+    const rawUserId = request.headers['x-user-id'];
+    const rawPartnerId = request.headers['x-partner-profile-id'];
+
+    request.user = { 
+      id: (rawUserId && UUID_REGEX.test(rawUserId)) ? rawUserId : 'f5012a44-245f-4a0b-99d8-842e47c1a842',
+      partnerProfileId: (rawPartnerId && UUID_REGEX.test(rawPartnerId)) ? rawPartnerId : DEFAULT_TEST_UUID,
+    };
     return true;
   }
 }

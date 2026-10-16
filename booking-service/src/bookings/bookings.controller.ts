@@ -106,4 +106,19 @@ export class BookingsController {
     const data = await this.bookingsService.cancelBookingInternal(id);
     return { success: true, statusCode: 200, data };
   }
+
+  @Post('internal/operator-bookings')
+  @UseGuards(InternalOnlyGuard)
+  @HttpCode(HttpStatus.OK)
+  async getOperatorBookingsInternal(
+    @Body() body: { schedule_ids: string[]; page?: number; limit?: number; status?: any },
+  ) {
+    const data = await this.bookingsService.getOperatorBookingsInternal(
+      body.schedule_ids,
+      body.page || 1,
+      body.limit || 20,
+      body.status,
+    );
+    return { success: true, statusCode: 200, data };
+  }
 }

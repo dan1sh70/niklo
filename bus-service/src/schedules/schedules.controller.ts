@@ -90,6 +90,17 @@ export class SchedulesController {
     return { success: true, statusCode: 200, message: 'Seats marked as booked' };
   }
 
+  @Post(':id/release-seats')
+  @UseGuards(InternalOnlyGuard)
+  @HttpCode(HttpStatus.OK)
+  async releaseSeats(
+    @Param('id') scheduleId: string,
+    @Body() body: { seat_numbers: string[] },
+  ) {
+    await this.schedulesService.releaseSeats(scheduleId, body.seat_numbers);
+    return { success: true, statusCode: 200, message: 'Seats released successfully' };
+  }
+
   @Get(':id/boarding-points')
   async getBoardingPoints(@Param('id') id: string) {
     const data = await this.schedulesService.getBoardingPoints(id);

@@ -10,9 +10,25 @@ import { PartnerOffer } from './entities/partner-offer.entity';
 import { PartnerReviewReply } from './entities/partner-review-reply.entity';
 import { PartnerCalendar } from './entities/partner-calendar.entity';
 import { Booking } from '../bookings/entities/booking.entity';
+import { HotelComplianceDocument } from './entities/hotel-compliance-document.entity';
+import { HotelBankDetail } from './entities/hotel-bank-detail.entity';
+import { HotelPayout } from './entities/hotel-payout.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Hotel, RoomType, Review, PartnerOffer, PartnerReviewReply, PartnerCalendar, Booking])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Hotel,
+      RoomType,
+      Review,
+      PartnerOffer,
+      PartnerReviewReply,
+      PartnerCalendar,
+      Booking,
+      HotelComplianceDocument,
+      HotelBankDetail,
+      HotelPayout,
+    ]),
+  ],
   controllers: [HotelsController],
   providers: [HotelsService],
 })

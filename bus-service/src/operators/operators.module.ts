@@ -8,8 +8,13 @@ import { OperatorsController } from './operators.controller';
 import { Bus } from '../buses/entities/bus.entity';
 import { Schedule } from '../schedules/entities/schedule.entity';
 
+import { HttpModule } from '@nestjs/axios';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Operator, OperatorReview, Bus, Schedule])],
+  imports: [
+    TypeOrmModule.forFeature([Operator, OperatorReview, Bus, Schedule]),
+    HttpModule,
+  ],
   controllers: [OperatorsController],
   providers: [OperatorsService],
   exports: [OperatorsService],

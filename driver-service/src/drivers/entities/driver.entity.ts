@@ -26,6 +26,18 @@ export class Driver {
   @Column({ type: 'varchar', length: 50, nullable: true })
   vehicle_number: string;
 
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  name: string;
+
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  email: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  preferred_language: string;
+
+  @Column({ type: 'numeric', precision: 3, scale: 2, nullable: true, default: 5.0 })
+  rating: number;
+
   @Column({ type: 'varchar', length: 20, nullable: true })
   aadhaar_number: string;
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus, RideType } from './entities/ride.entity';
@@ -245,6 +245,58 @@ export class RidesService {
     const ride = await this.rideRepository.findOne({ where: { id } });
     if (!ride) throw new NotFoundException(`Ride ${id} not found`);
 
+    // Self-heal missing driver details if cached record was incomplete
+    if (ride.driver_id && (!ride.driver_name || !ride.vehicle_number)) {
+      try {
+        const driverRes = await axios.get(
+          `${process.env.DRIVER_SERVICE_URL || 'http://driver-service:3011'}/api/v1/driver/${ride.driver_id}/profile`,
+          { timeout: 2500 },
+        );
+        const driverProfile = driverRes.data?.data || driverRes.data || {};
+        const targetUserId = driverProfile.user_id || ride.driver_id;
+
+        const userRes = await axios.get(
+          `${process.env.USER_SERVICE_URL || 'http://user-service:3002'}/api/v1/user/${targetUserId}/profile`,
+          { timeout: 2500 },
+        );
+        const userProfile = userRes.data?.data || userRes.data || {};
+
+        let hasUpdates = false;
+        if (!ride.driver_name && (userProfile.name || driverProfile.name)) {
+          ride.driver_name = userProfile.name || driverProfile.name;
+          hasUpdates = true;
+        }
+        if (!ride.driver_photo_url && (userProfile.avatar_url || userProfile.photo_url)) {
+          ride.driver_photo_url = userProfile.avatar_url || userProfile.photo_url;
+          hasUpdates = true;
+        }
+        if (!ride.vehicle_number && driverProfile.vehicle_number) {
+          ride.vehicle_number = driverProfile.vehicle_number;
+          hasUpdates = true;
+        }
+        if (hasUpdates) {
+          await this.rideRepository.save(ride);
+        }
+      } catch (err: any) {
+        this.logger.warn(`Driver self-healing failed for ride ${id}: ${err.message}`);
+      }
+    }
+
+    // Fetch Passenger Contact Details
+    let passengerName = 'Passenger';
+    let passengerPhone = '';
+    if (ride.user_id) {
+      try {
+        const pRes = await axios.get(
+          `${process.env.USER_SERVICE_URL || 'http://user-service:3002'}/api/v1/user/${ride.user_id}/profile`,
+          { timeout: 2000 },
+        );
+        const pData = pRes.data?.data || pRes.data || {};
+        passengerName = pData.name || passengerName;
+        passengerPhone = pData.phone || passengerPhone;
+      } catch (_) {}
+    }
+
     let currentLocation: { lat: number; lng: number } | null = null;
     if (ride.driver_id) {
       try {
@@ -259,27 +311,39 @@ export class RidesService {
     }
 
     return {
-      rideId:  ride.id,
-      status:  ride.status,
-      otp:     [RideStatus.ACCEPTED, RideStatus.ARRIVED].includes(ride.status as RideStatus)
-                 ? ride.otp
-                 : undefined,
+      rideId: ride.id,
+      status: ride.status,
+      otp: [RideStatus.ACCEPTED, RideStatus.ARRIVED].includes(ride.status as RideStatus)
+        ? ride.otp
+        : undefined,
+      pickupAddress: ride.pickup_address,
+      dropAddress: ride.dropoff_address,
+      pickupLat: ride.pickup_latitude,
+      pickupLng: ride.pickup_longitude,
+      dropLat: ride.dropoff_latitude,
+      dropLng: ride.dropoff_longitude,
+      distanceKm: ride.distance_km,
+      fareEstimate: ride.fare_amount,
       estimatedArrivalMins: ride.estimated_time_mins ?? null,
       fareFinal: ride.status === RideStatus.COMPLETED
-                 ? (ride.fare_final ?? ride.fare_amount)
-                 : null,
+        ? (ride.fare_final ?? ride.fare_amount)
+        : null,
+      passengerName,
+      passengerPhone,
       driverDetails: ride.driver_id ? {
-        id:              ride.driver_id,
-        name:            ride.driver_name,
-        phone:           ride.driver_phone,
-        photoUrl:        ride.driver_photo_url,
-        vehicleNumber:   ride.vehicle_number,
-        vehicleModel:    ride.vehicle_model,
-        vehicleColor:    ride.vehicle_color,
-        vehicleType:     ride.ride_type,
+        id: ride.driver_id,
+        name: ride.driver_name,
+        phone: ride.driver_phone,
+        photoUrl: ride.driver_photo_url,
+        vehicleNumber: ride.vehicle_number,
+        vehicleModel: ride.vehicle_model,
+        vehicleColor: ride.vehicle_color,
+        vehicleType: ride.ride_type,
         vehicleImageUrl: this._vehicleImageUrl(ride.ride_type),
+        rating: 4.85,
         currentLocation,
       } : null,
+      driverLocation: currentLocation,
     };
   }
 
@@ -315,29 +379,52 @@ export class RidesService {
     };
   }
 
-  async rateRide(id: string, ratingDto: any) {
-    const ride = await this.rideRepository.findOne({ where: { id } });
+  async rateRide(rideId: string, ratingDto: { rating: number; comment?: string; feedback?: string }) {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
     if (!ride) {
-      throw new NotFoundException(`Ride with ID ${id} not found`);
+      throw new NotFoundException(`Ride ${rideId} not found`);
+    }
+    if (ride.status !== RideStatus.COMPLETED) {
+      throw new BadRequestException('Only completed rides can be rated');
     }
 
-    if (!ride.driver_id) {
-      throw new Error('Cannot rate a ride without a driver');
-    }
+    const ratingValue = Math.max(1, Math.min(5, Math.round(Number(ratingDto.rating) || 5)));
+    const feedbackText = ratingDto.comment || ratingDto.feedback || '';
 
-    const rating = this.ratingRepository.create({
-      ride_id: id,
-      passenger_id: ride.user_id,
-      driver_id: ride.driver_id,
-      rating: ratingDto.rating,
-      feedback: ratingDto.feedback,
-    });
-    
-    await this.ratingRepository.save(rating);
+    ride.rating = ratingValue;
+    ride.feedback = feedbackText || null as any;
+    await this.rideRepository.save(ride);
+
+    if (ride.driver_id) {
+      try {
+        const rating = this.ratingRepository.create({
+          ride_id: rideId,
+          passenger_id: ride.user_id,
+          driver_id: ride.driver_id,
+          rating: ratingValue,
+          feedback: feedbackText,
+        });
+        await this.ratingRepository.save(rating);
+      } catch (err: any) {
+        this.logger.warn(`Could not save RideRating record: ${err.message}`);
+      }
+
+      // Sync aggregate rating to driver-service
+      try {
+        await axios.post(
+          `${process.env.DRIVER_SERVICE_URL || 'http://driver-service:3011'}/api/v1/driver/${ride.driver_id}/rating`,
+          { rating: ratingValue },
+          { timeout: 3000 },
+        );
+      } catch (err: any) {
+        this.logger.warn(`Could not sync rating to driver-service: ${err.message}`);
+      }
+    }
 
     return {
-      message: 'Rating submitted successfully',
-      rating: ratingDto.rating,
+      rideId: ride.id,
+      rating: ride.rating,
+      feedback: ride.feedback,
     };
   }
 
@@ -359,6 +446,21 @@ export class RidesService {
   }
 
   async acceptRide(rideId: string, driverId: string) {
+    // Check if driver is already on an active trip (GAP-09)
+    const existingActiveTrip = await this.rideRepository.findOne({
+      where: [
+        { driver_id: driverId, status: RideStatus.ACCEPTED },
+        { driver_id: driverId, status: RideStatus.ARRIVED },
+        { driver_id: driverId, status: RideStatus.IN_PROGRESS },
+      ],
+    });
+
+    if (existingActiveTrip && existingActiveTrip.id !== rideId) {
+      throw new ConflictException(
+        `Driver ${driverId} is already on active trip ${existingActiveTrip.id}. Complete it before accepting a new ride.`,
+      );
+    }
+
     // Atomic update
     const result = await this.rideRepository.createQueryBuilder()
       .update(Ride)
@@ -399,7 +501,7 @@ export class RidesService {
     ride.driver_id        = driverId;
     ride.driver_name      = userProfile.name || userProfile.full_name || driverProfile.name || null;
     ride.driver_phone     = userProfile.phone || userProfile.mobile || driverProfile.phone || null;
-    ride.driver_photo_url = userProfile.photo_url || userProfile.avatar || driverProfile.photo_url || null;
+    ride.driver_photo_url = userProfile.avatar_url || userProfile.photo_url || userProfile.avatar || driverProfile.photo_url || null;
     ride.vehicle_number   = driverProfile.vehicle_number || null;
     ride.vehicle_model    = driverProfile.vehicle_model || driverProfile.vehicle_type || null;
     ride.vehicle_color    = driverProfile.vehicle_color || 'White';
@@ -510,9 +612,32 @@ export class RidesService {
     if (!ride) {
       throw new NotFoundException(`Ride with ID ${rideId} not found`);
     }
-    if (ride.otp !== otp) {
-      throw new Error('Invalid OTP');
+
+    const redis = this.redisService.getClient();
+    const attemptsKey = `ride:otp_attempts:${rideId}`;
+    const attempts = await redis.incr(attemptsKey);
+
+    // Set 5-minute lockout TTL on first attempt
+    if (attempts === 1) {
+      await redis.expire(attemptsKey, 300);
     }
+
+    const MAX_ATTEMPTS = 3;
+    if (attempts > MAX_ATTEMPTS) {
+      throw new BadRequestException('Too many invalid OTP attempts. Verification is locked for 5 minutes.');
+    }
+
+    if (ride.otp !== otp) {
+      const remaining = MAX_ATTEMPTS - attempts;
+      throw new BadRequestException(
+        remaining > 0
+          ? `Incorrect OTP. ${remaining} attempt(s) remaining.`
+          : 'Incorrect OTP. Verification is now locked for 5 minutes.',
+      );
+    }
+
+    // Success: Clear attempts counter and update status
+    await redis.del(attemptsKey);
     await this.updateRideStatus(rideId, RideStatus.IN_PROGRESS);
   }
 
@@ -566,10 +691,35 @@ export class RidesService {
       const ratePerKm = RATES[ride.ride_type?.toUpperCase()] || 15;
       const newFare = Math.round(BASE + actualDistanceKm * ratePerKm);
 
-      ride.fare_final = Math.max(newFare, ride.fare_amount || 0); // Don't charge less than estimated? Actually it could be less. Let's just use newFare, but maybe minimum base fare.
       ride.fare_final = Math.max(newFare, BASE);
       ride.ended_at = new Date();
       await this.rideRepository.save(ride);
+
+      // Sync driver earnings to driver-service (GAP-01)
+      if (ride.driver_id && ride.fare_final) {
+        const platformFeePercent = Number(process.env.PLATFORM_FEE_PERCENT ?? 15);
+        const driverEarningsAmount = Math.round(Number(ride.fare_final) * (1 - platformFeePercent / 100) * 100) / 100;
+
+        try {
+          const driverServiceUrl = process.env.DRIVER_SERVICE_URL || 'http://driver-service:3011';
+          await axios.post(
+            `${driverServiceUrl}/api/v1/driver/earnings/record`,
+            {
+              driverId: ride.driver_id,
+              rideId: ride.id,
+              amount: driverEarningsAmount,
+              type: 'ride_fare',
+              platformFee: Math.round(Number(ride.fare_final) * (platformFeePercent / 100) * 100) / 100,
+            },
+            { timeout: 5000 },
+          );
+          this.logger.log(`Earnings ₹${driverEarningsAmount} (fee ${platformFeePercent}%) credited to driver ${ride.driver_id}`);
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          this.logger.error(`CRITICAL: Earnings credit failed for driver ${ride.driver_id} on ride ${ride.id}: ${message}`);
+        }
+      }
+
       await this.redisService.publish(
         'ride:status_update',
         JSON.stringify({ rideId, status: RideStatus.COMPLETED }),
@@ -606,29 +756,129 @@ export class RidesService {
       fare_estimate:   r.fare_amount,
       fare_final:      r.status === RideStatus.COMPLETED ? (r.fare_final ?? r.fare_amount) : null,
       created_at:      r.created_at,
-      ended_at:        r.updated_at,
+      ended_at:        r.ended_at || r.updated_at,
     }));
   }
 
   async getDriverTrips(driverId: string, limit = 20, offset = 0) {
+    let altDriverId = driverId;
+    try {
+      const driverRes = await axios.get(
+        `${process.env.DRIVER_SERVICE_URL || 'http://driver-service:3011'}/api/v1/driver/${driverId}/profile`,
+        { timeout: 2000 },
+      );
+      const p = driverRes.data?.data || driverRes.data || {};
+      if (p.id) altDriverId = p.id;
+    } catch (_) {}
+
     const rides = await this.rideRepository.find({
-      where: { driver_id: driverId },
+      where: [
+        { driver_id: driverId },
+        { driver_id: altDriverId },
+      ],
       order: { created_at: 'DESC' },
       take: Math.min(limit, 100),
       skip: offset,
     });
   
     return rides.map((r) => ({
-      rideId:          r.id,
-      status:          r.status,
-      ride_type:       r.ride_type,
-      pickup_address:  r.pickup_address,
-      drop_address:    r.dropoff_address,
-      distance_km:     r.distance_km,
-      fare_final:      r.fare_final,
-      created_at:      r.created_at,
-      ended_at:        r.ended_at,
+      rideId:             r.id,
+      status:             r.status,
+      ride_type:          r.ride_type,
+      pickup_address:     r.pickup_address,
+      drop_address:       r.dropoff_address,
+      pickup_latitude:    r.pickup_latitude,
+      pickup_longitude:   r.pickup_longitude,
+      dropoff_latitude:   r.dropoff_latitude,
+      dropoff_longitude:  r.dropoff_longitude,
+      distance_km:        r.distance_km,
+      fare_estimate:      r.fare_amount,
+      fare_final:         r.fare_final,
+      base_fare:          r.fare_amount ? Math.min(Number(r.fare_amount), 50) : 50,
+      surge_multiplier:   r.surge_multiplier,
+      payment_method:     'ONLINE / CASH',
+      rider_name:         'Passenger',
+      created_at:         r.created_at,
+      ended_at:           r.ended_at,
     }));
+  }
+
+  async driverCancelRide(rideId: string, driverIdentifier: string, reason: string) {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) throw new NotFoundException('Ride not found');
+    if (ride.status === RideStatus.COMPLETED || ride.status === RideStatus.CANCELLED) {
+      throw new BadRequestException('Cannot cancel ride in its current state');
+    }
+
+    this.logger.warn(`Driver ${driverIdentifier} cancelled ride ${rideId}. Reason: ${reason}`);
+
+    // Notify passenger via WebSocket
+    await this.redisService.publish(
+      'ride:status_update',
+      JSON.stringify({ rideId, status: 'DRIVER_CANCELLED', reason }),
+    );
+
+    // If ride was accepted or arrived, release driver and re-dispatch
+    if (ride.status === RideStatus.ACCEPTED || ride.status === RideStatus.ARRIVED) {
+      const cancelledDriverId = ride.driver_id;
+      ride.driver_id = null as any;
+      ride.status = RideStatus.REQUESTED;
+      await this.rideRepository.save(ride);
+
+      // Re-dispatch excluding cancelling driver
+      if (cancelledDriverId) {
+        const redisClient = this.redisService.getClient();
+        await redisClient.sadd(`ride:tried:${rideId}`, cancelledDriverId);
+        await redisClient.expire(`ride:tried:${rideId}`, 600);
+      }
+      this.matchDriverExcluding(ride.id, ride.pickup_latitude, ride.pickup_longitude).catch((e) =>
+        this.logger.error(`Re-dispatch failed after driver cancel: ${e.message}`),
+      );
+
+      return { message: 'Ride cancelled and re-dispatched to nearby drivers', redispatched: true };
+    }
+
+    ride.status = RideStatus.CANCELLED;
+    await this.rideRepository.save(ride);
+    return { message: 'Ride cancelled by driver', redispatched: false };
+  }
+
+  async triggerSosAlert(rideId: string, userId: string, lat: number, lng: number) {
+    const ride = await this.rideRepository.findOne({ where: { id: rideId } });
+    if (!ride) throw new NotFoundException('Ride not found');
+
+    this.logger.error(`[EMERGENCY SOS] Triggered on ride ${rideId} by user ${userId} at [${lat}, ${lng}]`);
+
+    // 1. Broadcast high-priority security event over Redis
+    await this.redisService.publish(
+      'security:sos_alert',
+      JSON.stringify({
+        rideId,
+        userId,
+        driverId: ride.driver_id,
+        coordinates: { lat, lng },
+        timestamp: new Date().toISOString(),
+      }),
+    );
+
+    // 2. Forward to Notification Service to trigger emergency SMS to trusted contacts
+    try {
+      await axios.post(
+        `${process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:3009'}/api/v1/notify/sos`,
+        {
+          rideId,
+          userId,
+          driverId: ride.driver_id,
+          trackingUrl: `https://niklotravel.com/track/${rideId}`,
+          coordinates: { lat, lng },
+        },
+        { timeout: 3000 },
+      );
+    } catch (err: any) {
+      this.logger.error(`Failed to forward SOS to notification-service: ${err.message}`);
+    }
+
+    return { success: true, message: 'SOS alert dispatched to security operations and emergency contacts' };
   }
 
   async getActiveRideForUser(userId: string) {

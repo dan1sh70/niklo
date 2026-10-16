@@ -149,6 +149,28 @@ export class RidesController {
     return { success: true, statusCode: 200, data: ride };
   }
 
+  @Post(':id/driver-cancel')
+  @HttpCode(HttpStatus.OK)
+  async driverCancelRide(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+  ) {
+    const data = await this.ridesService.driverCancelRide(id, req.user.id, reason || 'Driver cancelled');
+    return { success: true, statusCode: 200, data };
+  }
+
+  @Post(':id/sos')
+  @HttpCode(HttpStatus.OK)
+  async triggerSos(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { latitude: number; longitude: number },
+  ) {
+    const data = await this.ridesService.triggerSosAlert(id, req.user.id, body.latitude, body.longitude);
+    return { success: true, statusCode: 200, data };
+  }
+
   @Get(':id')
   async getRide(@Param('id') id: string) {
     const data = await this.ridesService.getRideStatus(id);

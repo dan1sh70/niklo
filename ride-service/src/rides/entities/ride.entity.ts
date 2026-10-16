@@ -110,6 +110,12 @@ export class Ride {
   @Column({ type: 'timestamptz', nullable: true })
   started_at: Date;
 
+  @Column({ type: 'int', nullable: true })
+  rating: number;
+
+  @Column({ type: 'text', nullable: true })
+  feedback: string;
+
   @Column({ type: 'timestamptz', nullable: true })
   ended_at: Date;
 }

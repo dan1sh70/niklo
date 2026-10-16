@@ -25,6 +25,9 @@ export class Hotel {
   @Column({ type: 'uuid', nullable: true })
   partnerId: string;
 
+  @Column({ type: 'int', default: 1 })
+  total_rooms_count: number;
+
   @Column({ nullable: true })
   title: string;
 

@@ -45,6 +45,19 @@ export class OperatorsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':id/bookings')
+  async getOperatorBookings(
+    @Param('id', ParseUUIDPipe) operatorId: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('status') status?: string,
+  ) {
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 20;
+    return this.operatorsService.getOperatorBookings(operatorId, pageNum, limitNum, status);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateOperatorDto) {
     return this.operatorsService.update(id, dto);

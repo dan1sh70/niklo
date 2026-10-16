@@ -49,7 +49,7 @@ export class HomeDashboardService {
       where: { partner_id: partnerId, status: 'CONFIRMED' },
     });
 
-    const isVerified = partner.verification_status === 'approved';
+    const isVerified = partner.verification_status?.toUpperCase() === 'APPROVED';
 
     return {
       partnerProfile: {

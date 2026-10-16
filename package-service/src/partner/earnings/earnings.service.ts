@@ -125,8 +125,8 @@ export class EarningsService {
   }
 
   async requestWithdrawal(partnerId: string, amount: number) {
-    if (amount < 1000) {
-      throw new BadRequestException('Minimum withdrawal amount is 1000 INR');
+    if (amount < 500) {
+      throw new BadRequestException('Minimum withdrawal amount is 500 INR');
     }
 
     const pending = await this.withdrawalRequestRepository.findOne({ 
