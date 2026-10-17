@@ -26,6 +26,13 @@ export class BookingsPartnerController {
     return { success: true, message: 'Guest checked in successfully', data };
   }
 
+  @Post(':id/complete')
+  @HttpCode(HttpStatus.OK)
+  async completeBooking(@Req() req: any, @Param('id') id: string) {
+    const data = await this.bookingsService.completeBooking(req.user.id, id);
+    return { success: true, message: 'Activity marked as completed', data };
+  }
+
   @Post(':id/reschedule')
   @HttpCode(HttpStatus.OK)
   async reschedule(@Req() req: any, @Param('id') id: string, @Body() body: any) {

@@ -7,7 +7,8 @@ import { AdventureBooking } from './entities/adventure-booking.entity';
 import { AdventureBookingParticipant } from './entities/adventure-booking-participant.entity';
 import { AdventureBookingInclusion } from './entities/adventure-booking-inclusion.entity';
 import { AdventurePartner } from '../setup/entities/adventure-partner.entity';
-
+import { AdventureTimeSlot } from '../availability/entities/adventure-time-slot.entity';
+import { EarningsService } from '../earnings/earnings.service';
 
 @Injectable()
 export class BookingsPartnerService {
@@ -20,6 +21,9 @@ export class BookingsPartnerService {
     private readonly inclusionRepo: Repository<AdventureBookingInclusion>,
     @InjectRepository(AdventurePartner)
     private readonly partnerRepo: Repository<AdventurePartner>,
+    @InjectRepository(AdventureTimeSlot)
+    private readonly slotRepo: Repository<AdventureTimeSlot>,
+    private readonly earningsService: EarningsService,
   ) {}
 
   private async resolvePartnerId(userId: string): Promise<string> {
@@ -156,6 +160,17 @@ export class BookingsPartnerService {
     const booking = await this.bookingRepo.findOneBy({ id });
     if (!booking) throw new NotFoundException('BOOKING_NOT_FOUND');
     if (booking.partner_id !== partnerId) throw new ForbiddenException('BOOKING_NOT_OWNED');
+
+    // Strict status guards
+    if (['CANCELLED', 'COMPLETED'].includes(booking.status)) {
+      throw new BadRequestException({
+        errorCode: 'INVALID_STATUS_FOR_CHECKIN',
+        message: `Cannot check in a ${booking.status.toLowerCase()} booking`,
+      });
+    }
+    if (booking.status !== 'CONFIRMED') {
+      throw new BadRequestException('Only CONFIRMED bookings can be checked in');
+    }
     if (booking.checked_in_at) throw new ConflictException('ALREADY_CHECKED_IN');
 
     const now = new Date();
@@ -169,6 +184,35 @@ export class BookingsPartnerService {
     };
   }
 
+  async completeBooking(userId: string, id: string) {
+    const partnerId = await this.resolvePartnerId(userId);
+    const booking = await this.bookingRepo.findOneBy({ id });
+    if (!booking) throw new NotFoundException('BOOKING_NOT_FOUND');
+    if (booking.partner_id !== partnerId) throw new ForbiddenException('BOOKING_NOT_OWNED');
+    if (booking.status !== 'CHECKED_IN') {
+      throw new BadRequestException('Only CHECKED_IN bookings can be marked as COMPLETED');
+    }
+
+    const now = new Date();
+    await this.bookingRepo.update(id, {
+      status: 'COMPLETED',
+      completed_at: now,
+    });
+
+    // Credit partner wallet
+    await this.earningsService.creditWalletOnCompletion(
+      partnerId,
+      booking.id,
+      Number(booking.total_amount),
+    );
+
+    return {
+      bookingId: id,
+      status: 'COMPLETED',
+      completedAt: now.toISOString(),
+    };
+  }
+
   async reschedule(userId: string, id: string, dto: any) {
     const partnerId = await this.resolvePartnerId(userId);
     const booking = await this.bookingRepo.findOneBy({ id });
@@ -176,7 +220,38 @@ export class BookingsPartnerService {
     if (booking.partner_id !== partnerId) throw new ForbiddenException('BOOKING_NOT_OWNED');
 
     const newDate = new Date(dto.newDate);
-    if (newDate < new Date()) throw new BadRequestException('New date cannot be in the past');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (newDate < today) throw new BadRequestException('New date cannot be in the past');
+
+    // Verify target slot if exists in partner availability
+    const targetSlot = await this.slotRepo.findOne({
+      where: {
+        activity_id: booking.activity_id,
+        slot_date: dto.newDate,
+        start_time: dto.newTimeSlot,
+      },
+    });
+
+    if (targetSlot) {
+      if (targetSlot.is_closed) {
+        throw new BadRequestException('Selected time slot is currently closed/paused');
+      }
+      const remaining = targetSlot.total_capacity - targetSlot.booked_count;
+      if (remaining < booking.participants_count) {
+        throw new BadRequestException(`Insufficient capacity. Only ${remaining} spots left.`);
+      }
+      await this.slotRepo.increment({ id: targetSlot.id }, 'booked_count', booking.participants_count);
+    }
+
+    // Decrement source slot if exists
+    try {
+      await this.slotRepo.decrement(
+        { activity_id: booking.activity_id, slot_date: booking.booking_date, start_time: booking.time_slot },
+        'booked_count',
+        booking.participants_count,
+      );
+    } catch (e: any) {}
 
     await this.bookingRepo.update(id, {
       is_rescheduled: true,
@@ -192,7 +267,7 @@ export class BookingsPartnerService {
       bookingId: id,
       status: 'CONFIRMED',
       isRescheduled: true,
-      newDate: this.formatDate(dto.newDate),
+      newDate: dto.newDate,
       newTimeSlot: dto.newTimeSlot,
       rescheduledReason: dto.reason,
       customerNotified: dto.notifyCustomer ?? true,

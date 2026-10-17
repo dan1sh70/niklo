@@ -418,18 +418,38 @@ export class BookingsService implements OnApplicationBootstrap {
     } else if (booking.booking_type === BookingType.ADVENTURE && booking.reference_id) {
       try {
         const adventureServiceUrl = process.env.ADVENTURE_SERVICE_URL || 'http://adventure-service:3013';
+        const participants = Array.isArray(booking.passenger_details) ? booking.passenger_details.length : 1;
+        const leadPassenger = Array.isArray(booking.passenger_details) && booking.passenger_details[0];
+        const contactName = (booking as any).contact_name || leadPassenger?.name || leadPassenger?.full_name || 'Adventurer';
+        const contactEmail = (booking as any).contact_email || leadPassenger?.email || '';
+
         await lastValueFrom(
           this.httpService.post(
-            `${adventureServiceUrl}/api/v1/adventures/${booking.reference_id}/confirm-slots`,
-            { 
-              slot_date: booking.travel_date, 
+            `${adventureServiceUrl}/api/v1/adventures/internal/confirm-booking`,
+            {
+              booking_id: booking.id,
+              booking_reference: booking.booking_reference,
+              adventure_id: booking.reference_id,
+              user_id: booking.user_id,
+              slot_date: booking.travel_date,
               time_slot: booking.departure_time,
-              participants: 1 // Ideally coming from booking metadata
+              participants_count: participants,
+              total_amount: Number(booking.total_amount),
+              customer_name: contactName,
+              customer_phone: booking.contact_phone || '',
+              customer_email: contactEmail,
+              passenger_details: booking.passenger_details || [],
             },
-          )
+            {
+              headers: {
+                'x-internal-secret': process.env.INTERNAL_API_SECRET || 'super-secret-internal-key',
+                'Content-Type': 'application/json',
+              },
+            },
+          ),
         );
-      } catch (e) {
-        console.error(`Failed to mark slots booked on adventure-service: ${e.message}`);
+      } catch (e: any) {
+        console.error(`Failed to forward adventure booking to adventure-service: ${e.message}`);
       }
     } else if (booking.booking_type === BookingType.HOTEL && booking.reference_id) {
       try {

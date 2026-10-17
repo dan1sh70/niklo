@@ -10,12 +10,26 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AdventuresService } from './adventures.service';
 
 @Controller('api/v1/adventures')
 export class AdventuresController {
   constructor(private readonly adventuresService: AdventuresService) {}
+
+  @Post('internal/confirm-booking')
+  @HttpCode(HttpStatus.OK)
+  async handleInternalBookingConfirm(
+    @Headers('x-internal-secret') internalSecret: string,
+    @Body() body: any,
+  ) {
+    if (internalSecret !== (process.env.INTERNAL_API_SECRET || 'super-secret-internal-key')) {
+      throw new UnauthorizedException('Invalid internal service token');
+    }
+    return await this.adventuresService.createPartnerBookingFromCustomerOrder(body);
+  }
 
   @Post()
   async create(@Body() createAdventureDto: any) {

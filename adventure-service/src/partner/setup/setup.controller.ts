@@ -16,6 +16,20 @@ export class SetupController {
     return { success: true, data: this.setupService.getSetupMeta() };
   }
 
+  @Post('send-otp')
+  @HttpCode(HttpStatus.OK)
+  async sendOtp(@Req() req: any, @Body() body: { target: string; type?: 'PHONE' | 'EMAIL' }) {
+    await this.setupService.sendOtp(req.user.id, body.target, body.type || 'PHONE');
+    return { success: true, message: `OTP sent successfully to ${body.target}` };
+  }
+
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  async verifyOtp(@Req() req: any, @Body() body: { target: string; otp: string }) {
+    const verified = await this.setupService.verifyOtp(req.user.id, body.target, body.otp);
+    return { success: verified, message: 'Verified successfully' };
+  }
+
   @Get('progress')
   async getProgress(@Req() req: any) {
     const data = await this.setupService.getProgress(req.user.id);

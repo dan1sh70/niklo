@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AdventureEarningsWallet } from './entities/adventure-earnings-wallet.entity';
@@ -9,6 +9,8 @@ import { AdventureBooking } from '../bookings/entities/adventure-booking.entity'
 
 @Injectable()
 export class EarningsService {
+  private readonly logger = new Logger(EarningsService.name);
+
   constructor(
     @InjectRepository(AdventureEarningsWallet)
     private readonly walletRepo: Repository<AdventureEarningsWallet>,
@@ -28,13 +30,84 @@ export class EarningsService {
     return partner.id;
   }
 
-  private async ensureWallet(partnerId: string): Promise<AdventureEarningsWallet> {
+  async ensureWallet(partnerId: string): Promise<AdventureEarningsWallet> {
     let wallet = await this.walletRepo.findOne({ where: { partner_id: partnerId } });
     if (!wallet) {
       wallet = this.walletRepo.create({ partner_id: partnerId });
       wallet = await this.walletRepo.save(wallet);
     }
     return wallet;
+  }
+
+  async creditWalletOnCompletion(partnerId: string, bookingId: string, grossAmount: number): Promise<void> {
+    await this.ensureWallet(partnerId);
+    const commission = Number((grossAmount * 0.10).toFixed(2));
+    const tdsGst = Number((grossAmount * 0.011).toFixed(2));
+    const netEarnings = Number((grossAmount - commission - tdsGst).toFixed(2));
+
+    await this.walletRepo.createQueryBuilder()
+      .update(AdventureEarningsWallet)
+      .set({
+        available_balance: () => `available_balance + ${netEarnings}`,
+        total_net_earnings: () => `total_net_earnings + ${netEarnings}`,
+        total_gross_revenue: () => `total_gross_revenue + ${grossAmount}`,
+      })
+      .where('partner_id = :partnerId', { partnerId })
+      .execute();
+  }
+
+  async processWeeklySettlements(): Promise<void> {
+    this.logger.log('--- [CRON] Starting Adventure Partner Weekly Settlement ---');
+
+    const partners = await this.partnerRepo.find({
+      where: { verification_status: 'APPROVED' },
+    });
+
+    for (const partner of partners) {
+      try {
+        const wallet = await this.walletRepo.findOne({ where: { partner_id: partner.id } });
+        if (!wallet || Number(wallet.available_balance) < 1000) {
+          continue; // Minimum ₹1,000 threshold
+        }
+
+        const bank = await this.bankRepo.findOne({
+          where: { partner_id: partner.id, is_primary: true },
+        });
+        if (!bank) continue;
+
+        const payoutAmount = Number(wallet.available_balance);
+        const grossAmount = Number(wallet.total_gross_revenue);
+        const commissionAmount = Number((grossAmount * 0.10).toFixed(2));
+        const tdsGstAmount = Number((grossAmount * 0.011).toFixed(2));
+        const settlementRef = `SET-ADV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 900 + 100)}`;
+
+        // 1. Create Settlement Record
+        const settlement = this.settlementRepo.create({
+          reference_id: settlementRef,
+          partner_id: partner.id,
+          bank_account_id: bank.id,
+          bank_display_text: `${bank.bank_name} (${bank.account_number_mask})`,
+          gross_amount: grossAmount,
+          net_amount: payoutAmount,
+          commission_amount: commissionAmount,
+          tds_gst_amount: tdsGstAmount,
+          total_bookings_count: 0,
+          status: 'PROCESSING',
+        });
+        await this.settlementRepo.save(settlement);
+
+        // 2. Reset Available Balance & record payout timestamp
+        await this.walletRepo.update(wallet.id, {
+          available_balance: 0,
+          total_withdrawn: Number(wallet.total_withdrawn || 0) + payoutAmount,
+          last_payout_at: new Date(),
+        });
+      } catch (err: any) {
+        this.logger.error(`Settlement failed for partner ${partner.id}: ${err.message}`);
+      }
+    }
+
+    this.logger.log('--- [CRON] Completed Adventure Partner Weekly Settlement ---');
   }
 
   async getAnalytics(userId: string, query: any) {

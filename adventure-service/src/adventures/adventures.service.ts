@@ -4,6 +4,11 @@ import { Repository } from 'typeorm';
 import { TravelAdventure } from './entities/adventure.entity';
 import { AdventureReview } from './entities/adventure-review.entity';
 import { AdventureSlot } from './entities/adventure-slot.entity';
+import { AdventureActivity } from '../partner/activities/entities/adventure-activity.entity';
+import { AdventurePartner } from '../partner/setup/entities/adventure-partner.entity';
+import { AdventureTimeSlot } from '../partner/availability/entities/adventure-time-slot.entity';
+import { AdventureBooking } from '../partner/bookings/entities/adventure-booking.entity';
+import { AdventureBookingParticipant } from '../partner/bookings/entities/adventure-booking-participant.entity';
 
 @Injectable()
 export class AdventuresService implements OnApplicationBootstrap {
@@ -14,7 +19,93 @@ export class AdventuresService implements OnApplicationBootstrap {
     private readonly reviewRepository: Repository<AdventureReview>,
     @InjectRepository(AdventureSlot)
     private readonly slotRepository: Repository<AdventureSlot>,
+    @InjectRepository(AdventureActivity)
+    private readonly activityRepo: Repository<AdventureActivity>,
+    @InjectRepository(AdventurePartner)
+    private readonly partnerRepo: Repository<AdventurePartner>,
+    @InjectRepository(AdventureTimeSlot)
+    private readonly timeSlotRepo: Repository<AdventureTimeSlot>,
+    @InjectRepository(AdventureBooking)
+    private readonly partnerBookingRepo: Repository<AdventureBooking>,
+    @InjectRepository(AdventureBookingParticipant)
+    private readonly participantRepo: Repository<AdventureBookingParticipant>,
   ) {}
+
+  async createPartnerBookingFromCustomerOrder(data: any) {
+    // 1. Locate activity to identify partner owner
+    let partnerId: string | null = null;
+    const activity = await this.activityRepo.findOne({ where: { id: data.adventure_id } });
+    if (activity) {
+      partnerId = activity.partner_id;
+    } else {
+      // Fallback: check legacy adventure table
+      const adv = await this.adventureRepository.findOne({ where: { id: data.adventure_id } });
+      partnerId = (adv as any)?.partner_id || (adv as any)?.operator_id || null;
+    }
+
+    if (!partnerId) {
+      // If no partner assigned, query default approved partner or first available
+      const defaultPartner = await this.partnerRepo.findOne({ where: { verification_status: 'APPROVED' } }) 
+        || await this.partnerRepo.findOne({});
+      partnerId = defaultPartner?.id || 'a0000000-0000-0000-0000-000000000001';
+    }
+
+    // 2. Increment booked count on slot if exists in partner availability
+    try {
+      await this.timeSlotRepo.createQueryBuilder()
+        .update(AdventureTimeSlot)
+        .set({ booked_count: () => `booked_count + ${data.participants_count || 1}` })
+        .where('activity_id = :actId AND slot_date = :slotDate AND start_time = :timeSlot', {
+          actId: data.adventure_id,
+          slotDate: data.slot_date,
+          timeSlot: data.time_slot,
+        })
+        .execute();
+    } catch (e: any) {
+      // Non-fatal if specific time slot row does not exist yet
+    }
+
+    // 3. Create AdventureBooking entity
+    const booking = this.partnerBookingRepo.create({
+      booking_number: data.booking_reference || `ADV-${Date.now().toString().slice(-6)}`,
+      partner_id: partnerId,
+      activity_id: data.adventure_id,
+      user_id: data.user_id,
+      booking_date: data.slot_date,
+      time_slot: data.time_slot || '10:00 AM',
+      participants_count: data.participants_count || 1,
+      customer_name: data.customer_name || 'Adventurer',
+      customer_phone: data.customer_phone || '',
+      customer_email: data.customer_email || '',
+      total_amount: Number(data.total_amount) || 0,
+      payment_status: 'PAID',
+      status: 'CONFIRMED',
+    });
+    const savedBooking = await this.partnerBookingRepo.save(booking);
+
+    // 4. Save individual participants
+    if (data.passenger_details && Array.isArray(data.passenger_details) && data.passenger_details.length > 0) {
+      const participants = data.passenger_details.map((p: any) =>
+        this.participantRepo.create({
+          booking_id: savedBooking.id,
+          full_name: p.name || p.full_name || 'Participant',
+          age: Number(p.age) || 25,
+          gender: p.gender || 'MALE',
+        })
+      );
+      await this.participantRepo.save(participants);
+    } else {
+      const defaultParticipant = this.participantRepo.create({
+        booking_id: savedBooking.id,
+        full_name: data.customer_name || 'Participant',
+        age: 25,
+        gender: 'ADULT',
+      });
+      await this.participantRepo.save(defaultParticipant);
+    }
+
+    return { success: true, bookingId: savedBooking.id };
+  }
 
   async onApplicationBootstrap() {
     const count = await this.adventureRepository.count();
